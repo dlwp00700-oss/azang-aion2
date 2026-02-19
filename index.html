@@ -379,34 +379,34 @@
             </div>
         </div>
         <div id="tab-pet" class="tab-content">
-            <div class="pet-calc-container">
-                <div class="pet-calc-title">
-                    <span>🐾 펫 종족 이해도 종합 계산기</span>
-                    <span style="font-size:11px; font-weight:normal; color:#888;">* 1회 분석당 영혼결정 1개 = 몹 1마리 처치 기준</span>
+            <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:900px; margin:0 auto;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #2a2a35; padding-bottom:15px; margin-bottom:20px;">
+                    <h2 style="margin:0; color:#ce93d8; font-size:20px;">🐾 펫 종족 이해도 종합 계산기</h2>
                 </div>
-                
-                <div style="font-size:12px; color:#ff5252; margin-bottom:15px; text-align:right; font-weight:bold;">
-                    * 옵션을 잠그면 클릭당 필요 재화가 상승하고, 획득 경험치가 감소합니다!
-                </div>
-                
-                <div id="petInputArea"></div>
-
-                <div class="pet-result-box">
-                    <div class="pr-card">
-                        <div class="pr-card-title">필요한 총 클릭(분석) 횟수</div>
-                        <div class="pr-card-val" id="petResClicks">0회</div>
+                <table style="width:100%; border-collapse:collapse; margin-bottom:25px;">
+                    <thead>
+                        <tr style="color:#888; font-size:12px; border-bottom:1px solid #222;">
+                            <th style="padding:10px;">카테고리</th>
+                            <th>현재 레벨</th>
+                            <th>현재 경험치</th>
+                            <th>목표 레벨</th>
+                            <th>잠금 옵션</th>
+                        </tr>
+                    </thead>
+                    <tbody id="petTableBody"></tbody>
+                </table>
+                <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:15px; margin-top:20px;">
+                    <div class="pr-card" style="background:#1a1a20; border:1px solid #333; border-radius:10px; padding:15px; text-align:center;">
+                        <i style="display:block; font-style:normal; font-size:11px; color:#888; margin-bottom:5px;">총 분석 횟수</i><b id="res_clicks" style="font-size:18px;">0회</b>
                     </div>
-                    <div class="pr-card">
-                        <div class="pr-card-title">💎 필요 영혼결정</div>
-                        <div class="pr-card-val" id="petResCrystal">0개</div>
+                    <div class="pr-card" style="background:#1a1a20; border:1px solid #333; border-radius:10px; padding:15px; text-align:center;">
+                        <i style="display:block; font-style:normal; font-size:11px; color:#888; margin-bottom:5px;">필요 영혼결정</i><b id="res_crystal" style="font-size:18px;">0개</b>
                     </div>
-                    <div class="pr-card">
-                        <div class="pr-card-title">💰 필요 키나</div>
-                        <div class="pr-card-val" id="petResKinah">0</div>
+                    <div class="pr-card" style="background:#1a1a20; border:1px solid #333; border-radius:10px; padding:15px; text-align:center;">
+                        <i style="display:block; font-style:normal; font-size:11px; color:#888; margin-bottom:5px;">필요 키나</i><b id="res_kinah" style="font-size:18px;">0</b>
                     </div>
-                    <div class="pr-card pr-total">
-                        <div class="pr-card-title">⚔️ 닥사 필요 몹 수</div>
-                        <div class="pr-card-val" id="petResMobs">0마리</div>
+                    <div class="pr-card" style="background:rgba(255,202,40,0.1); border:1px solid #ffca28; border-radius:10px; padding:15px; text-align:center;">
+                        <i style="display:block; font-style:normal; font-size:11px; color:#888; margin-bottom:5px;">필요 몹 수</i><b id="res_mobs" style="font-size:18px; color:#ffca28;">0마리</b>
                     </div>
                 </div>
             </div>
@@ -1663,84 +1663,55 @@
     }
 
     // ==========================================
-    // 🐾 펫 종족 이해도 계산 로직
-    // ==========================================
-    const PET_CATEGORIES = ['지성', '야성', '자연', '변형', '특수'];
-    const EXP_TABLE = [0, 1000, 3000, 6000, 10000, 20000, 40000, 80000, 140000, 200000, 0];
-    const LOCK_PENALTY = [
-        {c:0, k:0}, {c:5, k:1000}, {c:5, k:1000}, {c:20, k:4000}, 
-        {c:45, k:9000}, {c:95, k:19000}, {c:95, k:19000}, {c:95, k:19000}, {c:95, k:19000}, {c:95, k:19000}
-    ];
+    // 🐾 펫 계산기 데이터 및 로직
+    const PET_CATS = [{n:'지성',c:'#4fc3f7'}, {n:'야성',c:'#ff5252'}, {n:'자연',c:'#69f0ae'}, {n:'변형',c:'#ce93d8'}, {n:'특수',c:'#ffca28'}];
+    const PET_EXP = [0, 1000, 3000, 6000, 10000, 20000, 40000, 80000, 140000, 200000];
+    const PET_PENALTY = [{c:0,k:0},{c:5,k:1000},{c:5,k:1000},{c:20,k:4000},{c:45,k:9000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000}];
 
-    function renderPetInputs() {
-        let html = `<div style="display:grid; grid-template-columns: 60px 1fr 1fr 1fr 1fr; gap:10px; margin-bottom:5px; font-size:11px; color:#888; text-align:center;">
-            <div>카테고리</div><div>현재 레벨</div><div>현재 경험치</div><div>목표 레벨</div><div>잠금 개수</div>
-        </div>`;
-        
-        PET_CATEGORIES.forEach((name, idx) => {
-            let lockOpts = ''; for(let i=0; i<=9; i++) lockOpts += `<option value="${i}">${i}개 잠금</option>`;
-            html += `
-            <div class="pet-row">
-                <label style="color:${['#4fc3f7','#ff5252','#69f0ae','#ce93d8','#ffca28'][idx]}">${name}</label>
-                <input type="number" id="p_curLv_${idx}" value="1" min="1" max="10" oninput="calcPetTotal()">
-                <input type="number" id="p_curExp_${idx}" value="0" min="0" oninput="calcPetTotal()" placeholder="0">
-                <input type="number" id="p_tarLv_${idx}" value="1" min="1" max="10" oninput="calcPetTotal()">
-                <select id="p_lock_${idx}" onchange="calcPetTotal()">${lockOpts}</select>
-            </div>`;
+    function initPetCalc() {
+        let html = '';
+        PET_CATS.forEach((cat, i) => {
+            html += `<tr style="background:#0a0a0c; border-bottom:1px solid #1a1a20;">
+                <td style="padding:10px; text-align:center; font-weight:bold; color:${cat.c}">${cat.n}</td>
+                <td><input type="number" id="curLv_${i}" value="1" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
+                <td><input type="number" id="curExp_${i}" value="0" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
+                <td><input type="number" id="tarLv_${i}" value="1" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
+                <td><select id="lock_${i}" style="width:90%; background:#111; border:1px solid #333; color:#fff; padding:5px;" onchange="runPetCalc()"><option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option></select></td>
+            </tr>`;
         });
-        document.getElementById('petInputArea').innerHTML = html;
-        calcPetTotal();
+        document.getElementById('petTableBody').innerHTML = html;
     }
 
-    function calcPetTotal() {
-        let tClicks = 0, tCrystal = 0, tKinah = 0;
-
+    function runPetCalc() {
+        let tC = 0, tCry = 0, tK = 0;
         for(let i=0; i<5; i++) {
-            let curLv = parseInt(document.getElementById(`p_curLv_${i}`).value) || 1;
-            let curExp = parseInt(document.getElementById(`p_curExp_${i}`).value) || 0;
-            let tarLv = parseInt(document.getElementById(`p_tarLv_${i}`).value) || 1;
-            let locks = parseInt(document.getElementById(`p_lock_${i}`).value) || 0;
-
-            if(curLv >= tarLv) continue;
-
-            for(let lv = curLv; lv < tarLv; lv++) {
-                let expNeeded = EXP_TABLE[lv];
-                if(lv === curLv) expNeeded -= curExp; 
-                if(expNeeded <= 0) continue;
-
-                let openSlots = lv - locks;
-                if(openSlots <= 0) continue; // 불가능한 잠금 설정 시 무시
-
-                let expPerClick = openSlots * 100;
-                let clicks = Math.ceil(expNeeded / expPerClick);
-
-                let baseCrystal = lv * 5;
-                let baseKinah = lv * 1000;
-                let penalty = LOCK_PENALTY[locks] || {c:0, k:0};
-
-                tClicks += clicks;
-                tCrystal += clicks * (baseCrystal + penalty.c);
-                tKinah += clicks * (baseKinah + penalty.k);
+            let clv = parseInt(document.getElementById(`curLv_${i}`).value) || 1;
+            let cex = parseInt(document.getElementById(`curExp_${i}`).value) || 0;
+            let tlv = parseInt(document.getElementById(`tarLv_${i}`).value) || 1;
+            let lock = parseInt(document.getElementById(`lock_${i}`).value) || 0;
+            if(clv >= tlv) continue;
+            for(let v = clv; v < tlv; v++) {
+                let req = (v === clv) ? (PET_EXP[v] - cex) : PET_EXP[v];
+                if(req <= 0) continue;
+                let slot = v - lock;
+                if(slot <= 0) continue;
+                let click = Math.ceil(req / (slot * 100));
+                tC += click;
+                tCry += click * (v * 5 + PET_PENALTY[lock].c);
+                tK += click * (v * 1000 + PET_PENALTY[lock].k);
             }
         }
-
-        document.getElementById('petResClicks').innerText = tClicks.toLocaleString() + '회';
-        document.getElementById('petResCrystal').innerText = tCrystal.toLocaleString() + '개';
-        document.getElementById('petResKinah').innerText = tKinah.toLocaleString();
-        document.getElementById('petResMobs').innerText = tCrystal.toLocaleString() + '마리';
+        document.getElementById('res_clicks').innerText = tC.toLocaleString() + '회';
+        document.getElementById('res_crystal').innerText = tCry.toLocaleString() + '개';
+        document.getElementById('res_kinah').innerText = tK.toLocaleString();
+        document.getElementById('res_mobs').innerText = tCry.toLocaleString() + '마리';
     }
-
-    window.onload = () => {
-        updateServerList();
-        loadStatPreset(1, true); 
-        renderFavorites(); 
-        renderPetInputs(); // 펫 계산기 화면 그리기 실행!
-    };
-    document.querySelectorAll('.stat-input-group input').forEach(input => { 
-        input.addEventListener('input', updateDeltaDashboard); 
-    });
+    // 기존 window.onload에 추가
+    const oldLoad = window.onload;
+    window.onload = () => { if(oldLoad) oldLoad(); initPetCalc(); };
 </script>
 
 </body>
 </html>
+
 
