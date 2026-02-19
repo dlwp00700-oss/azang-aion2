@@ -1666,7 +1666,7 @@
     // 🐾 펫 계산기 데이터 및 로직
     const PET_CATS = [{n:'지성',c:'#4fc3f7'}, {n:'야성',c:'#ff5252'}, {n:'자연',c:'#69f0ae'}, {n:'변형',c:'#ce93d8'}, {n:'특수',c:'#ffca28'}];
     const PET_EXP = [0, 1000, 3000, 6000, 10000, 20000, 40000, 80000, 140000, 200000];
-    const PET_PENALTY = [{c:0,k:0},{c:5,k:1000},{c:5,k:1000},{c:20,k:4000},{c:45,k:9000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000}];
+    const PET_PENALTY = [{c:0,k:0},{c:5,k:1000},{c:5,k:1000},{c:20,k:4000},{c:45,k:9000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000}];
 
     function initPetCalc() {
         let html = '';
@@ -1676,7 +1676,7 @@
                 <td><input type="number" id="curLv_${i}" value="1" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
                 <td><input type="number" id="curExp_${i}" value="0" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
                 <td><input type="number" id="tarLv_${i}" value="1" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
-                <td><select id="lock_${i}" style="width:90%; background:#111; border:1px solid #333; color:#fff; padding:5px;" onchange="runPetCalc()"><option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option></select></td>
+                <td><select id="lock_${i}" style="width:90%; background:#111; border:1px solid #333; color:#fff; padding:5px;" onchange="runPetCalc()"><option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option><option value="6">6개</option><option value="7">7개</option><option value="8">8개</option></select></td>
             </tr>`;
         });
         document.getElementById('petTableBody').innerHTML = html;
@@ -1713,5 +1713,6 @@
 
 </body>
 </html>
+
 
 
