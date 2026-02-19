@@ -393,17 +393,7 @@
 </div>
 
 <script>
-    // ★ 안전한 단일 프록시 서버 통신 모듈
-    async function apiFetch(endpoint, params = {}) {
-        let url = `/api/proxy?endpoint=${encodeURIComponent(endpoint)}`;
-        for (let key in params) {
-            url += `&${key}=${encodeURIComponent(params[key])}`;
-        }
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("API 연동 에러가 발생했습니다.");
-        return await response.json();
-    }
-
+    const API_BASE = "/api";
     let currentEquipData = []; 
     let simulationState = {}; 
     let activeSlotIndex = -1;
@@ -530,7 +520,8 @@
         if (serverListCache.length === 0) {
             try {
                 serverSelect.innerHTML = `<option value="">🌐 서버 불러오는 중...</option>`;
-                const data = await apiFetch('servers'); // 프록시 사용
+                const res = await fetch(`${API_BASE}/servers`);
+                const data = await res.json();
                 serverListCache = data.serverList || [];
             } catch (e) {
                 serverSelect.innerHTML = `<option value="">서버 목록 실패 (유스티엘로 검색됨)</option>`;
@@ -682,7 +673,8 @@
         selectionDiv.style.display = 'none'; 
 
         try {
-            const listData = await apiFetch('searchList', { name: name, race: race, serverId: serverId }); // 프록시 사용
+            const listRes = await fetch(`${API_BASE}/searchList?name=${encodeURIComponent(name)}&race=${race}&serverId=${serverId}`);
+            const listData = await listRes.json();
             const charList = listData.contents || listData.list || [];
 
             if (charList.length === 0) { statusMsg.innerHTML = "❌ 검색된 캐릭터가 없습니다."; return; }
@@ -737,7 +729,8 @@
         statusMsg.innerHTML = `⏳ [${characterName}] 분석 중...`;
 
         try {
-            const data = await apiFetch('characterDetail', { characterId: characterId, serverId: serverId }); // 프록시 사용
+            const detailRes = await fetch(`${API_BASE}/characterDetail?characterId=${encodeURIComponent(characterId)}&serverId=${serverId}`);
+            const data = await detailRes.json();
             
             const statList = data.stat?.statList || data.info?.stat?.statList || [];
             
@@ -997,9 +990,10 @@
         try {
             queriesToRun = queriesToRun.slice(0, 10);
             
-            // ★ 프록시 서버 연동
             const fetchPromises = queriesToRun.map(q => 
-                apiFetch('searchDictItem', { keyword: q }).catch(e => ({ list: [] }))
+                fetch(`${API_BASE}/searchDictItem?keyword=${encodeURIComponent(q)}`)
+                    .then(res => res.json())
+                    .catch(e => ({ list: [] }))
             );
 
             const results = await Promise.all(fetchPromises);
@@ -1058,8 +1052,8 @@
         const brk = parseInt(document.getElementById('wbBrk').value) || 0;
         
         try {
-            const data = await apiFetch('getDictItemDetail', { id: id, enchantLevel: enh, exceedLevel: brk }); // 프록시 사용
-            currentNewItemAPIData = data;
+            const res = await fetch(`${API_BASE}/getDictItemDetail?id=${id}&enchantLevel=${enh}&exceedLevel=${brk}`);
+            currentNewItemAPIData = await res.json();
             document.getElementById('dictResultArea').style.display = 'none';
             
             renderNewCardValues(); 
