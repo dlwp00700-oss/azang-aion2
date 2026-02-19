@@ -411,64 +411,7 @@
                 </div>
             </div>
         </div>
-        <div id="tab-abyss" class="tab-content">
-    <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:1000px; margin:0 auto;">
-        <div style="background:linear-gradient(90deg, #1a1a24 0%, #0a0a0c 100%); border:1px solid #4fc3f7; border-radius:10px; padding:20px; margin-bottom:25px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <h3 style="margin:0; color:#4fc3f7; font-size:14px;">📅 현재 시즌 누적 어포 한도 (2026-02-20 기준)</h3>
-                <div id="limit_display" style="font-size:24px; font-weight:bold; color:#fff; margin-top:5px;">5,000,000 AP</div>
-            </div>
-            <div style="text-align:right;">
-                <div style="font-size:12px; color:#888;">다음 갱신일: 2월 25일(수)</div>
-                <div style="font-size:14px; color:#69f0ae; font-weight:bold;">+500,000 AP 충전 예정</div>
-            </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:20px;">
-            <div>
-                <h3 style="font-size:14px; color:#ffca28; margin-top:0;">1. 파밍 목표 장비 (다중 선택 가능)</h3>
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <select id="aby_rank" style="flex:1; padding:8px; background:#111; color:#fff; border:1px solid #444;" onchange="updateAbyTarget()">
-                        <option value="10">십부장</option><option value="100">백부장</option>
-                        <option value="1000">천부장</option><option value="10000">군단장</option>
-                    </select>
-                    <select id="aby_part" style="flex:1; padding:8px; background:#111; color:#fff; border:1px solid #444;" onchange="updateAbyTarget()">
-                        <option value="weapon">무기/가더</option><option value="top">흉갑</option>
-                        <option value="bottom">각반</option><option value="head">투구</option>
-                        <option value="shoulder">견갑</option><option value="glove">장갑</option>
-                        <option value="shoe">장화</option><option value="cloak">망토</option>
-                        <option value="neck">목걸이</option><option value="ear">귀걸이</option><option value="ring">반지</option>
-                    </select>
-                </div>
-                <button onclick="addToCart()" style="width:100%; padding:10px; background:#4fc3f7; color:#000; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-bottom:15px;">🛒 장바구니에 담기</button>
-                
-                <div id="aby_cart_list" style="background:#0a0a0c; border:1px solid #333; border-radius:8px; min-height:150px; padding:10px;">
-                    <p style="text-align:center; color:#444; font-size:12px; margin-top:60px;">장바구니가 비어있습니다.</p>
-                </div>
-            </div>
-
-            <div>
-                <h3 style="font-size:14px; color:#4fc3f7; margin-top:0;">2. 내 현재 자원 정보</h3>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#0a0a0c; padding:15px; border-radius:8px; border:1px solid #333;">
-                    <div style="grid-column: span 2;">
-                        <label style="font-size:11px; color:#888;">내 현재 보유 어포</label>
-                        <input type="number" id="my_ap" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; font-size:16px;" oninput="calcAbyss()">
-                        <div id="remain_limit_text" style="font-size:11px; color:#ff5252; margin-top:5px;">한도까지 남은 획득 가능 어포: 5,000,000 AP</div>
-                    </div>
-                    <div><label style="font-size:11px; color:#888;">보유 은/금/백금 훈장</label><input type="number" id="my_medal" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff;" oninput="calcAbyss()"></div>
-                    <div><label style="font-size:11px; color:#888;">주간 평균 획득 어포</label><input type="number" id="week_ap" value="300000" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff;" oninput="calcAbyss()"></div>
-                    <div style="grid-column: span 2; border-top:1px solid #222; padding-top:10px; margin-top:5px;">
-                        <label style="font-size:12px; color:#ccc;"><input type="checkbox" id="buy_medal_ap" onchange="calcAbyss()" checked> 주간 어포로 훈장 구매(10개)</label><br>
-                        <label style="font-size:12px; color:#ccc;"><input type="checkbox" id="make_medal" onchange="calcAbyss()" checked> 주간 훈장 제작 시도(20회)</label>
-                    </div>
-                </div>
-
-                <div style="margin-top:20px; background:rgba(0,230,118,0.05); border:1px solid #00e676; border-radius:10px; padding:20px; text-align:center;">
-                    <div style="font-size:13px; color:#aaa; margin-bottom:5px;">모든 목표 달성까지</div>
-                    <div id="aby_res_time" style="font-size:32px; font-weight:bold; color:#fff;">0주</div>
-                    <div id="aby_res_desc" style="font-size:12px; color:#888; margin-top:8px;">-</div>
-                </div>
-            </div>
+       
         </div>
     </div>
 </div>
@@ -1903,6 +1846,7 @@
 
 </body>
 </html>
+
 
 
 
