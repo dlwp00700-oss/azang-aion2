@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="아이온2 장비 시뮬레이터 아장(AZANG). 장비 교체 시 전투력, 딜량, 방어력을 미리 계산해보세요. 영혼각인, 마석 시뮬레이션 완벽 지원.">
+    <meta name="keywords" content="아이온2, 장비 시뮬레이터, 전투력 계산기, 아이온2 템셋팅, 아장, AZANG, 영혼각인, 마석">
+    <meta property="og:title" content="아장(AZANG) - 아이온2 장비 분석 시뮬레이터">
+    <meta property="og:description" content="내 캐릭터 장비 교체 시뮬레이션! 딜량 상승과 생존력을 1초 만에 계산합니다.">
+    
+    <title>아장(AZANG) - 아이온2 장비 분석 도우미</title>
+
+    <style>
+        :root { --bg: #0a0a0c; --panel: #141418; --border: #2a2a35; --accent: #00e676; --accent-hover: #00c853; --pos: #69f0ae; --neg: #ff5252; --text: #e0e0e0; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); padding: 0; font-size: 13px; margin: 0; overflow-x: hidden; }
+        
+        .main-wrapper { display: flex; justify-content: center; align-items: flex-start; gap: 20px; padding: 15px 20px; max-width: 100vw; box-sizing: border-box; }
+        .container { flex: 1; max-width: 1600px; transition: 0.3s; width: 100%; min-width: 0; }
+        
+        .side-ad-area { width: 160px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; display: flex; align-items: center; }
+        .ad-banner-box { width: 160px; height: 600px; background: #0f0f11; border: 1px dashed #333; color: #555; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 12px; font-weight: bold; border-radius: 8px; }
+
+        @media (max-width: 1550px) { .side-ad-area { display: none; } }
+
+        .home-mode .logo-container { margin: 80px auto 40px; width: 400px; max-width: 90%; cursor: pointer; transition: 0.3s; }
+        .dash-mode .logo-container { margin: 10px auto 20px; width: 250px; cursor: pointer; transition: 0.3s; }
+        .logo-container img { width: 100%; height: auto; display: block; }
+        .home-mode #mainDashboard { display: none; }
+        .dash-mode #mainDashboard { display: grid; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .ad-banner { background: #0f0f11; border: 1px dashed #333; color: #555; text-align: center; padding: 20px; margin: 0 auto 20px auto; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; }
+        .ad-top { max-width: 728px; height: 90px; }
+        .ad-bottom { max-width: 728px; height: 90px; margin-top: 40px; }
+
+        .search-bar { background: var(--panel); border: 1px solid var(--border); padding: 15px; border-radius: 8px; display: flex; gap: 15px; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4); margin-bottom: 20px; max-width: 900px; margin-left: auto; margin-right: auto; transition: 0.3s;}
+        .search-bar select, .search-bar input { background: #0f0f11; border: 1px solid #333; color: white; padding: 10px; border-radius: 6px; font-size: 14px; }
+        .search-bar input { flex: 1; }
+        .btn-search { background: var(--accent); color: #000; font-weight: bold; border: none; padding: 10px 25px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.2s; }
+        .btn-search:hover { background: var(--accent-hover); }
+
+        #favoritesBar { max-width: 900px; margin: 0 auto 20px auto; }
+        #characterSelection { max-width: 900px; margin: 0 auto 20px auto; }
+
+        .layout-grid { display: grid; grid-template-columns: 500px 1fr; gap: 20px; align-items: start; }
+        .c-window { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px;}
+        .sec-title { font-size: 16px; font-weight: bold; color: #4fc3f7; border-bottom: 1px dashed #333; padding-bottom: 10px; margin-bottom: 15px; display:flex; justify-content:space-between; align-items:flex-end;}
+        .cp-display-box { background: rgba(41, 182, 246, 0.1); border: 1px solid rgba(41, 182, 246, 0.4); border-radius: 6px; padding: 15px; text-align: center; margin-bottom: 15px; }
+
+        .stat-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px;}
+        .stat-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;}
+        
+        .stat-input-group { display: flex; flex-direction: column; gap: 4px; }
+        .stat-input-group label { font-size: 11px; color: #aaa; text-align:left;}
+        .stat-input-group input { background: #0f0f11; border: 1px solid #333; color: #ccc; padding: 10px; border-radius: 4px; font-weight: bold; text-align: left; font-size: 14px; width: 100%; box-sizing:border-box; transition:0.2s;}
+        .stat-input-group input:focus { border-color: #4fc3f7; }
+        .highlight-label { color: #ffca28 !important; font-weight:bold; }
+
+        .equip-list-container { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
+        .equip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .equip-grid::-webkit-scrollbar { width: 6px; }
+        .equip-grid::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+        .equip-card { background: #111; border: 1px solid #333; border-radius: 8px; padding: 12px; cursor: pointer; transition: 0.2s; position: relative; }
+        .equip-card:hover { border-color: var(--accent); background: #1a1a20; }
+        .equip-card.active { border: 2px solid var(--accent); box-shadow: 0 0 15px rgba(0,230,118,0.2); background: #15221a; }
+        .equip-card.simulated { border-color: #ff9800; }
+        .sim-badge { display: none; position: absolute; top: 5px; right: 5px; background: #ff9800; color: #000; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
+        .equip-card.simulated .sim-badge { display: block; }
+        .item-header { display: flex; align-items: center; gap: 10px; }
+        .item-icon { width: 44px; height: 44px; border-radius: 6px; border: 1px solid #444; background: #000; object-fit: cover; }
+        .eq-title { font-size: 13px; font-weight: bold; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .eq-enh { color: #fff; margin-right: 4px; }
+        .diamond-container { display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+        .diamond-pip { width: 6px; height: 6px; background: #333; transform: rotate(45deg); border: 1px solid #555;}
+        .diamond-pip.active { background: #ffca28; border-color: #ffd54f; box-shadow: 0 0 4px rgba(255,202,40,0.8); }
+
+        .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .dash-card { background: #111; border: 1px solid #333; border-radius: 8px; padding: 20px; }
+        .dash-header { text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #444; }
+        .dash-section-title { font-size: 12px; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #222; padding-bottom: 4px; }
+        .d-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #aaa; align-items: center;}
+        .d-val { font-size: 14px; font-weight: bold; color: #fff; }
+        .d-result-box { border: 1px solid #004d40; background: rgba(0, 230, 118, 0.05); padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+        .d-final-text { text-align: center; font-weight: bold; font-size: 16px; margin-top: 15px; }
+        .pos { color: var(--pos); } .neg { color: var(--neg); } .neu { color: #888; }
+
+        .workbench { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+        .wb-title { font-size: 16px; font-weight: bold; color: #ffca28; border-bottom: 1px dashed #444; padding-bottom: 10px; margin-bottom: 15px; display:flex; justify-content:space-between; align-items:center;}
+        .empty-wb { text-align: center; padding: 150px 0; color: #666; font-size: 15px; }
+        .sim-input, .sim-select { background: #0f0f11; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 13px; }
+        .btn-inherit { background: #ffb300; color: #000; border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; cursor: pointer; transition: 0.2s;}
+        .btn-inherit:hover { background: #ffca28; }
+        .btn-dict-search { background: #4fc3f7; color: #000; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s;}
+        .btn-dict-search:hover { background: #29b6f6; }
+        .btn-apply { width: 100%; padding: 15px; background: var(--accent); color: #000; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0, 230, 118, 0.3); margin-top: 15px;}
+        .btn-apply:hover { background: var(--accent-hover); }
+        .btn-reset { background: #ff5252; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;}
+
+        .compare-container { display: flex; gap: 15px; align-items: stretch; margin-top: 15px; }
+        .card-box { flex: 1; background: #0a0a0c; border: 1px solid #333; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; }
+        .card-box.new-card { border-color: #00e676; background: #0d1a12; }
+        .card-header { text-align: center; font-weight: bold; padding-bottom: 8px; border-bottom: 1px dashed #444; margin-bottom: 10px; }
+        .stat-group { background: #111; border-radius: 6px; padding: 10px; border: 1px solid #222; margin-bottom: 10px;}
+        .stat-group-title { font-size: 12px; font-weight: bold; margin-bottom: 8px; border-bottom: 1px dashed #444; padding-bottom: 4px; display:flex; justify-content:space-between; align-items:center; }
+        .sg-base { color: #4fc3f7; }
+        .sg-engrave { color: #ce93d8; }
+        .stat-row { display: flex; justify-content: space-between; font-size: 12px; color: #ccc; padding: 4px 0;}
+        .stat-row span:last-child { font-weight: bold; color: #fff;}
+        .stat-row.positive span:last-child { color: var(--pos); }
+        .dict-result-area { max-height: 350px; overflow-y: auto; background: #0f0f11; border: 1px solid #444; border-radius: 6px; margin-top: 10px; display: none; }
+        .dict-item { padding: 10px; border-bottom: 1px solid #222; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s;}
+        .dict-item:hover { background: #1a1a24; }
+        
+        .eng-row { display: flex; gap: 5px; margin-bottom: 6px; align-items: center; }
+        .eng-row select { background: #111; border: 1px solid #444; color: #ccc; padding: 8px; border-radius: 4px; font-size: 12px; flex: 2; }
+        .eng-row input { background: #111; border: 1px solid #444; color: #ccc; padding: 8px; border-radius: 4px; font-size: 12px; flex: 1; min-width: 0;}
+        .btn-max { background: #69f0ae; color: #000; border: none; padding: 0 8px; height: 33px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;}
+        .btn-max:hover { background: #00e676; }
+
+        .filter-label { display:flex; align-items:center; gap:4px; cursor:pointer; color:#ccc; }
+        .filter-label input[type="checkbox"] { margin:0; cursor:pointer; }
+        .filter-label:hover { color:#fff; }
+
+        /* ★ SEO 가이드 박스 및 푸터 스타일 추가 */
+        .seo-guide-box { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; margin-top: 20px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        .seo-guide-box summary { font-size: 14px; font-weight: bold; color: #ffca28; cursor: pointer; outline: none; }
+        .seo-content { margin-top: 15px; color: #ccc; font-size: 13px; line-height: 1.6; border-top: 1px dashed #333; padding-top: 15px; }
+        .seo-content h4 { color: #4fc3f7; margin-bottom: 8px; font-size: 14px; margin-top: 15px; }
+        .seo-content ul { padding-left: 20px; margin-bottom: 15px; }
+        .seo-content p { margin-bottom: 10px; }
+
+        .site-footer { margin-top: 40px; padding: 30px 20px; text-align: center; border-top: 1px solid #222; background: #0a0a0c; color: #888; font-size: 12px; line-height: 1.8; }
+        .footer-links a { color: #aaa; text-decoration: none; margin: 0 10px; transition: 0.2s; }
+        .footer-links a:hover { color: #fff; text-decoration: underline; }
+        .footer-copy { margin-top: 10px; font-weight: bold; color: #aaa; }
+        .footer-desc { margin-top: 5px; font-size: 11px; color: #666; }
+    </style>
+</head>
+<body id="appBody" class="home-mode">
+
+<div class="main-wrapper">
+    <div class="side-ad-area">
+        <div class="ad-banner-box">[광고]<br>좌측 배너 영역<br>(160x600)</div>
+    </div>
+
+    <div class="container">
+        <div class="ad-banner ad-top">[광고] 상단 배너 영역 (728x90)</div>
+
+        <div class="logo-container" onclick="goToHome()">
+            <img src="logo.png" alt="AZANG 아장 - 아이온2 장비 분석 도우미" onerror="this.style.display='none'; this.parentElement.innerHTML='<h1 style=\'color:#00e676; font-size:40px; text-align:center;\'>AZANG</h1><p style=\'text-align:center;\'>아이온2 장비 분석 도우미</p>';">
+        </div>
+
+        <div class="search-bar">
+            <select id="searchFaction" onchange="updateServerList()">
+                <option value="1">🕊️ 천족</option>
+                <option value="2">🦇 마족</option>
+            </select>
+            <select id="searchServer">
+                <option value="">🌐 전체 서버 로딩 중...</option>
+            </select>
+            <input type="text" id="charNameInput" placeholder="캐릭터명을 입력하세요." onkeypress="if(event.keyCode==13) searchCharacter()">
+            <button class="btn-search" onclick="searchCharacter()">내 캐릭터 불러오기</button>
+            <span id="statusMsg" style="color: #aaa; margin-left: 10px;">* 서버 연동 완료</span>
+        </div> 
+        
+        <div id="favoritesBar" style="background: var(--panel); border: 1px solid var(--border); padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+            <span style="color:#ffca28; font-weight:bold; font-size:14px;">⭐ 즐겨찾기</span>
+            <div id="favoriteList" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;"></div>
+        </div>
+
+        <div id="characterSelection" style="display:none; background: #141418; padding: 20px; border-radius: 8px; border: 1px solid #4fc3f7; box-shadow: 0 0 15px rgba(79, 195, 247, 0.2);">
+            <h3 style="color: #4fc3f7; margin-top: 0; margin-bottom: 15px; font-size: 16px;">🔍 검색된 캐릭터 목록 (선택 시 바로 로드)</h3>
+            <div id="selectionList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;"></div>
+        </div>
+
+        <div class="layout-grid" id="mainDashboard">
+            <div>
+                <div class="c-window" style="padding-bottom: 10px;">
+                    <div class="sec-title" style="align-items: center;">
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <span style="font-size:16px; font-weight:bold; color:#4fc3f7;">📊 내 캐릭터 실제 스탯 (C창)</span>
+                            <span style="color:#ffca28; font-size:11px; font-weight:normal;">* 장비 변경 전 기준 스탯을 직접 입력하세요.</span>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <div style="display:flex; flex-direction:column; gap:4px;">
+                                <button onclick="saveStatPreset(1)" style="background:#4fc3f7; color:#000; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; transition:0.2s;">💾 저장 1</button>
+                                <button onclick="loadStatPreset(1)" style="background:#2a2a35; color:#ccc; border:1px solid #444; padding:4px 12px; border-radius:4px; cursor:pointer; font-size:11px; transition:0.2s;" onmouseover="this.style.borderColor='#4fc3f7'; this.style.color='#4fc3f7'" onmouseout="this.style.borderColor='#444'; this.style.color='#ccc'">📂 로드</button>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:4px;">
+                                <button onclick="saveStatPreset(2)" style="background:#4fc3f7; color:#000; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; transition:0.2s;">💾 저장 2</button>
+                                <button onclick="loadStatPreset(2)" style="background:#2a2a35; color:#ccc; border:1px solid #444; padding:4px 12px; border-radius:4px; cursor:pointer; font-size:11px; transition:0.2s;" onmouseover="this.style.borderColor='#4fc3f7'; this.style.color='#4fc3f7'" onmouseout="this.style.borderColor='#444'; this.style.color='#ccc'">📂 로드</button>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:4px;">
+                                <button onclick="saveStatPreset(3)" style="background:#4fc3f7; color:#000; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; transition:0.2s;">💾 저장 3</button>
+                                <button onclick="loadStatPreset(3)" style="background:#2a2a35; color:#ccc; border:1px solid #444; padding:4px 12px; border-radius:4px; cursor:pointer; font-size:11px; transition:0.2s;" onmouseover="this.style.borderColor='#4fc3f7'; this.style.color='#4fc3f7'" onmouseout="this.style.borderColor='#444'; this.style.color='#ccc'">📂 로드</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="cp-display-box">
+                        <div style="color:#4fc3f7; font-weight:bold; font-size:12px; margin-bottom:5px;">🔥 현재 총 전투력 (CP)</div>
+                        <input type="hidden" id="baseCp" value="0">
+                        <div id="cpDiffDisplay" style="font-size:24px; font-weight:bold; color:#fff;">0 ➡ 0 (-)</div>
+                    </div>
+
+                    <div class="dash-section-title" style="color:#ffca28; margin-top:10px;">⚔️ 내 캐릭터 공격 스탯</div>
+                    <div class="stat-grid-3">
+                        <div class="stat-input-group"><label>총 공격력(표기)</label><input type="number" id="baseAtk" value="1630"></div>
+                        <div class="stat-input-group"><label class="highlight-label">일반 피해 증폭(%)</label><input type="number" id="baseAmp" value="39.6"></div>
+                        <div class="stat-input-group"><label>무기/스킬 피증(%)</label><input type="number" id="baseWAmp" value="0"></div>
+                        <div class="stat-input-group"><label>PVE 추가 피증(%)</label><input type="number" id="basePveAmp" value="0"></div>
+                        <div class="stat-input-group"><label>PVP 추가 피증(%)</label><input type="number" id="basePvpAmp" value="0"></div>
+                        <div class="stat-input-group"><label>치명피증(%)</label><input type="number" id="baseCritDmg" value="0"></div>
+                    </div>
+
+                    <div class="dash-section-title" style="color:#69f0ae; margin-top:15px;">🛡️ 내 캐릭터 방어 스탯</div>
+                    <div class="stat-grid-3">
+                        <div class="stat-input-group"><label>총 방어력</label><input type="number" id="baseDef" value="2000"></div>
+                        <div class="stat-input-group"><label>총 생명력</label><input type="number" id="baseHp" value="15000"></div>
+                        <div class="stat-input-group"><label>일반 피해 내성(%)</label><input type="number" id="baseGenRes" value="0"></div>
+                        <div class="stat-input-group"><label>PVE 피해 내성(%)</label><input type="number" id="basePveRes" value="0"></div>
+                        <div class="stat-input-group"><label>PVP 피해 내성(%)</label><input type="number" id="basePvpRes" value="0"></div>
+                        <div class="stat-input-group" style="visibility:hidden;"><input type="number"></div>
+                    </div>
+
+                    <details style="margin-top:15px; background:#111; padding:10px; border-radius:6px; border:1px solid #333;">
+                        <summary style="color:#ce93d8; font-weight:bold; cursor:pointer; font-size:12px;">🧬 주요/특수 스탯 연동 (클릭하여 열기)</summary>
+                        <div style="margin-top:10px; color:#aaa; font-size:11px; margin-bottom:12px; line-height:1.4;">
+                            * 장비 교체로 인해 아래 스탯이 변동될 때, 공식에 맞게 <b>실질 딜량과 생존력 대시보드에 자동 반영</b>됩니다.
+                        </div>
+                        <div style="color:#fff; font-size:11px; margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid #222;">기본 스탯 (1당 0.1% 효율 부여)</div>
+                        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom:12px;">
+                            <div class="stat-input-group"><label>위력</label><input type="number" id="basePower" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>민첩</label><input type="number" id="baseAgi" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>정확</label><input type="number" id="baseAccStat" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>의지</label><input type="number" id="baseWill" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>지식</label><input type="number" id="baseKnow" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>체력</label><input type="number" id="baseVit" value="0" style="padding:6px; font-size:12px;"></div>
+                        </div>
+                        <div style="color:#fff; font-size:11px; margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid #222;">특수 스탯 (1당 0.2 효율 부여)</div>
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px;">
+                            <div class="stat-input-group"><label>파괴</label><input type="number" id="baseDest" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>죽음</label><input type="number" id="baseDeath" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>지혜</label><input type="number" id="baseWis" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>운명</label><input type="number" id="baseDestiny" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>공간</label><input type="number" id="baseSpace" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>시간</label><input type="number" id="baseTime" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>생명</label><input type="number" id="baseLife" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>환상</label><input type="number" id="baseIllusion" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>자유</label><input type="number" id="baseFreedom" value="0" style="padding:6px; font-size:12px;"></div>
+                            <div class="stat-input-group"><label>정의</label><input type="number" id="baseJustice" value="0" style="padding:6px; font-size:12px;"></div>
+                        </div>
+                    </details>
+
+                    <div class="dash-section-title" style="color:#ff9800; margin-top:20px;">🎯 상대방(적/보스) 스탯 가정 <span style="font-size:10px; font-weight:normal; color:#aaa;">* 방어력 차감 계산에 필요합니다.</span></div>
+                    <div class="stat-grid-3">
+                        <div class="stat-input-group"><label style="color:#ffca28;">적 표기 공격력</label><input type="number" id="enemyAtk" value="8000" style="border-color:#ffca28; color:#ffca28;"></div>
+                        <div class="stat-input-group"><label style="color:#ff5252;">적 일반 피증(%)</label><input type="number" id="enemyAmp" value="20" style="border-color:#ff5252; color:#ff5252;"></div>
+                        <div class="stat-input-group"><label style="color:#ff5252;">적 PVP 피증(%)</label><input type="number" id="enemyPvpAmp" value="10" style="border-color:#ff5252; color:#ff5252;"></div>
+                        
+                        <div class="stat-input-group" style="visibility:hidden;"><input type="number"></div>
+                        <div class="stat-input-group"><label style="color:#4fc3f7;">적 일반 피해 내성(%)</label><input type="number" id="enemyGenRes" value="30" style="border-color:#4fc3f7; color:#4fc3f7;"></div>
+                        <div class="stat-input-group"><label style="color:#4fc3f7;">적 PVP 피해 내성(%)</label><input type="number" id="enemyPvpRes" value="10" style="border-color:#4fc3f7; color:#4fc3f7;"></div>
+                    </div>
+                </div>
+
+                <div class="equip-list-container">
+                    <div class="sec-title">
+                        <span>🛡️ 장착 중인 장비 목록</span>
+                        <span style="color:#888; font-size:11px; font-weight:normal;">* 카드를 클릭하여 교체</span>
+                    </div>
+                    <div id="equipResultArea" class="equip-grid">
+                        <div style="grid-column: 1/-1; text-align: center; padding: 80px 0; color: #666;">캐릭터를 검색하면 핵심 장비가 표시됩니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="dash-container">
+                    <div class="dash-card">
+                        <div class="dash-header" style="color:#ce93d8; display:flex; justify-content:space-between; align-items:center;">
+                            <span>👾 PVE (몬스터 사냥)</span>
+                            <label style="font-size:11px; color:#fff; cursor:pointer; background:#332a00; padding:4px 8px; border-radius:4px; border:1px solid #ffca28;">
+                                <input type="checkbox" id="isAbyssToggle" onchange="updateDeltaDashboard()"> 어비스/시련
+                            </label>
+                        </div>
+                        
+                        <div class="dash-section-title" style="color:#ffca28;">⚔️ 공격 능력</div>
+                        <div class="d-row"><span>최종 표기 공격력</span> <span class="d-val" id="pve-atk">0 ➡ 0</span></div>
+                        <div class="d-row"><span>총 피증 (세트 포함)</span> <span class="d-val" id="pve-amp">0.0% ➡ 0.0%</span></div>
+                        <div class="d-row"><span>적용 배율 (피증 × 내성감소)</span> <span class="d-val" id="pve-mult">1.000x ➡ 1.000x</span></div>
+                        <div class="d-result-box" style="margin-top:5px; padding:10px;">
+                            <span style="color:#00e676; font-weight:bold;">피증 반영 실질 공격력</span>
+                            <span class="d-val" style="font-size:18px;" id="pve-real-atk">0 ➡ 0</span>
+                        </div>
+                        <div class="d-final-text" id="pve-final-dps" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
+
+                        <div class="dash-section-title" style="color:#69f0ae; margin-top:20px;">🛡️ 방어 / 생존 능력</div>
+                        <div class="d-row"><span>최종 방어력</span> <span class="d-val" id="pve-def">0 ➡ 0</span></div>
+                        <div class="d-row"><span>최종 생명력</span> <span class="d-val" id="pve-hp">0 ➡ 0</span></div>
+                        <div class="d-row"><span>적 내성관통 후 데미지</span> <span class="d-val" id="pve-incoming">0 ➡ 0</span></div>
+                        
+                        <div class="d-result-box" style="border-color:#69f0ae; background:rgba(105, 240, 174, 0.05); margin-top:5px; padding:10px;">
+                            <span style="color:#69f0ae; font-weight:bold;">실제 1타당 피격 데미지 <span style="font-size:10px; font-weight:normal;">(낮을수록 좋음)</span></span>
+                            <span class="d-val" style="font-size:18px;" id="pve-dmg-taken">0 ➡ 0</span>
+                        </div>
+                        <div class="d-final-text" id="pve-final-surv" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
+                    </div>
+                    
+                    <div class="dash-card">
+                        <div class="dash-header" style="color:#ff9800;">⚔️ PVP (유저 전투)</div>
+                        
+                        <div class="dash-section-title" style="color:#ffca28;">⚔️ 공격 능력</div>
+                        <div class="d-row"><span>최종 표기 공격력</span> <span class="d-val" id="pvp-atk">0 ➡ 0</span></div>
+                        <div class="d-row"><span>총 피증 (세트 포함)</span> <span class="d-val" id="pvp-amp">0.0% ➡ 0.0%</span></div>
+                        <div class="d-row"><span>적용 배율 (피증 × 내성감소)</span> <span class="d-val" id="pvp-mult">1.000x ➡ 1.000x</span></div>
+                        <div class="d-result-box" style="border-color:#ff9800; background:rgba(255, 152, 0, 0.05); margin-top:5px; padding:10px;">
+                            <span style="color:#ff9800; font-weight:bold;">피증 반영 실질 공격력</span>
+                            <span class="d-val" style="font-size:18px;" id="pvp-real-atk">0 ➡ 0</span>
+                        </div>
+                        <div class="d-final-text" id="pvp-final-dps" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
+
+                        <div class="dash-section-title" style="color:#69f0ae; margin-top:20px;">🛡️ 방어 / 생존 능력</div>
+                        <div class="d-row"><span>최종 방어력</span> <span class="d-val" id="pvp-def">0 ➡ 0</span></div>
+                        <div class="d-row"><span>최종 생명력</span> <span class="d-val" id="pvp-hp">0 ➡ 0</span></div>
+                        <div class="d-row"><span>적 내성관통 후 데미지</span> <span class="d-val" id="pvp-incoming">0 ➡ 0</span></div>
+                        
+                        <div class="d-result-box" style="border-color:#69f0ae; background:rgba(105, 240, 174, 0.05); margin-top:5px; padding:10px;">
+                            <span style="color:#69f0ae; font-weight:bold;">실제 1타당 피격 데미지 <span style="font-size:10px; font-weight:normal;">(낮을수록 좋음)</span></span>
+                            <span class="d-val" style="font-size:18px;" id="pvp-dmg-taken">0 ➡ 0</span>
+                        </div>
+                        <div class="d-final-text" id="pvp-final-surv" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
+                    </div>
+                </div>
+
+                <div class="workbench" id="workbench">
+                    <div class="empty-wb">
+                        <div style="font-size:40px; margin-bottom:15px;">🛠️</div>
+                        왼쪽 목록에서 <b>변경하고 싶은 장비</b>를 클릭하세요.
+                    </div>
+                </div>
+
+                <details class="seo-guide-box">
+                    <summary>📖 아장(AZANG) 시뮬레이터 사용 가이드 및 전투력 공식 (클릭하여 내용 보기)</summary>
+                    <div class="seo-content">
+                        <h4>1. 아장(AZANG) 장비 분석 시뮬레이터란?</h4>
+                        <p>아이온2 유저들을 위한 최적의 템셋팅 계산기입니다. 캐릭터의 현재 스탯과 장비를 불러온 뒤, 교체할 장비와 영혼 각인(마석) 수치를 입력하면 최종 PVE/PVP 실질 데미지와 생존력(피격 데미지 감소율)을 정확하게 시뮬레이션해 줍니다.</p>
+                        
+                        <h4>2. 시뮬레이터 100% 활용 방법</h4>
+                        <ul>
+                            <li><strong>내 캐릭터 불러오기:</strong> 상단 검색창에 서버와 캐릭터명을 입력하여 내 정보를 스캔합니다.</li>
+                            <li><strong>자동 스탯 연동:</strong> '주요/특수 스탯 연동' 탭에서 파괴, 죽음, 시간, 공간 등의 특수 스탯이 딜량/방어력 공식에 자동 반영됩니다.</li>
+                            <li><strong>장비 교체 시뮬레이션:</strong> 착용 중인 장비를 클릭하고, 우측 사전에서 새로 맞출 장비를 검색하세요. 무기 8종 및 방어구 13개 부위 완벽 필터링을 지원합니다.</li>
+                        </ul>
+
+                        <h4>3. 아이온2 전투력(CP) 및 템렙 52점의 비밀</h4>
+                        <p>인게임 템렙과 일반 API의 수치 차이를 아장(AZANG)이 완벽하게 해결했습니다. 아이템 레벨은 <strong>[기본 레벨] + [강화 수치(+1)] + [돌파 수치(+5)] + [마석 등급별 점수]</strong>로 산정됩니다.</p>
+                        <p>* 마석 등급 가중치: 유일/영웅(노란색) +4점, 전설(파란색) +3점, 희귀(초록색) +2점, 일반(흰색) +1점 (무기 및 가더는 기본 +5점 추가 보정)</p>
+
+                        <h4>4. 실질 방어력 및 생존 타수 공식</h4>
+                        <p>단순히 '피해 내성 %'만 보여주는 것을 넘어, 실질적인 데미지 감쇄 수치를 계산합니다. <br>
+                        <strong>최종 피격 데미지 = (적 타격 데미지 × 상대 피증 × 내 내성 감쇄율) - (내 방어력 / 10)</strong><br>
+                        아장 시뮬레이터는 이 공식을 바탕으로 내가 몬스터나 유저에게 몇 대를 더 버틸 수 있는지(EHP, 유효 생명력)를 직관적으로 분석합니다.</p>
+                    </div>
+                </details>
+
+            </div>
+        </div>
+
+        <div class="ad-banner ad-bottom">
+            [광고] 하단 배너 영역 (728x90)
+        </div>
+        
+        <footer class="site-footer">
+            <div class="footer-links">
+                <a href="https://aion2.plaync.com/" target="_blank">AION2 공식 홈페이지</a> | 
+                <a href="#">이용약관</a> | 
+                <a href="#">개인정보처리방침</a> | 
+                <a href="https://discord.gg/N3EV4pxf" target="_blank">1:1 문의 (Discord)</a>
+            </div>
+            <div class="footer-copy">© 2026 AZANG (아장) - 아이온2 장비 시뮬레이터. All rights reserved.</div>
+            <div class="footer-desc">
+                본 사이트는 (주)엔씨소프트와 무관한 비공식 팬 사이트입니다.<br>
+                This site is not associated with NCsoft Corporation. AION2 is a trademark of NCSOFT.
+            </div>
+        </footer>
+
+    </div>
+
+    <div class="side-ad-area">
+        <div class="ad-banner-box">[광고]<br>우측 배너 영역<br>(160x600)</div>
+    </div>
+
+</div>
+
+<script>
+    const API_BASE = "/api";
+    let currentEquipData = []; 
+    let simulationState = {}; 
+    let activeSlotIndex = -1;
+    let activeCategoryInfo = null;
+    let currentNewItemAPIData = null;
+
+    const EXCLUDE_KEYWORDS = ['아르카나', '룬', '아뮬렛', '양피지', '나침반', '종', '거울', '성배', '팔찌', '외형', '명화', '날개', '돌파석', '계승석', '조율석', '강화석', '마석', '신석', '도안', '레시피', '상자', '주화'];
+
+    const CATEGORY_MAP = [
+        { key: 'w_longsword', label: '장검', match: ['장검'], queries: ['장검'] },
+        { key: 'w_greatsword', label: '대검', match: ['대검'], queries: ['대검'] },
+        { key: 'w_dagger', label: '단검', match: ['단검', '비수'], queries: ['단검'] },
+        { key: 'w_bow', label: '활', match: ['활', '장궁', '궁'], queries: ['활'] },
+        { key: 'w_spellbook', label: '법서', match: ['법서'], queries: ['법서'] },
+        { key: 'w_orb', label: '보주', match: ['보주'], queries: ['보주'] },
+        { key: 'w_mace', label: '전곤', match: ['전곤', '망치'], queries: ['전곤'] },
+        { key: 'w_staff', label: '법봉', match: ['법봉', '멸곤'], queries: ['법봉'] },
+        { key: 'guarder', label: '가더', match: ['가더', '방패'], queries: ['가더'] },
+        { key: 'head', label: '투구', match: ['투구','머리','모자','관'], queries: ['투구','머리','모자'] },
+        { key: 'top', label: '상의', match: ['상의','흉갑','튜닉','조끼','로브','가죽'], queries: ['상의','흉갑','튜닉','조끼'] },
+        { key: 'bottom', label: '하의', match: ['하의','각반','바지'], queries: ['하의','각반','바지'] },
+        { key: 'shoulder', label: '견갑', match: ['견갑','어깨','어깨갑옷'], queries: ['견갑','어깨'] },
+        { key: 'glove', label: '장갑', match: ['장갑'], queries: ['장갑'] },
+        { key: 'shoe', label: '신발', match: ['신발','장화'], queries: ['신발','장화'] },
+        { key: 'cloak', label: '망토', match: ['망토'], queries: ['망토'] },
+        { key: 'necklace', label: '목걸이', match: ['목걸이'], queries: ['목걸이'] },
+        { key: 'earring', label: '귀걸이', match: ['귀걸이'], queries: ['귀걸이'] },
+        { key: 'ring', label: '반지', match: ['반지'], queries: ['반지'] }
+    ];
+
+    const STAT_KEYS = ["atk", "acc", "amp", "pvpAmp", "pveAmp", "crit", "critDmg", "critAddDmg", "critRes", "hp", "mp", "def", "spd", "multiHit", "shockHit", "power", "agi", "acc_stat", "will", "know", "vit", "dest", "death", "wis", "destiny", "space", "time_stat", "life", "illusion", "freedom", "justice", "rearAtk", "block", "evasion", "wAmp", "atkPct", "defPct", "bossAmp", "raceAmp", "pveRes", "pvpRes", "genRes", "hpPct", "statusRes", "statusAcc"];
+    
+    const ENGRAVE_GROUPS = {
+        weapon: ["atk", "atkPct", "acc", "amp", "wAmp", "pvpAmp", "pveAmp", "crit", "critDmg", "critAddDmg", "spd", "power", "acc_stat", "dest", "death", "wis", "bossAmp", "raceAmp", "multiHit", "shockHit", "rearAtk"],
+        armor: ["def", "defPct", "hp", "hpPct", "mp", "critRes", "pveRes", "pvpRes", "genRes", "agi", "vit", "will", "space", "life", "justice", "evasion", "block"],
+        accessory: ["atk", "def", "acc", "crit", "amp", "pvpAmp", "pveAmp", "spd", "know", "destiny", "time_stat", "illusion", "freedom", "statusRes", "statusAcc"]
+    };
+
+    function mapStatName(name) {
+        if(!name) return null;
+        if(name.includes("공격력 증가")) return "atkPct";
+        if(name.includes("방어력 증가")) return "defPct";
+        if(name === "공격력" || name === "물리 공격력" || name === "마법 공격력") return "atk";
+        if(name === "명중" || name === "물리 명중" || name === "마법 명중") return "acc";
+        if(name === "피해 증폭") return "amp";
+        if(name === "무기 피해 증폭") return "wAmp";
+        if(name.includes("PVP") && name.includes("피해 증폭")) return "pvpAmp";
+        if(name.includes("PVE") && name.includes("피해 증폭")) return "pveAmp";
+        if(name.includes("치명타 피해 증폭")) return "critDmg";
+        if(name.includes("치명타 공격력")) return "critAddDmg";
+        if(name.includes("보스 피해 증폭")) return "bossAmp";
+        if(name.includes("종족 피해 증폭")) return "raceAmp";
+        if(name.includes("몬스터 피해 내성") || name.includes("PVE 피해 내성")) return "pveRes";
+        if(name.includes("PVP 피해 내성")) return "pvpRes";
+        if(name === "피해 내성" || name === "일반 피해 내성") return "genRes";
+        
+        if(name === "위력" || name === "STR") return "power";
+        if(name === "민첩" || name === "DEX") return "agi";
+        if(name === "정확" || name === "AGI") return "acc_stat";
+        if(name === "의지" || name === "WIS") return "will";
+        if(name === "지식" || name === "INT") return "know";
+        if(name === "체력" || name === "CON") return "vit";
+        
+        if(name === "파괴" || name === "Destruction") return "dest";
+        if(name === "죽음" || name === "Death") return "death";
+        if(name === "지혜" || name === "Wisdom") return "wis";
+        if(name === "운명" || name === "Destiny") return "destiny";
+        if(name === "공간" || name === "Space") return "space";
+        if(name === "시간" || name === "Time") return "time_stat";
+        if(name === "생명" || name === "Life") return "life";
+        if(name === "환상" || name === "Illusion") return "illusion";
+        if(name === "자유" || name === "Freedom") return "freedom";
+        if(name === "정의" || name === "Justice") return "justice";
+
+        if(name === "치명타" || name === "물리 치명타" || name === "마법 치명타") return "crit";
+        if(name === "치명타 저항" || name === "CriticalResist") return "critRes";
+        if(name.includes("생명력")) return "hp";
+        if(name.includes("정신력")) return "mp";
+        if(name === "방어력" || name === "물리 방어력" || name === "마법 방어력") return "def";
+        if(name.includes("전투 속도")) return "spd";
+        return null;
+    }
+
+    const STAT_LABEL = { atk:"공격력", acc:"명중", amp:"피해 증폭(%)", wAmp:"무기 피증(%)", pvpAmp:"PVP 피증(%)", pveAmp:"PVE 피증(%)", crit:"치명타", critDmg:"치명타 피해 증폭(%)", critAddDmg:"치명타 공격력", critRes:"치명 저항", hp:"생명력", mp:"정신력", def:"방어력", spd:"전투 속도(%)", power:"위력", agi:"민첩", acc_stat:"정확", will:"의지", know:"지식", vit:"체력", dest:"파괴", death:"죽음", wis:"지혜", destiny:"운명", space:"공간", time_stat:"시간", life:"생명", illusion:"환상", freedom:"자유", justice:"정의", atkPct:"공격력 증가(%)", defPct:"방어력 증가(%)", bossAmp:"보스 피증(%)", raceAmp:"종족 피증(%)", pveRes:"PVE 내성(%)", pvpRes:"PVP 내성(%)", genRes:"일반 내성(%)" };
+
+    function findData(obj, key) {
+        if (!obj || typeof obj !== 'object') return null;
+        if (key in obj) return obj[key];
+        for (let k in obj) { const res = findData(obj[k], key); if (res) return res; }
+        return null;
+    }
+
+    function getGradeColor(grade) {
+        if (grade === "Unique") return "#ffca28"; 
+        if (grade === "Hero" || grade === "Epic") return "#ff9800"; 
+        if (grade === "Rare") return "#69f0ae"; 
+        return "#fff";
+    }
+
+    function getSmartCategory(item) {
+        if (!item) return null;
+        let cName = item.categoryName || "";
+        let iName = item.name || "";
+        let combined = cName + " " + iName;
+
+        for (let cat of CATEGORY_MAP) {
+            if (cat.match.some(m => combined.includes(m))) return cat;
+        }
+
+        if (iName.endsWith('검')) return CATEGORY_MAP.find(c => c.key === 'w_longsword');
+        if (iName.endsWith('도')) return CATEGORY_MAP.find(c => c.key === 'w_dagger');
+        if (iName.endsWith('활') || iName.endsWith('궁')) return CATEGORY_MAP.find(c => c.key === 'w_bow');
+        if (iName.endsWith('곤')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
+        if (iName.endsWith('서')) return CATEGORY_MAP.find(c => c.key === 'w_spellbook');
+        if (iName.endsWith('주')) return CATEGORY_MAP.find(c => c.key === 'w_orb');
+        if (iName.endsWith('치')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
+        
+        return null;
+    }
+
+    function goToHome() {
+        document.getElementById('appBody').className = 'home-mode';
+        document.getElementById('characterSelection').style.display = 'none';
+        document.getElementById('statusMsg').innerHTML = "* 서버 연동 완료";
+        document.getElementById('charNameInput').value = '';
+    }
+
+    let serverListCache = [];
+    
+    async function updateServerList() {
+        const faction = parseInt(document.getElementById('searchFaction').value);
+        const serverSelect = document.getElementById('searchServer');
+        if (serverListCache.length === 0) {
+            try {
+                serverSelect.innerHTML = `<option value="">🌐 서버 불러오는 중...</option>`;
+                const res = await fetch(`${API_BASE}/servers`);
+                const data = await res.json();
+                serverListCache = data.serverList || [];
+            } catch (e) {
+                serverSelect.innerHTML = `<option value="">서버 목록 실패 (유스티엘로 검색됨)</option>`;
+                return;
+            }
+        }
+        let html = `<option value="">🌐 전체 서버 검색</option>`;
+        const filtered = serverListCache.filter(s => s.raceId === faction);
+        filtered.forEach(s => { html += `<option value="${s.serverId}">${s.serverName}</option>`; });
+        serverSelect.innerHTML = html;
+    }
+
+    function getSetName(itemName) {
+        if(!itemName) return null;
+        if(itemName.includes("백부장")) return "백부장";
+        if(itemName.includes("천부장")) return "천부장";
+        if(itemName.includes("십부장")) return "십부장";
+        if(itemName.includes("군단장")) return "군단장";
+        return null;
+    }
+
+    function calcSetEffects(counts) {
+        let eff = { pvpAmp: 0, pveAmp: 0, abyssPveAmp: 0 };
+        const rules = {
+            "십부장": { 2: {pve:-5, ab:10}, 5: {pve:-5, ab:10}, 8: {pve:-5, ab:10}, 12: {pve:-5, ab:10} },
+            "백부장": { 2: {pvp:5, pve:-5, ab:10}, 5: {pve:-5, ab:10}, 8: {pve:-5, ab:10}, 12: {pve:-5, ab:10} },
+            "천부장": { 2: {pvp:5, pve:-5, ab:10}, 5: {pve:-5, ab:10}, 8: {pvp:5, pve:-5, ab:10}, 12: {pve:-5, ab:10} },
+            "군단장": { 2: {pvp:6, pve:-5, ab:10}, 5: {pve:-5, ab:10}, 8: {pvp:6, pve:-5, ab:10}, 12: {pve:-5, ab:10} }
+        };
+        for(let set in counts) {
+            let count = counts[set];
+            if(rules[set]) {
+                for(let req in rules[set]) {
+                    if(count >= parseInt(req)) {
+                        eff.pvpAmp += rules[set][req].pvp || 0;
+                        eff.pveAmp += rules[set][req].pve || 0;
+                        eff.abyssPveAmp += rules[set][req].ab || 0;
+                    }
+                }
+            }
+        }
+        return eff;
+    }
+
+    function extractBaseStats(eq, overrideBrk) {
+        let stats = {}; 
+        let displayLines = []; 
+        if(!eq) return { total: stats, display: displayLines };
+
+        const mStats = findData(eq, 'mainStats') || [];
+        const FIXED_STATS = ["pvpAmp", "pveAmp", "amp", "wAmp", "spd", "atkPct", "defPct", "bossAmp", "raceAmp", "pveRes", "pvpRes", "genRes"]; 
+        let seenNames = new Set(); 
+
+        mStats.forEach(st => {
+            let name = st.name || "능력치";
+            let bVal = parseFloat((st.value||"0").toString().replace(/[^0-9.]/g, ''))||0;
+            let eVal = parseFloat((st.extra||"0").toString().replace(/[^0-9.]/g, ''))||0;
+
+            let k = mapStatName(name) || mapStatName(st.id) || name; 
+            let isFixed = FIXED_STATS.includes(k);
+
+            if (!seenNames.has(name) && !name.includes("증가")) {
+                seenNames.add(name);
+                stats[k] = (stats[k] || 0) + (bVal + (isFixed ? 0 : eVal)); 
+                displayLines.push({ name: name, bVal: bVal, eVal: eVal, isFixed: isFixed, isOrange: false });
+            }
+        });
+
+        let brkLvl = parseInt(overrideBrk !== undefined ? overrideBrk : (eq.exceedLevel || 0));
+        
+        if (brkLvl > 0) {
+            let catObj = getSmartCategory(eq);
+            let catKey = catObj ? catObj.key : 'w_longsword';
+            let brkStats = [];
+
+            if (catKey.startsWith('w_') || catKey === 'guarder') {
+                brkStats = [ {k:'atk', n:'공격력', v:30*brkLvl}, {k:'atkPct', n:'공격력 증가', v:1*brkLvl, pct:true} ];
+            } else if (['necklace', 'earring', 'ring'].includes(catKey)) {
+                brkStats = [ {k:'atk', n:'공격력', v:20*brkLvl}, {k:'def', n:'방어력', v:40*brkLvl}, {k:'atkPct', n:'공격력 증가', v:1*brkLvl, pct:true} ];
+            } else { 
+                brkStats = [ {k:'def', n:'방어력', v:80*brkLvl}, {k:'hp', n:'생명력', v:80*brkLvl}, {k:'defPct', n:'방어력 증가', v:1*brkLvl, pct:true} ];
+            }
+
+            brkStats.forEach(s => {
+                stats[s.k] = (stats[s.k] || 0) + s.v; 
+                displayLines.push({ name: s.n, bVal: s.v, eVal: 0, isFixed: true, isOrange: true, forcePct: s.pct });
+            });
+        }
+
+        return { total: stats, display: displayLines };
+    }
+
+    function extractEngraveStats(eq) {
+        let stats = {}; 
+        if(!eq) return stats;
+        const sStats = findData(eq, 'subStats') || [];
+        sStats.forEach(st => {
+            let sVal = parseFloat((st.value||"0").toString().replace(/[^0-9.]/g, ''))||0;
+            let rawName = st.name;
+            let k = mapStatName(rawName) || mapStatName(st.id) || rawName; 
+            stats[k] = (stats[k] || 0) + sVal;
+        });
+        return stats;
+    }
+
+    function calculateEquippedCP(eq) {
+        let baseLv = parseInt(eq.level || eq.itemLevel || eq.equipLevel || 0);
+        let enh = parseInt(eq.enchantLevel || 0);
+        let brk = parseInt(eq.exceedLevel || 0);
+        
+        let catObj = getSmartCategory(eq);
+        let isWepGua = catObj && (catObj.key.startsWith('w_') || catObj.key === 'guarder');
+        
+        let total = baseLv + (enh * 1) + (brk * 5) + (isWepGua ? 5 : 0);
+        
+        if (eq.magicStoneStat && Array.isArray(eq.magicStoneStat)) {
+            eq.magicStoneStat.forEach(ms => {
+                let g = ms.grade;
+                if(g === 'Unique' || g === 'Epic' || g === 'Hero') total += 4;
+                else if(g === 'Legend') total += 3;
+                else if(g === 'Rare') total += 2;
+                else total += 1;
+            });
+        }
+        return total;
+    }
+
+    function calculateNewItemCP(eq, enh, brk) {
+        let baseLv = parseInt(eq.level || eq.itemLevel || eq.equipLevel || 0);
+        let enhVal = parseInt(enh || 0);
+        let brkVal = parseInt(brk || 0);
+        
+        let catObj = getSmartCategory(eq);
+        let isWepGua = catObj && (catObj.key.startsWith('w_') || catObj.key === 'guarder');
+        
+        return baseLv + (enhVal * 1) + (brkVal * 5) + (isWepGua ? 5 : 0);
+    }
+
+    async function searchCharacter() {
+        const name = document.getElementById('charNameInput').value.trim();
+        const race = document.getElementById('searchFaction').value;
+        const serverId = document.getElementById('searchServer').value;
+        const statusMsg = document.getElementById('statusMsg');
+        const selectionDiv = document.getElementById('characterSelection'); 
+        const listDiv = document.getElementById('selectionList'); 
+
+        if(!name) return alert("캐릭터명을 입력하세요!");
+        statusMsg.innerHTML = "🔍 검색 중...";
+        selectionDiv.style.display = 'none'; 
+
+        try {
+            const listRes = await fetch(`${API_BASE}/searchList?name=${encodeURIComponent(name)}&race=${race}&serverId=${serverId}`);
+            const listData = await listRes.json();
+            const charList = listData.contents || listData.list || [];
+
+            if (charList.length === 0) { statusMsg.innerHTML = "❌ 검색된 캐릭터가 없습니다."; return; }
+
+            statusMsg.innerHTML = `✅ ${charList.length}명의 캐릭터 발견`;
+            selectionDiv.style.display = 'block'; 
+            listDiv.innerHTML = ''; 
+
+            charList.forEach(char => {
+                const charCard = document.createElement('div');
+                charCard.style.cssText = "padding: 10px 15px; background: #2a2a35; color: white; border: 1px solid #444; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;";
+                charCard.onmouseover = () => charCard.style.borderColor = "#4fc3f7";
+                charCard.onmouseout = () => charCard.style.borderColor = "#444";
+
+                const charName = char.characterName || char.name || "이름 없음";
+                const serverName = char.serverName || "서버 미확인";
+                const level = char.level || "-";
+                const className = char.className || char.class || "직업 미확인";
+                const raceName = char.raceName || char.race || "";
+
+                const infoDiv = document.createElement('div');
+                infoDiv.style.cssText = "cursor: pointer; flex: 1;";
+                infoDiv.innerHTML = `
+                    <div style="font-weight:bold; color:#4fc3f7;">[${serverName}] ${charName}</div>
+                    <div style="font-size:11px; color:#aaa; margin-top:4px;">Lv.${level} | ${className} ${raceName ? '| ' + raceName : ''}</div>
+                `;
+                infoDiv.onclick = () => {
+                    selectionDiv.style.display = 'none';
+                    loadCharacterDetail(char.characterId, char.serverId || serverId, charName);
+                };
+
+                const favBtn = document.createElement('button');
+                favBtn.innerHTML = "⭐ 저장";
+                favBtn.style.cssText = "background: #111; color: #ffca28; border: 1px solid #555; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: 0.2s; font-weight:bold;";
+                favBtn.onmouseover = () => favBtn.style.background = "#332a00";
+                favBtn.onmouseout = () => favBtn.style.background = "#111";
+                favBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    addFavorite(char.characterId, char.serverId || serverId, charName, serverName, className);
+                };
+
+                charCard.appendChild(infoDiv);
+                charCard.appendChild(favBtn);
+                listDiv.appendChild(charCard);
+            });
+
+        } catch (e) { statusMsg.innerHTML = "❌ 검색 오류"; }
+    }
+
+    async function loadCharacterDetail(characterId, serverId, characterName) {
+        const statusMsg = document.getElementById('statusMsg');
+        statusMsg.innerHTML = `⏳ [${characterName}] 분석 중...`;
+
+        try {
+            const detailRes = await fetch(`${API_BASE}/characterDetail?characterId=${encodeURIComponent(characterId)}&serverId=${serverId}`);
+            const data = await detailRes.json();
+            
+            const statList = data.stat?.statList || data.info?.stat?.statList || [];
+            
+            let cpStat = statList.find(s => s.type === "ItemLevel" || s.name === "아이템레벨");
+            document.getElementById('baseCp').value = cpStat ? cpStat.value : 0;
+
+            const setStat = (id, typeKey, nameKey) => {
+                let s = statList.find(x => x.type === typeKey || (x.name && x.name.includes(nameKey)));
+                if (s) document.getElementById(id).value = s.value;
+            };
+            
+            setStat('basePower', 'STR', '위력');
+            setStat('baseAgi', 'DEX', '민첩');
+            setStat('baseAccStat', 'AGI', '정확');
+            setStat('baseWill', 'WIS', '의지');
+            setStat('baseKnow', 'INT', '지식');
+            setStat('baseVit', 'CON', '체력');
+            setStat('baseDest', 'Destruction', '파괴');
+            setStat('baseDeath', 'Death', '죽음');
+            setStat('baseWis', 'Wisdom', '지혜');
+            setStat('baseDestiny', 'Destiny', '운명');
+            setStat('baseSpace', 'Space', '공간');
+            setStat('baseTime', 'Time', '시간');
+            setStat('baseLife', 'Life', '생명');
+            setStat('baseIllusion', 'Illusion', '환상');
+            setStat('baseFreedom', 'Freedom', '자유');
+            setStat('baseJustice', 'Justice', '정의');
+
+            const rawEquip = data.equipment?.equipment?.equipmentList || data.equipment?.equipmentList || [];
+            currentEquipData = rawEquip.filter(eq => !EXCLUDE_KEYWORDS.some(kw => (eq.name||"").includes(kw)));
+            
+            simulationState = {}; 
+            activeSlotIndex = -1; 
+            currentNewItemAPIData = null;
+            
+            statusMsg.innerHTML = `<span style="color:var(--pos)">✅ [${characterName}] 로드 완료!</span>`;
+            document.getElementById('appBody').className = 'dash-mode';
+            
+            renderEquipGrid();
+            document.getElementById('workbench').innerHTML = `<div class="empty-wb"><div style="font-size:40px; margin-bottom:15px;">🛠️</div>왼쪽 목록에서 <b>변경하고 싶은 장비</b>를 클릭하세요.</div>`;
+            updateDeltaDashboard();
+        } catch (e) { 
+            statusMsg.innerHTML = "❌ 정보 로드 실패"; 
+        }
+    }
+
+    function renderEquipGrid() {
+        const grid = document.getElementById('equipResultArea');
+        grid.innerHTML = "";
+        
+        currentEquipData.forEach((eq, index) => {
+            const name = eq.name || "알 수 없는 장비";
+            const enh = eq.enchantLevel || 0;
+            const brk = eq.exceedLevel || 0; 
+            const imgTag = eq.icon ? `<img src="${eq.icon}" class="item-icon" onerror="this.style.display='none'">` : `<div class="item-icon"></div>`;
+            
+            let baseLv = eq.level || eq.itemLevel || eq.equipLevel || "?";
+            let bonusHtml = "";
+
+            let diamondsHtml = ''; 
+            for (let i = 0; i < 5; i++) diamondsHtml += `<div class="diamond-pip ${i < brk ? 'active' : ''}"></div>`;
+            
+            const isSimulated = simulationState[index] ? 'simulated' : '';
+            const isActive = activeSlotIndex === index ? 'active' : '';
+
+            grid.innerHTML += `
+            <div class="equip-card ${isActive} ${isSimulated}" onclick="openWorkbench(${index})">
+                <div class="sim-badge">🔄 변경됨</div>
+                <div class="item-header">
+                    ${imgTag}
+                    <div style="min-width:0; width:100%;">
+                        <div class="eq-title"><span class="eq-enh">+${enh}</span> <span style="color:${getGradeColor(eq.grade)}">${name}</span></div>
+                        <div style="font-size:11px; color:#888;">Lv.${baseLv} ${bonusHtml}</div>
+                        <div class="diamond-container">${diamondsHtml}</div>
+                    </div>
+                </div>
+            </div>`;
+        });
+    }
+
+    function setMaxEngrave(btnElement) {
+        const row = btnElement.closest('.eng-row');
+        const sel = row.querySelector('.wb-eng-type');
+        const input = row.querySelector('.wb-eng-val');
+
+        if(sel.selectedIndex > 0) {
+            const maxVal = sel.options[sel.selectedIndex].getAttribute('data-max');
+            if(maxVal) {
+                input.value = parseFloat(maxVal.replace(/[^0-9.]/g, ''));
+                applySimulation(true);
+            }
+        }
+    }
+
+    function openWorkbench(index) {
+        activeSlotIndex = index;
+        renderEquipGrid(); 
+        const eq = currentEquipData[index];
+        activeCategoryInfo = getSmartCategory(eq) || {key: 'w_longsword', label: '무기'};
+        currentNewItemAPIData = null; 
+
+        let enhOptions = ''; for(let i=0; i<=20; i++) enhOptions += `<option value="${i}">+${i}강</option>`;
+        
+        let weaponFiltersHtml = CATEGORY_MAP.filter(c => c.key.startsWith('w_')).map(c => `
+            <label class="filter-label"><input type="checkbox" class="filter-category" value="${c.key}" ${activeCategoryInfo.key === c.key ? 'checked' : ''} onchange="searchDictItem()"> ${c.label}</label>
+        `).join('');
+
+        let armorFiltersHtml = CATEGORY_MAP.filter(c => !c.key.startsWith('w_')).map(c => `
+            <label class="filter-label"><input type="checkbox" class="filter-category" value="${c.key}" ${activeCategoryInfo.key === c.key ? 'checked' : ''} onchange="searchDictItem()"> ${c.label}</label>
+        `).join('');
+
+        let gradeFiltersHtml = `
+            <label class="filter-label"><input type="checkbox" class="filter-grade" value="Unique" checked onchange="searchDictItem()"> 유일</label>
+            <label class="filter-label"><input type="checkbox" class="filter-grade" value="Epic" checked onchange="searchDictItem()"> 영웅</label>
+            <label class="filter-label"><input type="checkbox" class="filter-grade" value="Rare" onchange="searchDictItem()"> 희귀</label>
+        `;
+
+        let html = `
+        <div class="wb-title">
+            <span>🛠️ 시뮬레이팅: <span style="color:#fff;">[${eq.name.split(' ')[0]||'장비'}]</span> 교체</span>
+            <button class="btn-reset" onclick="resetSimulation(${index})">🔄 이 부위 초기화</button>
+        </div>
+
+        <div style="background:#111; border:1px solid #222; padding:12px; border-radius:6px; margin-bottom:15px;">
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="text" id="dictSearchInput" class="sim-input" placeholder="검색어 (예: 백부장... 비워둬도 됨!)" style="flex:2;" onkeypress="if(event.keyCode==13) searchDictItem()">
+                <button class="btn-dict-search" onclick="searchDictItem()">🔍 직접 검색</button>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; gap:12px; font-size:12px; background:#0a0a0c; padding:15px; border-radius:4px; border:1px dashed #333;">
+                <div style="display:flex; gap:15px; align-items:center; border-bottom:1px solid #222; padding-bottom:10px;">
+                    <span style="color:#ffca28; font-weight:bold; width:45px;">💎 등급</span>
+                    ${gradeFiltersHtml}
+                </div>
+                <div style="display:flex; gap:15px; align-items:flex-start;">
+                    <span style="color:#ff5252; font-weight:bold; width:45px; margin-top:2px;">⚔️ 무기</span>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; flex:1;">
+                        ${weaponFiltersHtml}
+                    </div>
+                </div>
+                <div style="display:flex; gap:15px; align-items:flex-start; margin-top:4px;">
+                    <span style="color:#4fc3f7; font-weight:bold; width:45px; margin-top:2px;">🛡️ 방어</span>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; flex:1;">
+                        ${armorFiltersHtml}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dictResultArea" class="dict-result-area"></div>
+
+        <div class="compare-container">
+            <div class="card-box" id="wbOldCard"></div>
+            <div style="display:flex; align-items:center; color:#4fc3f7; font-size:24px;">➡</div>
+            <div class="card-box new-card" id="wbNewCard">
+                <div class="card-header" style="color:#00e676;">교체 후 예상 스펙</div>
+                <div id="newCardHeader" style="min-height: 60px; display:flex; align-items:center; justify-content:center; color:#666; font-size:12px;">사전에서 아이템을 선택하세요.</div>
+                
+                <div style="display:flex; gap:10px; margin: 10px 0;">
+                    <select id="wbEnh" class="sim-select" onchange="updateNewItemByEnhance()">${enhOptions}</select>
+                    <select id="wbBrk" class="sim-select" style="color:#ffca28;" onchange="updateNewItemByEnhance()"><option value="0">0돌파</option><option value="1">1돌파</option><option value="2">2돌파</option><option value="3">3돌파</option><option value="4">4돌파</option><option value="5">5돌파</option></select>
+                </div>
+
+                <div class="stat-group">
+                    <div class="stat-group-title sg-base">🛡️ 기본 능력치 <span style="font-size:10px; color:#888; font-weight:normal;">(자동 합산)</span></div>
+                    <div id="newBaseStatsDisplay" style="min-height:30px;"></div>
+                </div>
+
+                <div class="stat-group" style="margin-bottom:0;">
+                    <div class="stat-group-title sg-engrave" style="display:flex; justify-content:space-between; border-bottom:1px dashed #444; padding-bottom:6px;">
+                        <span>🔮 영혼 각인 (최대 6칸)</span>
+                        <button class="btn-inherit" onclick="inheritEnhanceAndEngrave()">◀ 기존 계승</button>
+                    </div>
+                    <div id="wbEngravings" style="margin-top:8px;">
+                        <div style="text-align:center; padding:20px 0; color:#666; font-size:12px;">아이템을 선택하면 각인 목록이 나타납니다.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="text-align:right; font-size:11px; color:#ff9800; margin-top:5px; margin-bottom:10px;">* 교체 장비의 아이템 레벨(CP)은 마석이 포함되지 않은 기본 수치입니다.</div>
+        <button class="btn-apply" onclick="applySimulation()">🚀 장비 교체 적용하기 (딜량/방어 계산)</button>
+        `;
+
+        document.getElementById('workbench').innerHTML = html;
+        renderOldCard();
+        renderNewCardValues(); 
+
+        if(simulationState[index]) {
+            currentNewItemAPIData = simulationState[index].apiData; 
+            document.getElementById('wbEnh').value = simulationState[index].rawInput.enh;
+            document.getElementById('wbBrk').value = simulationState[index].rawInput.brk;
+            renderNewCardValues();
+            updateEngraveDropdowns(simulationState[index].rawInput.engravings);
+        }
+
+        setTimeout(() => { searchDictItem(); }, 100);
+    }
+
+    function updateEngraveDropdowns(savedEngravings = []) {
+        if(!currentNewItemAPIData || !currentNewItemAPIData.subStats) return;
+
+        let optionsHtml = `<option value="">선택 안함</option>`;
+        currentNewItemAPIData.subStats.forEach(st => {
+            let k = mapStatName(st.name) || mapStatName(st.id) || st.name;
+            let maxVal = st.value; 
+            optionsHtml += `<option value="${k}" data-max="${maxVal}">${st.name} (최대 ${maxVal})</option>`;
+        });
+
+        let engHtml = ''; 
+        for(let i=0; i<6; i++) {
+            engHtml += `
+            <div class="eng-row">
+                <span style="color:#666; width:15px; text-align:center;">${i+1}</span>
+                <select class="wb-eng-type" onchange="applySimulation(true)">${optionsHtml}</select>
+                <input type="number" class="wb-eng-val" placeholder="수치" oninput="applySimulation(true)" step="0.1">
+                <button class="btn-max" onclick="setMaxEngrave(this)">MAX</button>
+            </div>`;
+        }
+        document.getElementById('wbEngravings').innerHTML = engHtml;
+
+        if(savedEngravings.length > 0) {
+            const eTypes = document.querySelectorAll('.wb-eng-type'); 
+            const eVals = document.querySelectorAll('.wb-eng-val');
+            savedEngravings.forEach((s, i) => { 
+                if(s && i<eTypes.length) { 
+                    eTypes[i].value = s.type; 
+                    eVals[i].value = s.val; 
+                } 
+            });
+        }
+    }
+
+    async function searchDictItem() {
+        let keyword = document.getElementById('dictSearchInput').value.trim();
+        const resultArea = document.getElementById('dictResultArea');
+        
+        const checkedGrades = Array.from(document.querySelectorAll('.filter-grade:checked')).map(cb => cb.value);
+        const checkedCategories = Array.from(document.querySelectorAll('.filter-category:checked')).map(cb => cb.value);
+
+        resultArea.style.display = 'block';
+        resultArea.innerHTML = `<div style="padding:15px; text-align:center; color:#ffca28;">검색 중... ⏳</div>`;
+
+        let queriesToRun = [];
+        if (keyword) {
+            queriesToRun.push(keyword);
+        } else {
+            if (checkedCategories.length > 0) {
+                checkedCategories.forEach(catKey => {
+                    const catObj = CATEGORY_MAP.find(c => c.key === catKey);
+                    if (catObj && catObj.queries) queriesToRun.push(...catObj.queries);
+                });
+            } else {
+                queriesToRun = ['영웅'];
+            }
+        }
+        
+        try {
+            queriesToRun = queriesToRun.slice(0, 10);
+            
+            const fetchPromises = queriesToRun.map(q => 
+                fetch(`${API_BASE}/searchDictItem?keyword=${encodeURIComponent(q)}`)
+                    .then(res => res.json())
+                    .catch(e => ({ list: [] }))
+            );
+
+            const results = await Promise.all(fetchPromises);
+            
+            let allItems = [];
+            let seenIds = new Set();
+            
+            results.forEach(data => {
+                let items = data.contents || data.list || [];
+                items.forEach(item => {
+                    if (!seenIds.has(item.id)) {
+                        seenIds.add(item.id);
+                        allItems.push(item);
+                    }
+                });
+            });
+            
+            let items = allItems.filter(item => {
+                if (EXCLUDE_KEYWORDS.some(kw => (item.name||"").includes(kw))) return false;
+                if (checkedGrades.length > 0 && !checkedGrades.includes(item.grade)) return false;
+                
+                let itemCat = getSmartCategory(item);
+                if (!itemCat) return false; 
+                
+                if (checkedCategories.length > 0 && !checkedCategories.includes(itemCat.key)) return false;
+                
+                return true;
+            });
+
+            if(items.length === 0) { 
+                resultArea.innerHTML = `<div style="padding:15px; text-align:center; color:#ff5252;">조건에 맞는 아이템이 없습니다. 필터를 조절해보세요!</div>`; 
+                return; 
+            }
+            
+            items.sort((a, b) => {
+                let lvA = parseInt(a.level || a.itemLevel || a.equipLevel || 0);
+                let lvB = parseInt(b.level || b.itemLevel || b.equipLevel || 0);
+                return lvB - lvA;
+            });
+
+            let html = '';
+            items.forEach(item => {
+                let dispLv = item.level || item.itemLevel || item.equipLevel || "?";
+                html += `<div class="dict-item" onclick="selectDictItem('${item.id}', '${item.name}')">
+                    <img src="${item.icon||''}" style="width:36px; height:36px; border-radius:4px; border:1px solid #444;" onerror="this.style.display='none'">
+                    <div><div style="color:${getGradeColor(item.grade)}; font-weight:bold; font-size:13px;">${item.name}</div><div style="font-size:11px; color:#888;">Lv.${dispLv} | ${item.gradeName||item.grade}</div></div>
+                </div>`;
+            });
+            resultArea.innerHTML = html;
+        } catch(e) { resultArea.innerHTML = `<div style="padding:15px; text-align:center; color:#ff5252;">검색 에러!</div>`; }
+    }
+
+    async function selectDictItem(id, name) {
+        document.getElementById('dictResultArea').innerHTML = `<div style="padding:15px; text-align:center; color:#4fc3f7;">[${name}] 스탯 파밍 중... ⏳</div>`;
+        const enh = parseInt(document.getElementById('wbEnh').value) || 0;
+        const brk = parseInt(document.getElementById('wbBrk').value) || 0;
+        
+        try {
+            const res = await fetch(`${API_BASE}/getDictItemDetail?id=${id}&enchantLevel=${enh}&exceedLevel=${brk}`);
+            currentNewItemAPIData = await res.json();
+            document.getElementById('dictResultArea').style.display = 'none';
+            
+            renderNewCardValues(); 
+            updateEngraveDropdowns();
+            applySimulation(true);
+        } catch (e) { alert("상세 스탯 실패"); document.getElementById('dictResultArea').style.display = 'none'; }
+    }
+
+    function updateNewItemByEnhance() {
+        if(!currentNewItemAPIData) { return; }
+        selectDictItem(currentNewItemAPIData.id, currentNewItemAPIData.name);
+    }
+
+    function renderOldCard() {
+        const oldEq = currentEquipData[activeSlotIndex];
+        const oldCard = document.getElementById('wbOldCard');
+
+        const oImg = oldEq.icon ? `<img src="${oldEq.icon}" style="width:44px; height:44px; border-radius:6px; border:1px solid #444;" onerror="this.style.display='none'">` : '';
+        const extracted = extractBaseStats(oldEq); 
+        const oEngraveStats = extractEngraveStats(oldEq);
+        const oCp = calculateEquippedCP(oldEq); 
+        
+        let baseLv = oldEq.level || oldEq.itemLevel || oldEq.equipLevel || "?";
+        let oBase = parseInt(baseLv) || 0;
+        let oBonus = oCp - oBase;
+        
+        let bonusHtml = "";
+        let diamondsHtml = ''; for (let i = 0; i < 5; i++) diamondsHtml += `<div class="diamond-pip ${i < (oldEq.exceedLevel||0) ? 'active' : ''}"></div>`;
+
+        let bHtml = '';
+        extracted.display.forEach(line => {
+            let label = STAT_LABEL[line.name] || line.name;
+            let unit = (line.isFixed || line.forcePct || label.includes('%') || label.includes('증가') || label.includes('내성') || label.includes('증폭')) ? '%' : '';
+            let valText = '';
+
+            if (line.isOrange) {
+                valText = `<span style="color:#ff9800; font-weight:bold;">${line.bVal}${unit}</span>`;
+                label = `<span style="color:#ff9800; font-weight:bold;">${label}</span>`;
+            } else {
+                valText = `${line.bVal}${unit}`;
+                if (line.eVal > 0 && !line.isFixed) { valText += ` <span style="color:#4fc3f7;">(+${line.eVal})</span>`; }
+            }
+            bHtml += `<div class="stat-row"><span>${label}</span> <span>${valText}</span></div>`;
+        });
+
+        let oHtml = `
+            <div class="card-header" style="color:#888;">현재 장착 중인 아이템</div>
+            <div style="display:flex; align-items:center; gap:10px; margin-top:10px; padding-bottom:10px; border-bottom:1px solid #222;">
+                ${oImg}
+                <div>
+                    <div style="color:${getGradeColor(oldEq.grade)}; font-weight:bold; font-size:14px;">+${oldEq.enchantLevel||0} ${oldEq.name}</div>
+                    <div style="font-size:11px; color:#888; margin:2px 0;">Lv.${oCp} <span style="color:#4fc3f7">(+${oBonus})</span></div>
+                    <div style="display:flex; align-items:center; gap:6px;"><div class="diamond-container">${diamondsHtml}</div></div>
+                </div>
+            </div>
+            <div style="flex:1; margin-top:10px; display:flex; flex-direction:column; gap:10px;">
+                <div class="stat-group">
+                    <div class="stat-group-title sg-base">🛡️ 기본 능력치</div>
+                    ${bHtml || '<div style="color:#666; font-size:11px; text-align:center;">기본 능력치 없음</div>'}
+                </div>
+                <div class="stat-group"><div class="stat-group-title sg-engrave">🔮 영혼 각인 & 마석</div>`;
+        
+        let hasOEng = false;
+        for(let k in oEngraveStats) { 
+            if(oEngraveStats[k] > 0) { 
+                let label = STAT_LABEL[k] || k;
+                oHtml += `<div class="stat-row"><span>${label}</span> <span>${oEngraveStats[k]}</span></div>`; 
+                hasOEng = true; 
+            } 
+        }
+        if(!hasOEng) oHtml += `<div style="color:#666; font-size:11px; text-align:center;">각인 없음</div>`;
+        oHtml += `</div></div>`;
+        oldCard.innerHTML = oHtml;
+    }
+
+    function renderNewCardValues() {
+        if(!currentNewItemAPIData) return;
+        
+        const nEq = currentNewItemAPIData;
+        const enh = parseInt(document.getElementById('wbEnh').value) || 0;
+        const brk = parseInt(document.getElementById('wbBrk').value) || 0;
+        
+        let baseLv = nEq.level || nEq.itemLevel || nEq.equipLevel || "?";
+        let diamondsHtml = ''; for (let i = 0; i < 5; i++) diamondsHtml += `<div class="diamond-pip ${i < brk ? 'active' : ''}"></div>`;
+
+        const nCp = calculateNewItemCP(nEq, enh, brk); 
+        let nBase = parseInt(baseLv) || 0;
+        let nBonus = nCp - nBase;
+
+        const nImg = nEq.icon ? `<img src="${nEq.icon}" style="width:44px; height:44px; border-radius:6px; border:1px solid #444;" onerror="this.style.display='none'">` : '';
+
+        document.getElementById('newCardHeader').innerHTML = `
+            ${nImg}
+            <div style="text-align:left;">
+                <div style="color:${getGradeColor(nEq.grade)}; font-weight:bold; font-size:14px;">+${enh} ${nEq.name}</div>
+                <div style="font-size:11px; color:#888; margin:2px 0;">Lv.${nCp} <span style="color:#4fc3f7">(+${nBonus})</span></div>
+                <div style="display:flex; align-items:center; gap:6px;"><div class="diamond-container">${diamondsHtml}</div></div>
+            </div>
+        `;
+
+        const extracted = extractBaseStats(nEq, brk);
+
+        let bHtml = '';
+        extracted.display.forEach(line => {
+            let label = STAT_LABEL[line.name] || line.name;
+            let unit = (line.isFixed || line.forcePct || label.includes('%') || label.includes('증가') || label.includes('내성') || label.includes('증폭')) ? '%' : '';
+            let valText = '';
+
+            if (line.isOrange) {
+                valText = `<span style="color:#ff9800; font-weight:bold;">${line.bVal}${unit}</span>`;
+                label = `<span style="color:#ff9800; font-weight:bold;">${label}</span>`;
+            } else {
+                valText = `${line.bVal}${unit}`;
+                if (line.eVal > 0 && !line.isFixed) { valText += ` <span style="color:#4fc3f7;">(+${line.eVal})</span>`; }
+            }
+            bHtml += `<div class="stat-row"><span>${label}</span> <span>${valText}</span></div>`;
+        });
+
+        document.getElementById('newBaseStatsDisplay').innerHTML = bHtml || '<div style="color:#666; font-size:11px; text-align:center;">기본 능력치 없음</div>';
+    }
+
+    function inheritEnhanceAndEngrave() {
+        if(activeSlotIndex === -1) return;
+        const eq = currentEquipData[activeSlotIndex];
+        document.getElementById('wbEnh').value = Math.min(eq.enchantLevel || 0, 20);
+        document.getElementById('wbBrk').value = eq.exceedLevel || 0;
+        
+        const sStats = findData(eq, 'subStats') || [];
+        const eTypes = document.querySelectorAll('.wb-eng-type'); 
+        const eVals = document.querySelectorAll('.wb-eng-val');
+        
+        eTypes.forEach(el => el.value = ""); 
+        eVals.forEach(el => el.value = "");
+        
+        sStats.forEach((sub, i) => {
+            if(i < eTypes.length) {
+                let rawName = sub.name;
+                let mappedType = mapStatName(rawName) || mapStatName(sub.id) || rawName;
+                
+                if (!Array.from(eTypes[i].options).some(opt => opt.value === mappedType)) {
+                    eTypes[i].add(new Option(rawName, mappedType));
+                }
+
+                eTypes[i].value = mappedType;
+                eVals[i].value = parseFloat((sub.value || "0").toString().replace(/[^0-9.]/g, '')) || 0;
+            }
+        });
+        updateNewItemByEnhance();
+    }
+
+    function applySimulation(isAuto = false) {
+        if(activeSlotIndex === -1 || !currentNewItemAPIData) {
+            if(!isAuto) alert("새 아이템을 검색하여 선택해주세요!");
+            return;
+        }
+        const rawInput = { enh: document.getElementById('wbEnh').value, brk: document.getElementById('wbBrk').value, engravings: [] };
+        
+        let nEngraveStats = {}; 
+        const eTypes = document.querySelectorAll('.wb-eng-type'); const eVals = document.querySelectorAll('.wb-eng-val');
+        
+        for(let i=0; i<6; i++) {
+            rawInput.engravings.push({ type: eTypes[i].value, val: eVals[i].value });
+            if(eTypes[i].value) nEngraveStats[eTypes[i].value] = (nEngraveStats[eTypes[i].value] || 0) + (parseFloat(eVals[i].value)||0);
+        }
+
+        let totalStats = extractBaseStats(currentNewItemAPIData, rawInput.brk).total;
+        for(let k in nEngraveStats) { totalStats[k] = (totalStats[k] || 0) + nEngraveStats[k]; }
+        
+        const nCp = calculateNewItemCP(currentNewItemAPIData, rawInput.enh, rawInput.brk);
+
+        simulationState[activeSlotIndex] = { stats: totalStats, cp: nCp, rawInput: rawInput, apiData: currentNewItemAPIData };
+        
+        if(!isAuto) renderEquipGrid();
+        updateDeltaDashboard(); 
+    }
+
+    function resetSimulation(index) {
+        delete simulationState[index];
+        openWorkbench(index); renderEquipGrid(); updateDeltaDashboard();
+    }
+
+    function updateDeltaDashboard() {
+        const base = {
+            cp: parseInt(document.getElementById('baseCp').value) || 0,
+            atk: parseInt(document.getElementById('baseAtk').value) || 0,
+            def: parseInt(document.getElementById('baseDef').value) || 0,
+            hp: parseInt(document.getElementById('baseHp').value) || 0,
+            amp: parseFloat(document.getElementById('baseAmp').value) || 0,
+            pveAmp: parseFloat(document.getElementById('basePveAmp').value) || 0,
+            pvpAmp: parseFloat(document.getElementById('basePvpAmp').value) || 0,
+            wAmp: parseFloat(document.getElementById('baseWAmp').value) || 0,
+            critDmg: parseFloat(document.getElementById('baseCritDmg').value) || 0,
+            genRes: parseFloat(document.getElementById('baseGenRes').value) || 0,
+            pveRes: parseFloat(document.getElementById('basePveRes').value) || 0,
+            pvpRes: parseFloat(document.getElementById('basePvpRes').value) || 0,
+            enemyGenRes: parseFloat(document.getElementById('enemyGenRes').value) || 0,
+            enemyPvpRes: parseFloat(document.getElementById('enemyPvpRes').value) || 0,
+            enemyAmp: parseFloat(document.getElementById('enemyAmp').value) || 0,
+            enemyPvpAmp: parseFloat(document.getElementById('enemyPvpAmp').value) || 0,
+            enemyAtk: parseFloat(document.getElementById('enemyAtk').value) || 8000,
+            acc: 0, crit: 0, spd: 0 
+        };
+
+        let delta = {};
+        STAT_KEYS.forEach(k => delta[k] = 0);
+        delta.cp = 0;
+        
+        let oSetCounts = {};
+        currentEquipData.forEach(eq => { let sName = getSetName(eq.name); if(sName) oSetCounts[sName] = (oSetCounts[sName] || 0) + 1; });
+        let nSetCounts = { ...oSetCounts };
+
+        for (let idx in simulationState) {
+            const oldEq = currentEquipData[idx];
+            const oldBase = extractBaseStats(oldEq).total; 
+            const oldEng = extractEngraveStats(oldEq);
+            
+            const oldCp = calculateEquippedCP(oldEq);
+            const newCp = simulationState[idx].cp; 
+
+            const newEqStats = simulationState[idx].stats; 
+
+            delta.cp += (newCp - oldCp);
+            for(let k in newEqStats) { delta[k] = (delta[k] || 0) + newEqStats[k]; }
+            for(let k in oldBase) { delta[k] = (delta[k] || 0) - oldBase[k]; }
+            for(let k in oldEng) { delta[k] = (delta[k] || 0) - oldEng[k]; }
+
+            let oSet = getSetName(oldEq.name); if(oSet) nSetCounts[oSet]--;
+            let nSet = getSetName(simulationState[idx].apiData.name); if(nSet) nSetCounts[nSet] = (nSetCounts[nSet] || 0) + 1;
+        }
+
+        let oSetEff = calcSetEffects(oSetCounts);
+        let nSetEff = calcSetEffects(nSetCounts);
+
+        delta.pvpAmp += (nSetEff.pvpAmp - oSetEff.pvpAmp);
+        delta.pveAmp += (nSetEff.pveAmp - oSetEff.pveAmp);
+
+        delta.atkPct = (delta.atkPct || 0) + (delta.power || 0) * 0.1;
+        delta.evasion = (delta.evasion || 0) + (delta.agi || 0) * 0.1;
+        delta.block = (delta.block || 0) + (delta.agi || 0) * 0.1;
+        delta.critRes = (delta.critRes || 0) + (delta.agi || 0) * 0.1;
+        delta.acc = (delta.acc || 0) + (delta.acc_stat || 0) * 0.1;
+        delta.crit = (delta.crit || 0) + (delta.acc_stat || 0) * 0.1;
+        delta.statusRes = (delta.statusRes || 0) + (delta.will || 0) * 0.1;
+        delta.statusAcc = (delta.statusAcc || 0) + (delta.know || 0) * 0.1;
+        delta.hpPct = (delta.hpPct || 0) + (delta.vit || 0) * 0.1;
+
+        delta.atk = (delta.atk || 0) + (delta.dest || 0) * 0.2;
+        delta.crit = (delta.crit || 0) + (delta.death || 0) * 0.2;
+        delta.mp = (delta.mp || 0) + (delta.destiny || 0) * 0.2;
+        delta.block = (delta.block || 0) + (delta.space || 0) * 0.2;
+        delta.spd = (delta.spd || 0) + (delta.time_stat || 0) * 0.2;
+        delta.hp = (delta.hp || 0) + (delta.life || 0) * 0.2;
+        delta.acc = (delta.acc || 0) + (delta.freedom || 0) * 0.2;
+        delta.evasion = (delta.evasion || 0) + (delta.freedom || 0) * 0.2;
+        delta.def = (delta.def || 0) + (delta.justice || 0) * 0.2;
+
+        const finalCp = base.cp + delta.cp;
+        const cpDiffEl = document.getElementById('cpDiffDisplay');
+        if(delta.cp > 0) cpDiffEl.innerHTML = `<span>${base.cp} ➡ <span style="color:#fff;">${finalCp}</span></span> <span class="pos" style="font-size:16px;">(▲ ${delta.cp})</span>`;
+        else if(delta.cp < 0) cpDiffEl.innerHTML = `<span>${base.cp} ➡ <span style="color:#fff;">${finalCp}</span></span> <span class="neg" style="font-size:16px;">(▼ ${Math.abs(delta.cp)})</span>`;
+        else cpDiffEl.innerHTML = `<span style="color:#ccc;">${base.cp} ➡ ${finalCp} (-)</span>`;
+
+        function formatDiff(oldV, newV, isPct=false) {
+            let diff = newV - oldV;
+            if(Math.abs(diff) < 0.001) return `<span style="color:#888;">${newV.toFixed(isPct?1:0)}${isPct?'%':''} ➡ ${newV.toFixed(isPct?1:0)}${isPct?'%':''} (-)</span>`;
+            let color = diff > 0 ? 'pos' : 'neg'; let arrow = diff > 0 ? '▲' : '▼';
+            return `<span>${oldV.toFixed(isPct?1:0)}${isPct?'%':''}</span> ➡ <span class="${color}">${newV.toFixed(isPct?1:0)}${isPct?'%':''} (${arrow}${Math.abs(diff).toFixed(isPct?1:0)}${isPct?'%':''})</span>`;
+        }
+        function formatMultDiff(oldV, newV) {
+            let diff = newV - oldV;
+            if(Math.abs(diff) < 0.001) return `<span style="color:#888;">${newV.toFixed(3)}x ➡ ${newV.toFixed(3)}x (-)</span>`;
+            let color = diff > 0 ? 'pos' : 'neg'; let arrow = diff > 0 ? '▲' : '▼';
+            return `<span>${oldV.toFixed(3)}x</span> ➡ <span class="${color}">${newV.toFixed(3)}x (${arrow}${Math.abs(diff).toFixed(3)})</span>`;
+        }
+        
+        function formatDmgDiff(oldV, newV) {
+            let diff = newV - oldV;
+            if(Math.abs(diff) < 0.5) return `<span style="color:#888;">${newV.toFixed(0)} ➡ ${newV.toFixed(0)} (-)</span>`;
+            let color = diff < 0 ? 'pos' : 'neg'; 
+            let arrow = diff < 0 ? '▼' : '▲';
+            return `<span>${oldV.toFixed(0)}</span> ➡ <span class="${color}" style="font-weight:bold;">${newV.toFixed(0)} <span style="font-size:11px; font-weight:normal;">(${arrow}${Math.abs(diff).toFixed(0)})</span></span>`;
+        }
+
+        let isAbyss = document.getElementById('isAbyssToggle').checked;
+
+        let oDef = base.def; 
+        let nDef = (base.def + delta.def) * (1 + (delta.defPct||0)/100); 
+        let oHp = base.hp; 
+        let nHp = (base.hp + delta.hp) * (1 + (delta.hpPct||0)/100);
+
+        // ------------------------------------
+        // [PVE 대시보드 계산]
+        // ------------------------------------
+        let oPveAtk = base.atk; 
+        let nPveAtk = (base.atk + delta.atk) * (1 + (delta.atkPct||0)/100); 
+
+        let oPveAmpSum = (base.amp + base.pveAmp + (isAbyss ? oSetEff.abyssPveAmp : 0)) / 100;
+        let nPveAmpSum = (base.amp + base.pveAmp + delta.amp + delta.pveAmp + (isAbyss ? nSetEff.abyssPveAmp : 0)) / 100;
+        let oWeaponAmp = base.wAmp / 100; let nWeaponAmp = (base.wAmp + delta.wAmp) / 100;
+
+        let pveResFactor = (1 - base.enemyGenRes/100);
+        let oPveMult = Math.max(0.1, (1 + oPveAmpSum) * (1 + oWeaponAmp) * pveResFactor); 
+        let nPveMult = Math.max(0.1, (1 + nPveAmpSum) * (1 + nWeaponAmp) * pveResFactor);
+        
+        let oPveReal = oPveAtk * oPveMult; 
+        let nPveReal = nPveAtk * nPveMult;
+
+        document.getElementById('pve-atk').innerHTML = formatDiff(oPveAtk, nPveAtk);
+        document.getElementById('pve-amp').innerHTML = formatDiff(oPveAmpSum*100, nPveAmpSum*100, true);
+        document.getElementById('pve-mult').innerHTML = formatMultDiff(oPveMult, nPveMult);
+        
+        let pveRealDiff = nPveReal - oPveReal;
+        document.getElementById('pve-real-atk').innerHTML = `${oPveReal.toFixed(0)} ➡ ${nPveReal.toFixed(0)} <span style="font-size:14px;" class="${pveRealDiff>0?'pos':(pveRealDiff<0?'neg':'neu')}">(${pveRealDiff>0?'▲':'▼'}${Math.abs(pveRealDiff).toFixed(0)})</span>`;
+
+        let oCritMult = 1.5 + (base.critDmg / 100);
+        let nCritMult = 1.5 + ((base.critDmg + delta.critDmg) / 100);
+        let oPveCritReal = oPveReal * oCritMult; let nPveCritReal = nPveReal * nCritMult;
+        let pveDpsDiff = (oPveCritReal > 0) ? ((nPveCritReal / oPveCritReal) - 1) * 100 : 0;
+        
+        const pveEl = document.getElementById('pve-final-dps');
+        if(pveDpsDiff > 0) pveEl.innerHTML = `<span class="pos">▲ 치명타 적중 시 실질 딜량 ${pveDpsDiff.toFixed(2)}% 증가</span>`;
+        else if(pveDpsDiff < 0) pveEl.innerHTML = `<span class="neg">▼ 치명타 적중 시 실질 딜량 ${Math.abs(pveDpsDiff).toFixed(2)}% 감소</span>`;
+        else pveEl.innerHTML = `<span class="neu">- 딜량 변화 없음 -</span>`;
+
+        let oPveResMult = (1 - base.genRes/100) * (1 - base.pveRes/100);
+        let nPveResMult = (1 - (base.genRes + delta.genRes)/100) * (1 - (base.pveRes + delta.pveRes)/100);
+        let enemyPveAmpMult = 1 + base.enemyAmp/100;
+        
+        let oPveIncoming = base.enemyAtk * enemyPveAmpMult * oPveResMult;
+        let nPveIncoming = base.enemyAtk * enemyPveAmpMult * nPveResMult;
+
+        let oPveDmgTaken = Math.max(1, oPveIncoming - (oDef / 10));
+        let nPveDmgTaken = Math.max(1, nPveIncoming - (nDef / 10));
+
+        let oPveSurvHits = oHp / oPveDmgTaken;
+        let nPveSurvHits = nHp / nPveDmgTaken;
+
+        document.getElementById('pve-def').innerHTML = formatDiff(oDef, nDef);
+        document.getElementById('pve-hp').innerHTML = formatDiff(oHp, nHp);
+        document.getElementById('pve-incoming').innerHTML = formatDmgDiff(oPveIncoming, nPveIncoming);
+        document.getElementById('pve-dmg-taken').innerHTML = formatDmgDiff(oPveDmgTaken, nPveDmgTaken);
+
+        let pveSurvHitsDiff = nPveSurvHits - oPveSurvHits;
+        const pveSurvEl = document.getElementById('pve-final-surv');
+        if(pveSurvHitsDiff > 0.05) pveSurvEl.innerHTML = `<span class="pos">✅ 동일 공격에 대해 약 ${pveSurvHitsDiff.toFixed(1)}대 더 버팀! (생존력 상승)</span>`;
+        else if(pveSurvHitsDiff < -0.05) pveSurvEl.innerHTML = `<span class="neg">❌ 동일 공격에 대해 약 ${Math.abs(pveSurvHitsDiff).toFixed(1)}대 덜 버팀 (생존력 하락)</span>`;
+        else pveSurvEl.innerHTML = `<span class="neu">- 종합 생존력 변화 없음 -</span>`;
+
+        // ------------------------------------
+        // [PVP 대시보드 계산]
+        // ------------------------------------
+        let oPvpAtk = base.atk; 
+        let nPvpAtk = (base.atk + delta.atk) * (1 + (delta.atkPct||0)/100);
+
+        let oPvpAmpSum = (base.amp + base.pvpAmp + oSetEff.pvpAmp) / 100;
+        let nPvpAmpSum = (base.amp + base.pvpAmp + delta.amp + delta.pvpAmp + nSetEff.pvpAmp) / 100;
+
+        let pvpResFactor = (1 - base.enemyGenRes/100) * (1 - base.enemyPvpRes/100);
+        let oPvpMult = Math.max(0.1, (1 + oPvpAmpSum) * (1 + oWeaponAmp) * pvpResFactor); 
+        let nPvpMult = Math.max(0.1, (1 + nPvpAmpSum) * (1 + nWeaponAmp) * pvpResFactor);
+        
+        let oPvpReal = oPvpAtk * oPvpMult; 
+        let nPvpReal = nPvpAtk * nPvpMult;
+
+        document.getElementById('pvp-atk').innerHTML = formatDiff(oPvpAtk, nPvpAtk);
+        document.getElementById('pvp-amp').innerHTML = formatDiff(oPvpAmpSum*100, nPvpAmpSum*100, true);
+        document.getElementById('pvp-mult').innerHTML = formatMultDiff(oPvpMult, nPvpMult);
+        
+        let pvpRealDiff = nPvpReal - oPvpReal;
+        document.getElementById('pvp-real-atk').innerHTML = `${oPvpReal.toFixed(0)} ➡ ${nPvpReal.toFixed(0)} <span style="font-size:14px;" class="${pvpRealDiff>0?'pos':(pvpRealDiff<0?'neg':'neu')}">(${pvpRealDiff>0?'▲':'▼'}${Math.abs(pvpRealDiff).toFixed(0)})</span>`;
+
+        let oPvpCritReal = oPvpReal * oCritMult; let nPvpCritReal = nPvpReal * nCritMult;
+        let pvpDpsDiff = (oPvpCritReal > 0) ? ((nPvpCritReal / oPvpCritReal) - 1) * 100 : 0;
+        
+        const pvpEl = document.getElementById('pvp-final-dps');
+        if(pvpDpsDiff > 0) pvpEl.innerHTML = `<span class="pos">▲ 치명타 적중 시 실질 딜량 ${pvpDpsDiff.toFixed(2)}% 증가</span>`;
+        else if(pvpDpsDiff < 0) pvpEl.innerHTML = `<span class="neg">▼ 치명타 적중 시 실질 딜량 ${Math.abs(pvpDpsDiff).toFixed(2)}% 감소</span>`;
+        else pvpEl.innerHTML = `<span class="neu">- 딜량 변화 없음 -</span>`;
+
+        let oPvpResMult = (1 - base.genRes/100) * (1 - base.pvpRes/100);
+        let nPvpResMult = (1 - (base.genRes + delta.genRes)/100) * (1 - (base.pvpRes + delta.pvpRes)/100);
+        let enemyPvpAmpMult = 1 + (base.enemyAmp + base.enemyPvpAmp)/100;
+        
+        let oPvpIncoming = base.enemyAtk * enemyPvpAmpMult * oPvpResMult;
+        let nPvpIncoming = base.enemyAtk * enemyPvpAmpMult * nPvpResMult;
+
+        let oPvpDmgTaken = Math.max(1, oPvpIncoming - (oDef / 10));
+        let nPvpDmgTaken = Math.max(1, nPvpIncoming - (nDef / 10));
+
+        let oPvpSurvHits = oHp / oPvpDmgTaken;
+        let nPvpSurvHits = nHp / nPvpDmgTaken;
+
+        document.getElementById('pvp-def').innerHTML = formatDiff(oDef, nDef);
+        document.getElementById('pvp-hp').innerHTML = formatDiff(oHp, nHp);
+        document.getElementById('pvp-incoming').innerHTML = formatDmgDiff(oPvpIncoming, nPvpIncoming);
+        document.getElementById('pvp-dmg-taken').innerHTML = formatDmgDiff(oPvpDmgTaken, nPvpDmgTaken);
+
+        let pvpSurvHitsDiff = nPvpSurvHits - oPvpSurvHits;
+        const pvpSurvEl = document.getElementById('pvp-final-surv');
+        if(pvpSurvHitsDiff > 0.05) pvpSurvEl.innerHTML = `<span class="pos">✅ 동일 공격에 대해 약 ${pvpSurvHitsDiff.toFixed(1)}대 더 버팀! (생존력 상승)</span>`;
+        else if(pvpSurvHitsDiff < -0.05) pvpSurvEl.innerHTML = `<span class="neg">❌ 동일 공격에 대해 약 ${Math.abs(pvpSurvHitsDiff).toFixed(1)}대 덜 버팀 (생존력 하락)</span>`;
+        else pvpSurvEl.innerHTML = `<span class="neu">- 종합 생존력 변화 없음 -</span>`;
+    }
+
+    function saveStatPreset(slot) {
+        const preset = {
+            baseAtk: document.getElementById('baseAtk').value,
+            baseAmp: document.getElementById('baseAmp').value,
+            basePveAmp: document.getElementById('basePveAmp').value,
+            basePvpAmp: document.getElementById('basePvpAmp').value,
+            baseWAmp: document.getElementById('baseWAmp').value,
+            baseCritDmg: document.getElementById('baseCritDmg').value,
+            baseDef: document.getElementById('baseDef').value,
+            baseHp: document.getElementById('baseHp').value,
+            baseGenRes: document.getElementById('baseGenRes').value,
+            basePveRes: document.getElementById('basePveRes').value,
+            basePvpRes: document.getElementById('basePvpRes').value,
+            enemyAtk: document.getElementById('enemyAtk').value,
+            enemyGenRes: document.getElementById('enemyGenRes').value,
+            enemyPvpRes: document.getElementById('enemyPvpRes').value,
+            enemyAmp: document.getElementById('enemyAmp').value,
+            enemyPvpAmp: document.getElementById('enemyPvpAmp').value,
+            basePower: document.getElementById('basePower').value,
+            baseAgi: document.getElementById('baseAgi').value,
+            baseAccStat: document.getElementById('baseAccStat').value,
+            baseWill: document.getElementById('baseWill').value,
+            baseKnow: document.getElementById('baseKnow').value,
+            baseVit: document.getElementById('baseVit').value,
+            baseDest: document.getElementById('baseDest').value,
+            baseDeath: document.getElementById('baseDeath').value,
+            baseWis: document.getElementById('baseWis').value,
+            baseDestiny: document.getElementById('baseDestiny').value,
+            baseSpace: document.getElementById('baseSpace').value,
+            baseTime: document.getElementById('baseTime').value,
+            baseLife: document.getElementById('baseLife').value,
+            baseIllusion: document.getElementById('baseIllusion').value,
+            baseFreedom: document.getElementById('baseFreedom').value,
+            baseJustice: document.getElementById('baseJustice').value
+        };
+        localStorage.setItem(`aion2_stat_preset_${slot}`, JSON.stringify(preset));
+        alert(`✅ ${slot}번 프리셋 슬롯에 내 스탯이 저장되었습니다!`);
+    }
+
+    function loadStatPreset(slot, isInitial = false) {
+        const saved = localStorage.getItem(`aion2_stat_preset_${slot}`);
+        if(saved) {
+            try {
+                const preset = JSON.parse(saved);
+                if(preset.baseAtk !== undefined) document.getElementById('baseAtk').value = preset.baseAtk;
+                if(preset.baseAmp !== undefined) document.getElementById('baseAmp').value = preset.baseAmp;
+                if(preset.basePveAmp !== undefined) document.getElementById('basePveAmp').value = preset.basePveAmp;
+                if(preset.basePvpAmp !== undefined) document.getElementById('basePvpAmp').value = preset.basePvpAmp;
+                if(preset.baseWAmp !== undefined) document.getElementById('baseWAmp').value = preset.baseWAmp;
+                if(preset.baseCritDmg !== undefined) document.getElementById('baseCritDmg').value = preset.baseCritDmg;
+                if(preset.baseDef !== undefined) document.getElementById('baseDef').value = preset.baseDef;
+                if(preset.baseHp !== undefined) document.getElementById('baseHp').value = preset.baseHp;
+                if(preset.baseGenRes !== undefined) document.getElementById('baseGenRes').value = preset.baseGenRes;
+                if(preset.basePveRes !== undefined) document.getElementById('basePveRes').value = preset.basePveRes;
+                if(preset.basePvpRes !== undefined) document.getElementById('basePvpRes').value = preset.basePvpRes;
+                if(preset.enemyAtk !== undefined) document.getElementById('enemyAtk').value = preset.enemyAtk;
+                if(preset.enemyGenRes !== undefined) document.getElementById('enemyGenRes').value = preset.enemyGenRes;
+                if(preset.enemyPvpRes !== undefined) document.getElementById('enemyPvpRes').value = preset.enemyPvpRes;
+                if(preset.enemyAmp !== undefined) document.getElementById('enemyAmp').value = preset.enemyAmp;
+                if(preset.enemyPvpAmp !== undefined) document.getElementById('enemyPvpAmp').value = preset.enemyPvpAmp;
+                
+                if(preset.basePower !== undefined) document.getElementById('basePower').value = preset.basePower;
+                if(preset.baseAgi !== undefined) document.getElementById('baseAgi').value = preset.baseAgi;
+                if(preset.baseAccStat !== undefined) document.getElementById('baseAccStat').value = preset.baseAccStat;
+                if(preset.baseWill !== undefined) document.getElementById('baseWill').value = preset.baseWill;
+                if(preset.baseKnow !== undefined) document.getElementById('baseKnow').value = preset.baseKnow;
+                if(preset.baseVit !== undefined) document.getElementById('baseVit').value = preset.baseVit;
+                if(preset.baseDest !== undefined) document.getElementById('baseDest').value = preset.baseDest;
+                if(preset.baseDeath !== undefined) document.getElementById('baseDeath').value = preset.baseDeath;
+                if(preset.baseWis !== undefined) document.getElementById('baseWis').value = preset.baseWis;
+                if(preset.baseDestiny !== undefined) document.getElementById('baseDestiny').value = preset.baseDestiny;
+                if(preset.baseSpace !== undefined) document.getElementById('baseSpace').value = preset.baseSpace;
+                if(preset.baseTime !== undefined) document.getElementById('baseTime').value = preset.baseTime;
+                if(preset.baseLife !== undefined) document.getElementById('baseLife').value = preset.baseLife;
+                if(preset.baseIllusion !== undefined) document.getElementById('baseIllusion').value = preset.baseIllusion;
+                if(preset.baseFreedom !== undefined) document.getElementById('baseFreedom').value = preset.baseFreedom;
+                if(preset.baseJustice !== undefined) document.getElementById('baseJustice').value = preset.baseJustice;
+
+                updateDeltaDashboard();
+                if(!isInitial) alert(`📂 ${slot}번 프리셋을 불러왔습니다!`);
+            } catch(e) { console.error("프리셋 로드 실패"); }
+        } else {
+            if(!isInitial) alert(`❌ ${slot}번 프리셋은 비어있습니다. 먼저 스탯을 저장해주세요!`);
+        }
+    }
+
+    function renderFavorites() {
+        const favList = JSON.parse(localStorage.getItem('aion2_favorites')) || [];
+        const container = document.getElementById('favoriteList');
+        container.innerHTML = '';
+        if (favList.length === 0) {
+            container.innerHTML = `<span style="color:#666; font-size:12px;">검색 결과에서 '⭐ 저장'을 눌러 자주 보는 캐릭터를 추가하세요.</span>`;
+            return;
+        }
+        favList.forEach(fav => {
+            const fBtn = document.createElement('div');
+            fBtn.style.cssText = "display:flex; align-items:stretch; background:#222; border:1px solid #444; border-radius:6px; overflow:hidden;";
+            
+            const loadDiv = document.createElement('div');
+            loadDiv.style.cssText = "padding:6px 10px; cursor:pointer; font-size:12px; font-weight:bold; color:#fff; display:flex; align-items:center; transition:0.2s;";
+            loadDiv.innerHTML = `<span style="color:#4fc3f7; margin-right:4px;">[${fav.serverName}]</span> ${fav.charName}`;
+            loadDiv.onmouseover = () => loadDiv.style.background = "#2a2a35";
+            loadDiv.onmouseout = () => loadDiv.style.background = "transparent";
+            loadDiv.onclick = () => loadCharacterDetail(fav.charId, fav.serverId, fav.charName);
+            
+            const delDiv = document.createElement('div');
+            delDiv.style.cssText = "padding:6px 8px; cursor:pointer; background:#333; color:#ff5252; font-size:12px; display:flex; align-items:center; transition:0.2s;";
+            delDiv.innerHTML = "✖";
+            delDiv.onmouseover = () => delDiv.style.background = "#555";
+            delDiv.onmouseout = () => delDiv.style.background = "#333";
+            delDiv.onclick = () => removeFavorite(fav.charId);
+
+            fBtn.appendChild(loadDiv);
+            fBtn.appendChild(delDiv);
+            container.appendChild(fBtn);
+        });
+    }
+
+    function addFavorite(charId, serverId, charName, serverName, className) {
+        let favList = JSON.parse(localStorage.getItem('aion2_favorites')) || [];
+        if (favList.find(f => f.charId === charId)) {
+            alert("이미 즐겨찾기에 추가된 캐릭터입니다!");
+            return;
+        }
+        favList.push({ charId, serverId, charName, serverName, className });
+        localStorage.setItem('aion2_favorites', JSON.stringify(favList));
+        renderFavorites();
+        alert(`⭐ [${serverName}] ${charName} 캐릭터가 즐겨찾기에 추가되었습니다!`);
+    }
+
+    function removeFavorite(charId) {
+        let favList = JSON.parse(localStorage.getItem('aion2_favorites')) || [];
+        favList = favList.filter(f => f.charId !== charId);
+        localStorage.setItem('aion2_favorites', JSON.stringify(favList));
+        renderFavorites();
+    }
+
+    window.onload = () => {
+        updateServerList();
+        loadStatPreset(1, true); 
+        renderFavorites(); 
+    };
+
+    document.querySelectorAll('.stat-input-group input').forEach(input => { 
+        input.addEventListener('input', updateDeltaDashboard); 
+    });
+</script>
+
+</body>
+</html>
