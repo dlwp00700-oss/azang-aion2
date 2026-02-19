@@ -473,7 +473,7 @@
     </div>
 </div>
 
-        <div style="background:rgba(0,230,118,0.05); border:1px solid #00e676; border-radius:10px; padding:20px; text-align:center;">
+            <div style="background:rgba(0,230,118,0.05); border:1px solid #00e676; border-radius:10px; padding:20px; text-align:center;">
             <div style="font-size:14px; color:#aaa; margin-bottom:10px;">목표 장비 획득까지 예상 기간</div>
             <div id="aby_res_time" style="font-size:32px; font-weight:bold; color:#fff;">계산 중...</div>
             <div id="aby_res_desc" style="font-size:13px; color:#888; margin-top:10px;">-</div>
@@ -1737,7 +1737,7 @@
             html += `<tr style="background:#0a0a0c; border-bottom:1px solid #1a1a20;">
                 <td style="padding:10px; text-align:center; font-weight:bold; color:${cat.c}">${cat.n}</td>
                 <td><input type="number" id="curLv_${i}" value="1" min="1" max="10" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="if(this.value>10)this.value=10; runPetCalc()"></td>
-                <td><input type="number" id="curLv_${i}" value="1" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
+                <td><input type="number" id="curExp_${i}" value="1" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
                 <td><input type="number" id="curExp_${i}" value="0" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
                 <td><input type="number" id="tarLv_${i}" value="1" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
                 <td><select id="lock_${i}" style="width:90%; background:#111; border:1px solid #333; color:#fff; padding:5px;" onchange="runPetCalc()"><option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option><option value="6">6개</option><option value="7">7개</option><option value="8">8개</option></select></td>
@@ -1844,7 +1844,11 @@
     function calcAbyss() {
         // 1. 주간 한도 계산 (2026-02-20 기준)
         const baseLimit = 5000000;
-        const myAp = parseInt(document.getElementById('my_ap').value) || 0;
+        const myM = {
+    silver: parseInt(document.getElementById('my_m_silver').value) || 0,
+    gold: parseInt(document.getElementById('my_m_gold').value) || 0,
+    platinum: parseInt(document.getElementById('my_m_platinum').value) || 0
+};
         const remainLimit = Math.max(0, baseLimit - myAp);
         document.getElementById('remain_limit_text').innerText = `한도까지 남은 획득 가능 어포: ${remainLimit.toLocaleString()} AP`;
 
