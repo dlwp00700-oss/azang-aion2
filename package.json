@@ -1,6 +1,4 @@
 {
-  "name": "azang-server",
-  "version": "1.0.0",
   "dependencies": {
     "axios": "^1.6.2",
     "cors": "^2.8.5",
