@@ -929,7 +929,8 @@
         setTimeout(() => { searchDictItem(); }, 100);
     }
 
-    function updateEngraveDropdowns(savedEngravings = []) {
+    // ★ 버그 픽스: 이미 적용된 각인이 있으면 화면을 덮어쓰지 않고 살려주는 기능 추가
+    function updateEngraveDropdowns(savedEngravings = null) {
         if(!currentNewItemAPIData || !currentNewItemAPIData.subStats) return;
 
         let optionsHtml = `<option value="">선택 안함</option>`;
@@ -951,11 +952,17 @@
         }
         document.getElementById('wbEngravings').innerHTML = engHtml;
 
-        if(savedEngravings.length > 0) {
+        // ★ 버그 픽스: 백업해둔 각인 데이터를 드롭다운에 강제로 꽂아넣기
+        if(savedEngravings && savedEngravings.length > 0) {
             const eTypes = document.querySelectorAll('.wb-eng-type'); 
             const eVals = document.querySelectorAll('.wb-eng-val');
             savedEngravings.forEach((s, i) => { 
-                if(s && i<eTypes.length) { 
+                if(s && i<eTypes.length && s.type) { 
+                    // 혹시 신규 장비에는 없는 특수 각인이더라도 강제로 선택되게 추가
+                    if (!Array.from(eTypes[i].options).some(opt => opt.value === s.type)) {
+                        let labelName = STAT_LABEL[s.type] || s.type;
+                        eTypes[i].add(new Option(labelName + " (계승됨)", s.type));
+                    }
                     eTypes[i].value = s.type; 
                     eVals[i].value = s.val; 
                 } 
@@ -1046,7 +1053,8 @@
         } catch(e) { resultArea.innerHTML = `<div style="padding:15px; text-align:center; color:#ff5252;">검색 에러!</div>`; }
     }
 
-    async function selectDictItem(id, name) {
+    // ★ 버그 픽스: 통신 완료 후 각인 데이터를 살려주는 파라미터 추가
+    async function selectDictItem(id, name, savedEngravings = null) {
         document.getElementById('dictResultArea').innerHTML = `<div style="padding:15px; text-align:center; color:#4fc3f7;">[${name}] 스탯 파밍 중... ⏳</div>`;
         const enh = parseInt(document.getElementById('wbEnh').value) || 0;
         const brk = parseInt(document.getElementById('wbBrk').value) || 0;
@@ -1057,14 +1065,25 @@
             document.getElementById('dictResultArea').style.display = 'none';
             
             renderNewCardValues(); 
-            updateEngraveDropdowns();
+            updateEngraveDropdowns(savedEngravings); // 화면을 다시 그릴 때 백업해둔 각인 데이터를 꽂아넣습니다!
             applySimulation(true);
         } catch (e) { alert("상세 스탯 실패"); document.getElementById('dictResultArea').style.display = 'none'; }
     }
 
+    // ★ 버그 픽스: 강화 변경 시 현재 입력된 각인을 임시 백업
     function updateNewItemByEnhance() {
         if(!currentNewItemAPIData) { return; }
-        selectDictItem(currentNewItemAPIData.id, currentNewItemAPIData.name);
+        
+        let currentEngravings = [];
+        const eTypes = document.querySelectorAll('.wb-eng-type'); 
+        const eVals = document.querySelectorAll('.wb-eng-val');
+        if (eTypes.length > 0) {
+            for(let i=0; i<6; i++) {
+                currentEngravings.push({ type: eTypes[i].value, val: eVals[i].value });
+            }
+        }
+        
+        selectDictItem(currentNewItemAPIData.id, currentNewItemAPIData.name, currentEngravings.length ? currentEngravings : null);
     }
 
     function renderOldCard() {
@@ -1175,33 +1194,35 @@
         document.getElementById('newBaseStatsDisplay').innerHTML = bHtml || '<div style="color:#666; font-size:11px; text-align:center;">기본 능력치 없음</div>';
     }
 
+    // ★ 버그 픽스: 계승 로직 전면 개편 (계승된 데이터를 백업해서 서버에 던져줍니다)
     function inheritEnhanceAndEngrave() {
-        if(activeSlotIndex === -1) return;
+        if(activeSlotIndex === -1 || !currentNewItemAPIData) return;
         const eq = currentEquipData[activeSlotIndex];
+        
+        // 1. 강화/돌파 수치 세팅
         document.getElementById('wbEnh').value = Math.min(eq.enchantLevel || 0, 20);
         document.getElementById('wbBrk').value = eq.exceedLevel || 0;
         
+        // 2. 기존 장비에서 각인 데이터 추출
         const sStats = findData(eq, 'subStats') || [];
-        const eTypes = document.querySelectorAll('.wb-eng-type'); 
-        const eVals = document.querySelectorAll('.wb-eng-val');
+        let inheritedEngravings = [];
         
-        eTypes.forEach(el => el.value = ""); 
-        eVals.forEach(el => el.value = "");
-        
-        sStats.forEach((sub, i) => {
-            if(i < eTypes.length) {
+        for(let i=0; i<6; i++) {
+            if(i < sStats.length) {
+                let sub = sStats[i];
                 let rawName = sub.name;
                 let mappedType = mapStatName(rawName) || mapStatName(sub.id) || rawName;
-                
-                if (!Array.from(eTypes[i].options).some(opt => opt.value === mappedType)) {
-                    eTypes[i].add(new Option(rawName, mappedType));
-                }
-
-                eTypes[i].value = mappedType;
-                eVals[i].value = parseFloat((sub.value || "0").toString().replace(/[^0-9.]/g, '')) || 0;
+                inheritedEngravings.push({
+                    type: mappedType,
+                    val: parseFloat((sub.value || "0").toString().replace(/[^0-9.]/g, '')) || 0
+                });
+            } else {
+                inheritedEngravings.push({ type: "", val: "" });
             }
-        });
-        updateNewItemByEnhance();
+        }
+        
+        // 3. API 다시 부르면서 추출한 각인 데이터를 같이 던져줍니다.
+        selectDictItem(currentNewItemAPIData.id, currentNewItemAPIData.name, inheritedEngravings);
     }
 
     function applySimulation(isAuto = false) {
