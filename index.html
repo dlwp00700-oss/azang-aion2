@@ -133,6 +133,17 @@
         .footer-links a:hover { color: #fff; text-decoration: underline; }
         .footer-copy { margin-top: 10px; font-weight: bold; color: #aaa; }
         .footer-desc { margin-top: 5px; font-size: 11px; color: #666; }
+
+        /* 상단 네비게이션(카테고리) 디자인 */
+        .top-nav { background: #141418; border-bottom: 1px solid #2a2a35; display: flex; justify-content: center; gap: 10px; padding: 0 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); flex-wrap: wrap;}
+        .nav-item { color: #888; padding: 15px 20px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; border-bottom: 3px solid transparent; }
+        .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); border-radius: 6px 6px 0 0;}
+        .nav-item.active { color: #00e676; border-bottom-color: #00e676; }
+        
+        /* 탭 화면 전환용 */
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        
     /* 아직 애드센스 승인 전이므로 광고 영역 임시 숨김 */
         .side-ad-area { display: none !important; }
         .ad-banner { display: none !important; }
@@ -149,8 +160,23 @@
         <div class="ad-banner ad-top">[광고] 상단 배너 영역 (728x90)</div>
 
         <div class="logo-container" onclick="goToHome()">
-            <img src="logo.png" alt="AZANG 아장 - 아이온2 장비 분석 도우미" onerror="this.style.display='none'; this.parentElement.innerHTML='<h1 style=\'color:#00e676; font-size:40px; text-align:center;\'>AZANG</h1><p style=\'text-align:center;\'>아이온2 장비 분석 도우미</p>';">
+            </div>
+
+        <div class="top-nav">
+            <div class="nav-item active" onclick="switchTab('equip', this)">⚔️ 장비 시뮬레이터</div>
+            <div class="nav-item" onclick="switchTab('pet', this)">🐾 펫작 계산기</div>
+            <div class="nav-item" onclick="switchTab('abyss', this)">🏅 어비스 파밍 계산기</div>
         </div>
+        ```
+
+#### 3️⃣ 세 번째: 기존 내용을 '장비 탭' 안에 가두고, 빈 방 만들기
+이 부분이 제일 중요합니다! 메뉴바 바로 아래에 있는 **`<div class="search-bar">`** 바로 윗줄에 탭의 시작을 알리는 박스를 열고, 화면 끝 쪽에 박스를 닫아줘야 합니다.
+
+**[시작 부분]** `<div class="search-bar">` 바로 윗줄에 아래 코드를 넣습니다.
+```html
+        <div id="tab-equip" class="tab-content active">
+
+        
 
         <div class="search-bar">
             <select id="searchFaction" onchange="updateServerList()">
@@ -368,6 +394,21 @@
 
             </div>
         </div>
+
+        </div>
+        <div id="tab-pet" class="tab-content">
+            <div style="text-align:center; padding:150px 0; color:#888; font-size:16px;">
+                <div style="font-size:40px; margin-bottom:15px;">🐾</div>
+                펫작(종족 이해도) 계산기 개발 중...
+            </div>
+        </div>
+        <div id="tab-abyss" class="tab-content">
+            <div style="text-align:center; padding:150px 0; color:#888; font-size:16px;">
+                <div style="font-size:40px; margin-bottom:15px;">🏅</div>
+                어비스 장비 파밍 계산기 개발 중...
+            </div>
+        </div>
+        <div class="ad-banner ad-bottom">
 
         <div class="ad-banner ad-bottom">
             [광고] 하단 배너 영역 (728x90)
@@ -1628,9 +1669,24 @@
     document.querySelectorAll('.stat-input-group input').forEach(input => { 
         input.addEventListener('input', updateDeltaDashboard); 
     });
+// ==========================================
+    // 🗂️ 카테고리 탭 전환 로직
+    // ==========================================
+    function switchTab(tabId, element) {
+        // 1. 모든 탭 숨기기
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        // 2. 모든 메뉴 버튼 색상 끄기
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        
+        // 3. 내가 클릭한 탭만 보여주기
+        document.getElementById('tab-' + tabId).classList.add('active');
+        // 4. 내가 클릭한 버튼에 불 켜기
+        element.classList.add('active');
+    }
 </script>
 
 </body>
 </html>
+
 
 
