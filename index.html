@@ -1873,7 +1873,10 @@
             totalMedal += item.medal;
         });
 
-        const myM = parseInt(document.getElementById('my_medal').value) || 0;
+        let myM = 0;
+        if (targetRank == 100) myM = parseInt(document.getElementById('my_medal_silver').value) || 0;
+        else if (targetRank == 1000) myM = parseInt(document.getElementById('my_medal_gold').value) || 0;
+        else if (targetRank == 10000) myM = parseInt(document.getElementById('my_medal_plat').value) || 0;
         const wAp = parseInt(document.getElementById('week_ap').value) || 0;
         const useApBuy = document.getElementById('buy_medal_ap').checked;
         const useMake = document.getElementById('make_medal').checked;
@@ -1908,6 +1911,7 @@
 
 </body>
 </html>
+
 
 
 
