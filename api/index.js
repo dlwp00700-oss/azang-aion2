@@ -13,13 +13,13 @@ const headers = {
 
 app.get('/api/servers', async (req, res) => {
     try { res.json((await axios.get('https://aion2.plaync.com/api/gameinfo/servers?lang=ko', { headers })).data); } 
-    catch (e) { res.status(500).json({ error: "서버 목록 실패" }); }
+    catch (e) { res.status(500).json({ error: "서버 목록 실패", details: e.message }); }
 });
 
 app.get('/api/searchList', async (req, res) => {
     const { name, race, serverId } = req.query;
     try { res.json((await axios.get(`https://aion2.plaync.com/ko-kr/api/search/aion2/search/v2/character?keyword=${encodeURIComponent(name)}&race=${race}&serverId=${serverId || ''}&page=1&size=30`, { headers })).data); } 
-    catch (e) { res.status(500).json({ error: "검색 실패" }); }
+    catch (e) { res.status(500).json({ error: "검색 실패", details: e.message }); }
 });
 
 app.get('/api/characterDetail', async (req, res) => {
@@ -43,7 +43,7 @@ app.get('/api/characterDetail', async (req, res) => {
         if (eqData.equipment?.equipment?.equipmentList) eqData.equipment.equipment.equipmentList = dEqList;
         else if (eqData.equipment?.equipmentList) eqData.equipment.equipmentList = dEqList;
         res.json({ equipment: eqData, info: infoRes.data });
-    } catch (e) { res.status(500).json({ error: "상세 정보 실패" }); }
+    } catch (e) { res.status(500).json({ error: "상세 정보 실패", details: e.message }); }
 });
 
 app.get('/api/searchDictItem', async (req, res) => {
@@ -52,7 +52,7 @@ app.get('/api/searchDictItem', async (req, res) => {
         const url = `https://api-goats.plaync.com/aion2/v2.0/dict/search/item?size=50&page=1&searchKeyword=${encodeURIComponent(keyword)}&locale=ko-KR`;
         const response = await axios.get(url, { headers });
         res.json(response.data);
-    } catch (e) { res.status(500).json({ error: "사전 검색 실패" }); }
+    } catch (e) { res.status(500).json({ error: "사전 검색 실패", details: e.message }); }
 });
 
 app.get('/api/getDictItemDetail', async (req, res) => {
@@ -61,8 +61,7 @@ app.get('/api/getDictItemDetail', async (req, res) => {
         const url = `https://aion2.plaync.com/api/gameconst/item?id=${id}&enchantLevel=${enchantLevel || 0}&exceedLevel=${exceedLevel || 0}&lang=ko`;
         const response = await axios.get(url, { headers });
         res.json(response.data);
-    } catch (e) { res.status(500).json({ error: "사전 상세 조회 실패" }); }
+    } catch (e) { res.status(500).json({ error: "사전 상세 조회 실패", details: e.message }); }
 });
 
-// Vercel을 위해 서버 실행(app.listen) 대신 모듈로 내보냅니다!
 module.exports = app;
