@@ -9,6 +9,7 @@
     <meta property="og:description" content="내 캐릭터 장비 교체 시뮬레이션! 딜량 상승과 생존력을 1초 만에 계산합니다.">
     
     <title>아장(AZANG) - 아이온2 장비 분석 도우미</title>
+    <link rel="icon" type="image/png" href="flogo.png">
 
     <style>
         :root { --bg: #0a0a0c; --panel: #141418; --border: #2a2a35; --accent: #00e676; --accent-hover: #00c853; --pos: #69f0ae; --neg: #ff5252; --text: #e0e0e0; }
@@ -520,6 +521,7 @@
     <div class="side-ad-area">
         <div class="ad-banner-box">[광고]<br>우측 배너 영역<br>(160x600)</div>
     </div>
+
 </div>
 
 <div id="termsModal" class="modal-overlay" onclick="closeModal('termsModal', event)">
@@ -553,38 +555,20 @@
         <p>사이트 운영 유지를 위해 구글 애드센스(Google AdSense) 등의 광고가 게재될 수 있습니다. 광고 제공업체는 사용자의 관심사에 맞는 광고를 송출하기 위해 쿠키(Cookie)를 사용할 수 있습니다. 사용자는 브라우저 설정을 통해 쿠키 저장을 거부할 수 있습니다.</p>
     </div>
 </div>
-            <div class="footer-links">
-                <a href="https://aion2.plaync.com/" target="_blank">AION2 공식 홈페이지</a> | 
-                <a href="#">이용약관</a> | 
-                <a href="#">개인정보처리방침</a> | 
-                <a href="https://discord.gg/N3EV4pxf" target="_blank">1:1 문의 (Discord)</a>
-            </div>
-            <div class="footer-copy">© 2026 AZANG (아장) - 아이온2 장비 시뮬레이터. All rights reserved.</div>
-            <div class="footer-desc">
-                본 사이트는 (주)엔씨소프트와 무관한 비공식 팬 사이트입니다.<br>
-                This site is not associated with NCsoft Corporation. AION2 is a trademark of NCSOFT.
-            </div>
-        </footer>
 
-    </div>
-
-    <div class="side-ad-area">
-        <div class="ad-banner-box">[광고]<br>우측 배너 영역<br>(160x600)</div>
-    </div>
-
-</div>
-    
-
+<script>
+    // 팝업(모달) 열기/닫기 함수
     function openModal(modalId) {
         document.getElementById(modalId).style.display = 'flex';
     }
     
     function closeModal(modalId, event) {
-        // 배경을 클릭했을 때도 닫히게 하거나, 닫기 버튼을 눌렀을 때 닫힘
         if (!event || event.target.id === modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
     }
+
+    const API_BASE = "/api";
 <script>
     const API_BASE = "/api";
     let currentEquipData = []; 
@@ -1981,6 +1965,7 @@
 
 </body>
 </html>
+
 
 
 
