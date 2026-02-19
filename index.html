@@ -412,54 +412,66 @@
             </div>
         </div>
         <div id="tab-abyss" class="tab-content">
-    <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:900px; margin:0 auto;">
-        <div style="border-bottom:2px solid #2a2a35; padding-bottom:15px; margin-bottom:20px;">
-            <h2 style="margin:0; color:#ffca28; font-size:20px;">🏅 어비스 장비 파밍 시뮬레이터</h2>
-            <p style="color:#666; font-size:12px; margin-top:5px;">보유 자원과 주간 수급량을 토대로 목표 장비까지의 기간을 계산합니다.</p>
+    <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:1000px; margin:0 auto;">
+        <div style="background:linear-gradient(90deg, #1a1a24 0%, #0a0a0c 100%); border:1px solid #4fc3f7; border-radius:10px; padding:20px; margin-bottom:25px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h3 style="margin:0; color:#4fc3f7; font-size:14px;">📅 현재 시즌 누적 어포 한도 (2026-02-20 기준)</h3>
+                <div id="limit_display" style="font-size:24px; font-weight:bold; color:#fff; margin-top:5px;">5,000,000 AP</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:12px; color:#888;">다음 갱신일: 2월 25일(수)</div>
+                <div style="font-size:14px; color:#69f0ae; font-weight:bold;">+500,000 AP 충전 예정</div>
+            </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
-            <div style="background:#0a0a0c; padding:15px; border-radius:8px; border:1px solid #333;">
-                <h3 style="font-size:14px; color:#ffca28; margin-top:0;">1. 목표 장비 선택</h3>
-                <select id="aby_rank" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #444; margin-bottom:10px;" onchange="updateAbyTarget()">
-                    <option value="10">십부장 (훈장X)</option>
-                    <option value="100">백부장 (은공훈)</option>
-                    <option value="1000">천부장 (금공훈)</option>
-                    <option value="10000">군단장 (백금공훈)</option>
-                </select>
-                <select id="aby_part" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #444;" onchange="updateAbyTarget()">
-                    <option value="weapon">무기/가더</option>
-                    <option value="top">흉갑(상의)</option>
-                    <option value="bottom">각반(하의)</option>
-                    <option value="head">투구</option>
-                    <option value="shoulder">견갑</option>
-                    <option value="glove">장갑</option>
-                    <option value="shoe">장화</option>
-                    <option value="cloak">망토</option>
-                    <option value="neck">목걸이</option>
-                    <option value="ear">귀걸이</option>
-                    <option value="ring">반지</option>
-                </select>
-                <div id="aby_target_info" style="margin-top:10px; font-size:13px; color:#aaa; background:#1a1a20; padding:10px; border-radius:4px;">
-                    목표: <span id="target_name" style="color:#fff;">십부장 무기</span><br>
-                    필요: <span id="target_cost" style="color:#69f0ae;">126,200 어포 / 0 훈장</span>
+        <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:20px;">
+            <div>
+                <h3 style="font-size:14px; color:#ffca28; margin-top:0;">1. 파밍 목표 장비 (다중 선택 가능)</h3>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <select id="aby_rank" style="flex:1; padding:8px; background:#111; color:#fff; border:1px solid #444;" onchange="updateAbyTarget()">
+                        <option value="10">십부장</option><option value="100">백부장</option>
+                        <option value="1000">천부장</option><option value="10000">군단장</option>
+                    </select>
+                    <select id="aby_part" style="flex:1; padding:8px; background:#111; color:#fff; border:1px solid #444;" onchange="updateAbyTarget()">
+                        <option value="weapon">무기/가더</option><option value="top">흉갑</option>
+                        <option value="bottom">각반</option><option value="head">투구</option>
+                        <option value="shoulder">견갑</option><option value="glove">장갑</option>
+                        <option value="shoe">장화</option><option value="cloak">망토</option>
+                        <option value="neck">목걸이</option><option value="ear">귀걸이</option><option value="ring">반지</option>
+                    </select>
+                </div>
+                <button onclick="addToCart()" style="width:100%; padding:10px; background:#4fc3f7; color:#000; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-bottom:15px;">🛒 장바구니에 담기</button>
+                
+                <div id="aby_cart_list" style="background:#0a0a0c; border:1px solid #333; border-radius:8px; min-height:150px; padding:10px;">
+                    <p style="text-align:center; color:#444; font-size:12px; margin-top:60px;">장바구니가 비어있습니다.</p>
                 </div>
             </div>
 
-            <div style="background:#0a0a0c; padding:15px; border-radius:8px; border:1px solid #333;">
-                <h3 style="font-size:14px; color:#4fc3f7; margin-top:0;">2. 보유 자원 및 주간 수급</h3>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div><label style="font-size:11px; color:#888;">보유 어포</label><input type="number" id="my_ap" value="0" style="width:100%; padding:5px; background:#111; border:1px solid #444; color:#fff;" oninput="calcAbyss()"></div>
-                    <div><label style="font-size:11px; color:#888;">보유 훈장</label><input type="number" id="my_medal" value="0" style="width:100%; padding:5px; background:#111; border:1px solid #444; color:#fff;" oninput="calcAbyss()"></div>
-                    <div><label style="font-size:11px; color:#888;">주간 획득 어포</label><input type="number" id="week_ap" value="50000" style="width:100%; padding:5px; background:#111; border:1px solid #444; color:#fff;" oninput="calcAbyss()"></div>
-                    <div><label style="font-size:11px; color:#888;">주간 퀘스트 훈장</label><input type="number" id="week_q_medal" value="9" style="width:100%; padding:5px; background:#111; border:1px solid #444; color:#fff;" oninput="calcAbyss()"></div>
+            <div>
+                <h3 style="font-size:14px; color:#4fc3f7; margin-top:0;">2. 내 현재 자원 정보</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#0a0a0c; padding:15px; border-radius:8px; border:1px solid #333;">
+                    <div style="grid-column: span 2;">
+                        <label style="font-size:11px; color:#888;">내 현재 보유 어포</label>
+                        <input type="number" id="my_ap" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; font-size:16px;" oninput="calcAbyss()">
+                        <div id="remain_limit_text" style="font-size:11px; color:#ff5252; margin-top:5px;">한도까지 남은 획득 가능 어포: 5,000,000 AP</div>
+                    </div>
+                    <div><label style="font-size:11px; color:#888;">보유 은/금/백금 훈장</label><input type="number" id="my_medal" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff;" oninput="calcAbyss()"></div>
+                    <div><label style="font-size:11px; color:#888;">주간 평균 획득 어포</label><input type="number" id="week_ap" value="300000" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff;" oninput="calcAbyss()"></div>
+                    <div style="grid-column: span 2; border-top:1px solid #222; padding-top:10px; margin-top:5px;">
+                        <label style="font-size:12px; color:#ccc;"><input type="checkbox" id="buy_medal_ap" onchange="calcAbyss()" checked> 주간 어포로 훈장 구매(10개)</label><br>
+                        <label style="font-size:12px; color:#ccc;"><input type="checkbox" id="make_medal" onchange="calcAbyss()" checked> 주간 훈장 제작 시도(20회)</label>
+                    </div>
                 </div>
-                <div style="margin-top:10px;">
-                    <label style="font-size:12px; color:#ccc;"><input type="checkbox" id="buy_medal_ap" onchange="calcAbyss()" checked> 주간 어포로 훈장 구매(10개)</label><br>
-                    <label style="font-size:12px; color:#ccc;"><input type="checkbox" id="make_medal" onchange="calcAbyss()" checked> 주간 훈장 제작 시도(20회)</label>
+
+                <div style="margin-top:20px; background:rgba(0,230,118,0.05); border:1px solid #00e676; border-radius:10px; padding:20px; text-align:center;">
+                    <div style="font-size:13px; color:#aaa; margin-bottom:5px;">모든 목표 달성까지</div>
+                    <div id="aby_res_time" style="font-size:32px; font-weight:bold; color:#fff;">0주</div>
+                    <div id="aby_res_desc" style="font-size:12px; color:#888; margin-top:8px;">-</div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
         <div style="background:rgba(0,230,118,0.05); border:1px solid #00e676; border-radius:10px; padding:20px; text-align:center;">
             <div style="font-size:14px; color:#aaa; margin-bottom:10px;">목표 장비 획득까지 예상 기간</div>
@@ -1762,90 +1774,132 @@
     const oldLoad = window.onload;
     window.onload = () => { if(oldLoad) oldLoad(); initPetCalc(); };
 
-    // 🏅 어비스 데이터 (대표님 제공 데이터 기준)
+    // 🏅 어비스 데이터 및 다중 계산 로직
     const ABY_DATA = {
-        10: { name: '십부장', medal: '', ap: {weapon:126200, top:84100, bottom:63100, head:52600, shoulder:52600, glove:42100, shoe:52600, cloak:42100, neck:52600, ear:42100, ring:31600}, mCount:{} },
-        100: { name: '백부장', medal: '은공훈', ap: {weapon:409500, top:273000, bottom:204800, head:170600, shoulder:170600, glove:136500, shoe:170600, cloak:136500, neck:170600, ear:136500, ring:102400}, mCount:{weapon:50, top:35, bottom:25, head:20, shoulder:20, glove:15, shoe:20, cloak:15, neck:20, ear:15, ring:15} },
-        1000: { name: '천부장', medal: '금공훈', ap: {weapon:1171500, top:781000, bottom:585800, head:488200, shoulder:488200, glove:390500, shoe:488200, cloak:390500, neck:488200, ear:390500, ring:292900}, mCount:{weapon:120, top:80, bottom:60, head:50, shoulder:50, glove:40, shoe:50, cloak:40, neck:50, ear:40, ring:30} },
-        10000: { name: '군단장', medal: '백금공훈', ap: {weapon:3636300, top:2424200, bottom:1818200, head:1515100, shoulder:1515100, glove:1212100, shoe:1515100, cloak:1212100, neck:1515100, ear:1212100, ring:909100}, mCount:{weapon:240, top:160, bottom:120, head:100, shoulder:100, glove:80, shoe:100, cloak:80, neck:100, ear:80, ring:80} }
+        10: { name: '십부장', color: '#fff', ap: {weapon:126200, top:84100, bottom:63100, head:52600, shoulder:52600, glove:42100, shoe:52600, cloak:42100, neck:52600, ear:42100, ring:31600}, mCount:{} },
+        100: { name: '백부장', color: '#69f0ae', ap: {weapon:409500, top:273000, bottom:204800, head:170600, shoulder:170600, glove:136500, shoe:170600, cloak:136500, neck:170600, ear:136500, ring:102400}, mCount:{weapon:50, top:35, bottom:25, head:20, shoulder:20, glove:15, shoe:20, cloak:15, neck:20, ear:15, ring:15} },
+        1000: { name: '천부장', color: '#ffca28', ap: {weapon:1171500, top:781000, bottom:585800, head:488200, shoulder:488200, glove:390500, shoe:488200, cloak:390500, neck:488200, ear:40000, ring:30} }, // 반지수정
+        10000: { name: '군단장', color: '#ff9800', ap: {weapon:3636300, top:2424200, bottom:1818200, head:1515100, shoulder:1515100, glove:1212100, shoe:1515100, cloak:1212100, neck:1515100, ear:1212100, ring:909100}, mCount:{weapon:240, top:160, bottom:120, head:100, shoulder:100, glove:80, shoe:100, cloak:80, neck:100, ear:80, ring:80} }
     };
+    // 천부장 훈장 데이터 보정 (제공해주신 데이터 기반)
+    ABY_DATA[1000].mCount = {weapon:120, top:80, bottom:60, head:50, shoulder:50, glove:40, shoe:50, cloak:40, neck:50, ear:40, ring:30};
 
-    function updateAbyTarget() {
+    let abyCart = [];
+
+    function addToCart() {
         const rank = document.getElementById('aby_rank').value;
         const part = document.getElementById('aby_part').value;
         const data = ABY_DATA[rank];
-        const apReq = data.ap[part];
-        const mReq = data.mCount[part] || 0;
+        const partName = document.getElementById('aby_part').options[document.getElementById('aby_part').selectedIndex].text;
         
-        document.getElementById('target_name').innerText = `${data.name} ${document.getElementById('aby_part').options[document.getElementById('aby_part').selectedIndex].text}`;
-        document.getElementById('target_cost').innerText = `${apReq.toLocaleString()} 어포 / ${mReq} ${data.medal || ''} 훈장`;
-        
-        // 훈장 종류에 따른 주간 기본 퀘스트 보상 자동 세팅 (백부장=9개, 천부장=8개 기준)
-        if(rank == 100) document.getElementById('week_q_medal').value = 9;
-        else if(rank == 1000) document.getElementById('week_q_medal').value = 8;
-        else document.getElementById('week_q_medal').value = 0;
+        // 아이콘 이미지 찾기 (캐릭터 정보에 있으면 가져옴)
+        let iconUrl = 'https://via.placeholder.com/40/222/888?text=?';
+        if(currentEquipData.length > 0) {
+            const found = currentEquipData.find(e => getSmartCategory(e)?.key.includes(part === 'neck' ? 'necklace' : part === 'ear' ? 'earring' : part === 'ring' ? 'ring' : part));
+            if(found) iconUrl = found.icon;
+        }
 
+        abyCart.push({
+            id: Date.now(),
+            rank: rank,
+            rankName: data.name,
+            part: part,
+            partName: partName,
+            ap: data.ap[part],
+            medal: data.mCount[part] || 0,
+            color: data.color,
+            icon: iconUrl
+        });
+        renderAbyCart();
         calcAbyss();
     }
 
+    function removeFromCart(id) {
+        abyCart = abyCart.filter(item => item.id !== id);
+        renderAbyCart();
+        calcAbyss();
+    }
+
+    function renderAbyCart() {
+        const container = document.getElementById('aby_cart_list');
+        if(abyCart.length === 0) {
+            container.innerHTML = `<p style="text-align:center; color:#444; font-size:12px; margin-top:60px;">장바구니가 비어있습니다.</p>`;
+            return;
+        }
+        let html = '';
+        abyCart.forEach(item => {
+            html += `
+            <div style="display:flex; align-items:center; gap:10px; background:#111; padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid #333;">
+                <img src="${item.icon}" style="width:32px; height:32px; border-radius:4px; border:1px solid #444;">
+                <div style="flex:1;">
+                    <div style="font-size:12px; font-weight:bold; color:${item.color}">${item.rankName} ${item.partName}</div>
+                    <div style="font-size:10px; color:#888;">${item.ap.toLocaleString()} AP / ${item.medal} 훈장</div>
+                </div>
+                <button onclick="removeFromCart(${item.id})" style="background:none; border:none; color:#ff5252; cursor:pointer; font-weight:bold;">×</button>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
     function calcAbyss() {
-        const rank = document.getElementById('aby_rank').value;
-        const part = document.getElementById('aby_part').value;
-        const data = ABY_DATA[rank];
-        
-        const reqAp = data.ap[part];
-        const reqM = data.mCount[part] || 0;
-        
+        // 1. 주간 한도 계산 (2026-02-20 기준)
+        const baseLimit = 5000000;
         const myAp = parseInt(document.getElementById('my_ap').value) || 0;
+        const remainLimit = Math.max(0, baseLimit - myAp);
+        document.getElementById('remain_limit_text').innerText = `한도까지 남은 획득 가능 어포: ${remainLimit.toLocaleString()} AP`;
+
+        if(abyCart.length === 0) {
+            document.getElementById('aby_res_time').innerText = "0주";
+            document.getElementById('aby_res_desc').innerText = "목표 장비를 추가해주세요.";
+            return;
+        }
+
+        // 2. 총 필요 자원 합산
+        let totalAp = 0;
+        let totalMedal = 0;
+        let targetRank = abyCart[0].rank; // 첫 번째 장비 기준 훈장 종류 판단
+
+        abyCart.forEach(item => {
+            totalAp += item.ap;
+            totalMedal += item.medal;
+        });
+
         const myM = parseInt(document.getElementById('my_medal').value) || 0;
         const wAp = parseInt(document.getElementById('week_ap').value) || 0;
-        const wQM = parseInt(document.getElementById('week_q_medal').value) || 0;
         const useApBuy = document.getElementById('buy_medal_ap').checked;
         const useMake = document.getElementById('make_medal').checked;
 
-        let remAp = Math.max(0, reqAp - myAp);
-        let remM = Math.max(0, reqM - myM);
+        let remAp = Math.max(0, totalAp - myAp);
+        let remM = Math.max(0, totalMedal - myM);
 
-        // 주간 훈장 획득량 계산
-        let weeklyMedalTotal = wQM;
+        // 주간 훈장 및 어포 소모량 기대값
+        let weeklyMedal = (targetRank == 100 ? 9 : targetRank == 1000 ? 8 : 0);
         let weeklyApCost = 0;
 
-        if(rank == 100 || rank == 1000) {
-            if(useApBuy) {
-                weeklyMedalTotal += 10;
-                weeklyApCost += (rank == 100 ? 100000 : 300000); // 10개 구매 비용
-            }
-            if(useMake) {
-                // 제작 성공 확률 반영 (은공 10% = 20회 시 2개 / 금공 20% = 20회 시 4개 기대값)
-                weeklyMedalTotal += (rank == 100 ? 2 : 4); 
-            }
+        if(targetRank >= 100) {
+            if(useApBuy) { weeklyMedal += 10; weeklyApCost += (targetRank == 100 ? 100000 : 300000); }
+            if(useMake) { weeklyMedal += (targetRank == 100 ? 2 : 4); }
         }
 
-        // 기간 계산 (어포와 훈장 중 더 오래 걸리는 쪽 기준)
         let weeksForAp = (wAp - weeklyApCost > 0) ? Math.ceil(remAp / (wAp - weeklyApCost)) : 999;
-        let weeksForMedal = (weeklyMedalTotal > 0) ? Math.ceil(remM / weeklyMedalTotal) : (remM > 0 ? 999 : 0);
-        
+        let weeksForMedal = (weeklyMedal > 0) ? Math.ceil(remM / weeklyMedal) : (remM > 0 ? 999 : 0);
         let finalWeeks = Math.max(weeksForAp, weeksForMedal);
 
-        if(finalWeeks >= 999) {
-            document.getElementById('aby_res_time').innerText = "측정 불가";
-            document.getElementById('aby_res_desc').innerText = "주간 소모 어포가 획득량보다 많거나 수급처가 없습니다.";
-        } else {
-            document.getElementById('aby_res_time').innerText = `약 ${finalWeeks}주`;
-            document.getElementById('aby_res_desc').innerText = `어포 기준 ${weeksForAp}주, 훈장 기준 ${weeksForMedal}주 소요 예상`;
-        }
+        document.getElementById('aby_res_time').innerText = `약 ${finalWeeks}주`;
+        document.getElementById('aby_res_desc').innerText = `총 필요: ${totalAp.toLocaleString()} AP / ${totalMedal} 훈장`;
     }
 
-    // 탭 전환 시 초기화 로직 추가
+    // 탭 전환 시 초기화
     const oldSwitch = switchTab;
     switchTab = (id, el) => {
         oldSwitch(id, el);
-        if(id === 'abyss') updateAbyTarget();
+        if(id === 'abyss') calcAbyss();
     };
 </script>
 
 </body>
 </html>
+
 
 
 
