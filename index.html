@@ -121,7 +121,6 @@
         .filter-label input[type="checkbox"] { margin:0; cursor:pointer; }
         .filter-label:hover { color:#fff; }
 
-        /* ★ SEO 가이드 박스 및 푸터 스타일 추가 */
         .seo-guide-box { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; margin-top: 20px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
         .seo-guide-box summary { font-size: 14px; font-weight: bold; color: #ffca28; cursor: pointer; outline: none; }
         .seo-content { margin-top: 15px; color: #ccc; font-size: 13px; line-height: 1.6; border-top: 1px dashed #333; padding-top: 15px; }
@@ -394,7 +393,17 @@
 </div>
 
 <script>
-    const API_BASE = "/api";
+    // ★ 안전한 단일 프록시 서버 통신 모듈
+    async function apiFetch(endpoint, params = {}) {
+        let url = `/api/proxy?endpoint=${encodeURIComponent(endpoint)}`;
+        for (let key in params) {
+            url += `&${key}=${encodeURIComponent(params[key])}`;
+        }
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("API 연동 에러가 발생했습니다.");
+        return await response.json();
+    }
+
     let currentEquipData = []; 
     let simulationState = {}; 
     let activeSlotIndex = -1;
@@ -427,12 +436,6 @@
 
     const STAT_KEYS = ["atk", "acc", "amp", "pvpAmp", "pveAmp", "crit", "critDmg", "critAddDmg", "critRes", "hp", "mp", "def", "spd", "multiHit", "shockHit", "power", "agi", "acc_stat", "will", "know", "vit", "dest", "death", "wis", "destiny", "space", "time_stat", "life", "illusion", "freedom", "justice", "rearAtk", "block", "evasion", "wAmp", "atkPct", "defPct", "bossAmp", "raceAmp", "pveRes", "pvpRes", "genRes", "hpPct", "statusRes", "statusAcc"];
     
-    const ENGRAVE_GROUPS = {
-        weapon: ["atk", "atkPct", "acc", "amp", "wAmp", "pvpAmp", "pveAmp", "crit", "critDmg", "critAddDmg", "spd", "power", "acc_stat", "dest", "death", "wis", "bossAmp", "raceAmp", "multiHit", "shockHit", "rearAtk"],
-        armor: ["def", "defPct", "hp", "hpPct", "mp", "critRes", "pveRes", "pvpRes", "genRes", "agi", "vit", "will", "space", "life", "justice", "evasion", "block"],
-        accessory: ["atk", "def", "acc", "crit", "amp", "pvpAmp", "pveAmp", "spd", "know", "destiny", "time_stat", "illusion", "freedom", "statusRes", "statusAcc"]
-    };
-
     function mapStatName(name) {
         if(!name) return null;
         if(name.includes("공격력 증가")) return "atkPct";
@@ -450,14 +453,12 @@
         if(name.includes("몬스터 피해 내성") || name.includes("PVE 피해 내성")) return "pveRes";
         if(name.includes("PVP 피해 내성")) return "pvpRes";
         if(name === "피해 내성" || name === "일반 피해 내성") return "genRes";
-        
         if(name === "위력" || name === "STR") return "power";
         if(name === "민첩" || name === "DEX") return "agi";
         if(name === "정확" || name === "AGI") return "acc_stat";
         if(name === "의지" || name === "WIS") return "will";
         if(name === "지식" || name === "INT") return "know";
         if(name === "체력" || name === "CON") return "vit";
-        
         if(name === "파괴" || name === "Destruction") return "dest";
         if(name === "죽음" || name === "Death") return "death";
         if(name === "지혜" || name === "Wisdom") return "wis";
@@ -468,7 +469,6 @@
         if(name === "환상" || name === "Illusion") return "illusion";
         if(name === "자유" || name === "Freedom") return "freedom";
         if(name === "정의" || name === "Justice") return "justice";
-
         if(name === "치명타" || name === "물리 치명타" || name === "마법 치명타") return "crit";
         if(name === "치명타 저항" || name === "CriticalResist") return "critRes";
         if(name.includes("생명력")) return "hp";
@@ -530,8 +530,7 @@
         if (serverListCache.length === 0) {
             try {
                 serverSelect.innerHTML = `<option value="">🌐 서버 불러오는 중...</option>`;
-                const res = await fetch(`${API_BASE}/servers`);
-                const data = await res.json();
+                const data = await apiFetch('servers'); // 프록시 사용
                 serverListCache = data.serverList || [];
             } catch (e) {
                 serverSelect.innerHTML = `<option value="">서버 목록 실패 (유스티엘로 검색됨)</option>`;
@@ -683,8 +682,7 @@
         selectionDiv.style.display = 'none'; 
 
         try {
-            const listRes = await fetch(`${API_BASE}/searchList?name=${encodeURIComponent(name)}&race=${race}&serverId=${serverId}`);
-            const listData = await listRes.json();
+            const listData = await apiFetch('searchList', { name: name, race: race, serverId: serverId }); // 프록시 사용
             const charList = listData.contents || listData.list || [];
 
             if (charList.length === 0) { statusMsg.innerHTML = "❌ 검색된 캐릭터가 없습니다."; return; }
@@ -739,8 +737,7 @@
         statusMsg.innerHTML = `⏳ [${characterName}] 분석 중...`;
 
         try {
-            const detailRes = await fetch(`${API_BASE}/characterDetail?characterId=${encodeURIComponent(characterId)}&serverId=${serverId}`);
-            const data = await detailRes.json();
+            const data = await apiFetch('characterDetail', { characterId: characterId, serverId: serverId }); // 프록시 사용
             
             const statList = data.stat?.statList || data.info?.stat?.statList || [];
             
@@ -1000,10 +997,9 @@
         try {
             queriesToRun = queriesToRun.slice(0, 10);
             
+            // ★ 프록시 서버 연동
             const fetchPromises = queriesToRun.map(q => 
-                fetch(`${API_BASE}/searchDictItem?keyword=${encodeURIComponent(q)}`)
-                    .then(res => res.json())
-                    .catch(e => ({ list: [] }))
+                apiFetch('searchDictItem', { keyword: q }).catch(e => ({ list: [] }))
             );
 
             const results = await Promise.all(fetchPromises);
@@ -1062,8 +1058,8 @@
         const brk = parseInt(document.getElementById('wbBrk').value) || 0;
         
         try {
-            const res = await fetch(`${API_BASE}/getDictItemDetail?id=${id}&enchantLevel=${enh}&exceedLevel=${brk}`);
-            currentNewItemAPIData = await res.json();
+            const data = await apiFetch('getDictItemDetail', { id: id, enchantLevel: enh, exceedLevel: brk }); // 프록시 사용
+            currentNewItemAPIData = data;
             document.getElementById('dictResultArea').style.display = 'none';
             
             renderNewCardValues(); 
@@ -1115,7 +1111,7 @@
                 ${oImg}
                 <div>
                     <div style="color:${getGradeColor(oldEq.grade)}; font-weight:bold; font-size:14px;">+${oldEq.enchantLevel||0} ${oldEq.name}</div>
-                    <div style="font-size:11px; color:#888; margin:2px 0;">Lv.${oCp} <span style="color:#4fc3f7">(+${oBonus})</span></div>
+                    <div style="font-size:11px; color:#888; margin:2px 0;">Lv.${oBase} <span style="color:#4fc3f7; font-weight:bold;">(+${oBonus})</span></div>
                     <div style="display:flex; align-items:center; gap:6px;"><div class="diamond-container">${diamondsHtml}</div></div>
                 </div>
             </div>
@@ -1159,7 +1155,7 @@
             ${nImg}
             <div style="text-align:left;">
                 <div style="color:${getGradeColor(nEq.grade)}; font-weight:bold; font-size:14px;">+${enh} ${nEq.name}</div>
-                <div style="font-size:11px; color:#888; margin:2px 0;">Lv.${nCp} <span style="color:#4fc3f7">(+${nBonus})</span></div>
+                <div style="font-size:11px; color:#888; margin:2px 0;">Lv.${nBase} <span style="color:#4fc3f7; font-weight:bold;">(+${nBonus})</span></div>
                 <div style="display:flex; align-items:center; gap:6px;"><div class="diamond-container">${diamondsHtml}</div></div>
             </div>
         `;
