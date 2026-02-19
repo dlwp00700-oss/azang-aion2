@@ -1673,6 +1673,7 @@
         PET_CATS.forEach((cat, i) => {
             html += `<tr style="background:#0a0a0c; border-bottom:1px solid #1a1a20;">
                 <td style="padding:10px; text-align:center; font-weight:bold; color:${cat.c}">${cat.n}</td>
+                <td><input type="number" id="curLv_${i}" value="1" min="1" max="10" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="if(this.value>10)this.value=10; runPetCalc()"></td>
                 <td><input type="number" id="curLv_${i}" value="1" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
                 <td><input type="number" id="curExp_${i}" value="0" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
                 <td><input type="number" id="tarLv_${i}" value="1" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
@@ -1713,6 +1714,7 @@
 
 </body>
 </html>
+
 
 
 
