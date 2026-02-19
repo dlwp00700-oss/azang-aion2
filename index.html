@@ -379,9 +379,36 @@
             </div>
         </div>
         <div id="tab-pet" class="tab-content">
-            <div style="text-align:center; padding:150px 0; color:#888; font-size:16px;">
-                <div style="font-size:40px; margin-bottom:15px;">🐾</div>
-                펫작(종족 이해도) 계산기 화면 준비 중!
+            <div class="pet-calc-container">
+                <div class="pet-calc-title">
+                    <span>🐾 펫 종족 이해도 종합 계산기</span>
+                    <span style="font-size:11px; font-weight:normal; color:#888;">* 1회 분석당 영혼결정 1개 = 몹 1마리 처치 기준</span>
+                </div>
+                
+                <div style="font-size:12px; color:#ff5252; margin-bottom:15px; text-align:right; font-weight:bold;">
+                    * 옵션을 잠그면 클릭당 필요 재화가 상승하고, 획득 경험치가 감소합니다!
+                </div>
+                
+                <div id="petInputArea"></div>
+
+                <div class="pet-result-box">
+                    <div class="pr-card">
+                        <div class="pr-card-title">필요한 총 클릭(분석) 횟수</div>
+                        <div class="pr-card-val" id="petResClicks">0회</div>
+                    </div>
+                    <div class="pr-card">
+                        <div class="pr-card-title">💎 필요 영혼결정</div>
+                        <div class="pr-card-val" id="petResCrystal">0개</div>
+                    </div>
+                    <div class="pr-card">
+                        <div class="pr-card-title">💰 필요 키나</div>
+                        <div class="pr-card-val" id="petResKinah">0</div>
+                    </div>
+                    <div class="pr-card pr-total">
+                        <div class="pr-card-title">⚔️ 닥사 필요 몹 수</div>
+                        <div class="pr-card-val" id="petResMobs">0마리</div>
+                    </div>
+                </div>
             </div>
         </div>
         <div id="tab-abyss" class="tab-content">
@@ -1635,12 +1662,80 @@
         element.classList.add('active');
     }
 
+    // ==========================================
+    // 🐾 펫 종족 이해도 계산 로직
+    // ==========================================
+    const PET_CATEGORIES = ['지성', '야성', '자연', '변형', '특수'];
+    const EXP_TABLE = [0, 1000, 3000, 6000, 10000, 20000, 40000, 80000, 140000, 200000, 0];
+    const LOCK_PENALTY = [
+        {c:0, k:0}, {c:5, k:1000}, {c:5, k:1000}, {c:20, k:4000}, 
+        {c:45, k:9000}, {c:95, k:19000}, {c:95, k:19000}, {c:95, k:19000}, {c:95, k:19000}, {c:95, k:19000}
+    ];
+
+    function renderPetInputs() {
+        let html = `<div style="display:grid; grid-template-columns: 60px 1fr 1fr 1fr 1fr; gap:10px; margin-bottom:5px; font-size:11px; color:#888; text-align:center;">
+            <div>카테고리</div><div>현재 레벨</div><div>현재 경험치</div><div>목표 레벨</div><div>잠금 개수</div>
+        </div>`;
+        
+        PET_CATEGORIES.forEach((name, idx) => {
+            let lockOpts = ''; for(let i=0; i<=9; i++) lockOpts += `<option value="${i}">${i}개 잠금</option>`;
+            html += `
+            <div class="pet-row">
+                <label style="color:${['#4fc3f7','#ff5252','#69f0ae','#ce93d8','#ffca28'][idx]}">${name}</label>
+                <input type="number" id="p_curLv_${idx}" value="1" min="1" max="10" oninput="calcPetTotal()">
+                <input type="number" id="p_curExp_${idx}" value="0" min="0" oninput="calcPetTotal()" placeholder="0">
+                <input type="number" id="p_tarLv_${idx}" value="1" min="1" max="10" oninput="calcPetTotal()">
+                <select id="p_lock_${idx}" onchange="calcPetTotal()">${lockOpts}</select>
+            </div>`;
+        });
+        document.getElementById('petInputArea').innerHTML = html;
+        calcPetTotal();
+    }
+
+    function calcPetTotal() {
+        let tClicks = 0, tCrystal = 0, tKinah = 0;
+
+        for(let i=0; i<5; i++) {
+            let curLv = parseInt(document.getElementById(`p_curLv_${i}`).value) || 1;
+            let curExp = parseInt(document.getElementById(`p_curExp_${i}`).value) || 0;
+            let tarLv = parseInt(document.getElementById(`p_tarLv_${i}`).value) || 1;
+            let locks = parseInt(document.getElementById(`p_lock_${i}`).value) || 0;
+
+            if(curLv >= tarLv) continue;
+
+            for(let lv = curLv; lv < tarLv; lv++) {
+                let expNeeded = EXP_TABLE[lv];
+                if(lv === curLv) expNeeded -= curExp; 
+                if(expNeeded <= 0) continue;
+
+                let openSlots = lv - locks;
+                if(openSlots <= 0) continue; // 불가능한 잠금 설정 시 무시
+
+                let expPerClick = openSlots * 100;
+                let clicks = Math.ceil(expNeeded / expPerClick);
+
+                let baseCrystal = lv * 5;
+                let baseKinah = lv * 1000;
+                let penalty = LOCK_PENALTY[locks] || {c:0, k:0};
+
+                tClicks += clicks;
+                tCrystal += clicks * (baseCrystal + penalty.c);
+                tKinah += clicks * (baseKinah + penalty.k);
+            }
+        }
+
+        document.getElementById('petResClicks').innerText = tClicks.toLocaleString() + '회';
+        document.getElementById('petResCrystal').innerText = tCrystal.toLocaleString() + '개';
+        document.getElementById('petResKinah').innerText = tKinah.toLocaleString();
+        document.getElementById('petResMobs').innerText = tCrystal.toLocaleString() + '마리';
+    }
+
     window.onload = () => {
         updateServerList();
         loadStatPreset(1, true); 
         renderFavorites(); 
+        renderPetInputs(); // 펫 계산기 화면 그리기 실행!
     };
-
     document.querySelectorAll('.stat-input-group input').forEach(input => { 
         input.addEventListener('input', updateDeltaDashboard); 
     });
@@ -1648,3 +1743,4 @@
 
 </body>
 </html>
+
