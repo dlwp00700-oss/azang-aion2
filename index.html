@@ -1030,7 +1030,9 @@
                 charCard.onmouseover = () => charCard.style.borderColor = "#4fc3f7";
                 charCard.onmouseout = () => charCard.style.borderColor = "#444";
 
-                const charName = char.characterName || char.name || "이름 없음";
+                // 🚀 NC가 멋대로 붙인 <strong> 태그를 깔끔하게 벗겨내는 필터!
+                let rawName = char.characterName || char.name || "이름 없음";
+                const charName = rawName.replace(/<\/?[^>]+(>|$)/g, ""); 
                 const serverName = char.serverName || "서버 미확인";
                 const level = char.level || "-";
                 const className = char.className || char.class || "직업 미확인";
@@ -1068,8 +1070,12 @@
     async function loadCharacterDetail(characterId, serverId, characterName) {
         const statusMsg = document.getElementById('statusMsg');
         currentLoadedChar = { serverId: serverId, characterName: characterName }; // 로드 성공 시 기억!
-        statusMsg.innerHTML = `⏳ [${characterName}] 분석 중...`;
+        
+        // 🚀 추가된 마법의 코드: 새로고침 없이 주소창만 아툴처럼 싹 바꿔치기!
+        const newUrl = `/?server=${serverId}&name=${encodeURIComponent(characterName)}`;
+        window.history.pushState({path:newUrl}, '', newUrl);
 
+        statusMsg.innerHTML = `⏳ [${characterName}] 분석 중...`;
         try {
             const detailRes = await fetch(`${API_BASE}/characterDetail?characterId=${encodeURIComponent(characterId)}&serverId=${serverId}`);
             const data = await detailRes.json();
@@ -2455,6 +2461,7 @@ window.onload = () => {
 
 </body>
 </html>
+
 
 
 
