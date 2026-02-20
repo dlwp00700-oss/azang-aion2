@@ -2174,6 +2174,9 @@
     switchTab = (id, el) => {
         oldSwitch(id, el);
         if(id === 'abyss') calcAbyss();
+        
+        // 🚀 추가: 메뉴 누를 때 새로고침 없이 주소창만 싹 바꾸기!
+        window.history.pushState(null, '', '/?menu=' + id);
     };
 
     
@@ -2439,14 +2442,26 @@ function copyShareLink() {
 }
 
 
+
 // 🚀 기존 window.onload 덮어쓰기 (중복 오류 방지용 통합 버전!)
 window.onload = () => { 
     if(typeof initPetCalc === "function") initPetCalc(); 
     if(typeof renderFavorites === "function") renderFavorites();
     if(typeof loadTotalRanking === "function") loadTotalRanking(0); 
 
-    // 주소창에 ?server=1001&name=구캔 파라미터가 있으면 0.3초 뒤 자동 스캔
     const urlParams = new URLSearchParams(window.location.search);
+
+    // 🚀 1. 링크로 특정 메뉴(?menu=xxx) 들어왔을 때 해당 메뉴 짠! 하고 열기
+    const pMenu = urlParams.get('menu');
+    if (pMenu) {
+        // 상단 네비게이션 버튼들 중에서 해당 메뉴 이름이 들어간 버튼을 몰래 클릭해줌
+        const targetBtn = document.querySelector(`.nav-item[onclick*="'${pMenu}'"]`);
+        if (targetBtn) {
+            switchTab(pMenu, targetBtn);
+        }
+    }
+
+    // 🚀 2. 주소창에 캐릭터 검색 파라미터(?server=xx&name=xx)가 있으면 0.3초 뒤 자동 스캔
     const pServer = urlParams.get('server');
     const pName = urlParams.get('name');
     if (pServer && pName) {
@@ -2461,6 +2476,7 @@ window.onload = () => {
 
 </body>
 </html>
+
 
 
 
