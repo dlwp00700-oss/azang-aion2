@@ -1985,26 +1985,12 @@
         }
     }
 
-        abyCart.push({
-            id: Date.now(),
-            rank: rank,
-            rankName: data.name,
-            part: part,
-            partName: partName,
-            ap: data.ap[part],
-            medal: data.mCount[part] || 0,
-            color: data.color,
-            icon: iconUrl
-        });
-        renderAbyCart();
-        calcAbyss();
-    }
-
     function removeFromCart(id) {
         abyCart = abyCart.filter(item => item.id !== id);
         renderAbyCart();
         calcAbyss();
     }
+        
 
     function renderAbyCart() {
         const container = document.getElementById('aby_cart_list');
@@ -2265,6 +2251,7 @@
 
 </body>
 </html>
+
 
 
 
