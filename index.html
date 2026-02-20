@@ -326,6 +326,7 @@
                             <div style="color:#4fc3f7; font-weight:bold; font-size:12px; margin-bottom:5px;">🔥 현재 총 전투력 (CP)</div>
                             <input type="hidden" id="baseCp" value="0">
                             <div id="cpDiffDisplay" style="font-size:24px; font-weight:bold; color:#fff;">0 ➡ 0 (-)</div>
+                            <button onclick="copyShareLink()" style="width:100%; margin-top:15px; padding:10px; background:#1a1a24; color:#ffca28; border:1px solid #ffca28; border-radius:6px; font-weight:bold; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='#ffca28'; this.style.color='#000'" onmouseout="this.style.background='#1a1a24'; this.style.color='#ffca28'">🔗 내 장비 스펙(시뮬레이션) 카톡/디코 공유하기</button>
                         </div>
 
                         <div class="dash-section-title" style="color:#ffca28; margin-top:10px;">⚔️ 내 캐릭터 공격 스탯</div>
@@ -706,6 +707,7 @@
     
 
     const API_BASE = "/api";
+    let currentLoadedChar = null; // 최상단에 추가!
     let currentEquipData = []; 
     let simulationState = {};
     let activeSlotIndex = -1;
@@ -1065,6 +1067,7 @@
 
     async function loadCharacterDetail(characterId, serverId, characterName) {
         const statusMsg = document.getElementById('statusMsg');
+        currentLoadedChar = { serverId: serverId, characterName: characterName }; // 로드 성공 시 기억!
         statusMsg.innerHTML = `⏳ [${characterName}] 분석 중...`;
 
         try {
@@ -2420,11 +2423,41 @@
         } catch(e) { alert("❌ 데이터를 불러오는 중 오류가 발생했습니다. 저장된 데이터가 손상되었을 수 있습니다."); }
     }
 
+    // 🚀 신규: 링크 복사 기능
+function copyShareLink() {
+    if(!currentLoadedChar) return alert("캐릭터를 먼저 불러오세요!");
+    const url = `https://aion2zang.info/user/${currentLoadedChar.serverId}/${encodeURIComponent(currentLoadedChar.characterName)}`;
+    navigator.clipboard.writeText(url).then(() => {
+        alert(`🔗 공유 링크가 복사되었습니다!\n\n${url}\n\n커뮤니티나 단톡방에 내 템셋팅을 자랑해보세요!`);
+    });
+}
+
+// 🚀 기존 window.onload 덮어쓰기 (링크를 타고 오면 자동 검색!)
+const oldLoad = window.onload;
+window.onload = () => { 
+    if(oldLoad) oldLoad(); 
+    if(typeof initPetCalc === "function") initPetCalc(); 
+    if(typeof renderFavorites === "function") renderFavorites();
+    loadTotalRanking(0); 
+
+    // 주소창에 ?server=1001&name=구캔 파라미터가 있으면 0.3초 뒤 자동 스캔
+    const urlParams = new URLSearchParams(window.location.search);
+    const pServer = urlParams.get('server');
+    const pName = urlParams.get('name');
+    if (pServer && pName) {
+        document.getElementById('searchServer').innerHTML = `<option value="${pServer}">공유된 캐릭터 로딩 중...</option>`;
+        document.getElementById('searchServer').value = pServer;
+        document.getElementById('charNameInput').value = pName;
+        setTimeout(() => { searchCharacter(); }, 300);
+    }
+};
+
     
 </script>
 
 </body>
 </html>
+
 
 
 
