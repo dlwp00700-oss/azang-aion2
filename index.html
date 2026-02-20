@@ -238,8 +238,9 @@
                         <span>🏆 실시간 어비스 랭킹 (전 서버)</span>
                     </div>
                     <div style="display:flex; gap:10px; margin-bottom:15px;">
-                        <button id="btnRankElyos" onclick="loadTotalRanking(1)" style="flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #4fc3f7; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s;">🕊️ 천족 TOP 5</button>
-                        <button id="btnRankAsmo" onclick="loadTotalRanking(2)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🦇 마족 TOP 5</button>
+                        <button id="btnRankAll" onclick="loadTotalRanking(0)" style="flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s;">🌍 통합</button>
+                        <button id="btnRankElyos" onclick="loadTotalRanking(1)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🕊️ 천족</button>
+                        <button id="btnRankAsmo" onclick="loadTotalRanking(2)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🦇 마족</button>
                     </div>
                     
                     <div id="totalRankingArea" style="min-height: 165px;">
@@ -1979,17 +1980,27 @@
     // ==========================================
     // 🏆 메인 화면: 전 서버 통합 랭킹 불러오기
     // ==========================================
-    async function loadTotalRanking(raceId = 1) {
+    // ==========================================
+    // 🏆 메인 화면: 전 서버 통합 랭킹 불러오기
+    // ==========================================
+    async function loadTotalRanking(raceId = 0) {
         const rankArea = document.getElementById('totalRankingArea');
+        const btnAll = document.getElementById('btnRankAll');
         const btnElyos = document.getElementById('btnRankElyos');
         const btnAsmo = document.getElementById('btnRankAsmo');
 
-        if (raceId === 1) {
+        // 버튼 색상 초기화
+        [btnAll, btnElyos, btnAsmo].forEach(btn => {
+            btn.style.cssText = "flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;";
+        });
+
+        // 눌린 탭 하이라이트 색상 처리
+        if (raceId === 0) {
+            btnAll.style.cssText = "flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:4px; font-weight:bold; cursor:pointer;";
+        } else if (raceId === 1) {
             btnElyos.style.cssText = "flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #4fc3f7; border-radius:4px; font-weight:bold; cursor:pointer;";
-            btnAsmo.style.cssText = "flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer;";
         } else {
             btnAsmo.style.cssText = "flex:1; padding:8px; background:#241a1a; color:#fff; border:1px solid #ff5252; border-radius:4px; font-weight:bold; cursor:pointer;";
-            btnElyos.style.cssText = "flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer;";
         }
 
         rankArea.innerHTML = `<div style="text-align:center; padding:50px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>`;
@@ -2000,7 +2011,7 @@
             const rankList = data.list || [];
             
             if (rankList.length === 0) {
-                rankArea.innerHTML = `<div style="text-align:center; padding:50px 0; color:#ff5252;">랭킹 데이터가 없습니다. (백엔드 연동 필요)</div>`;
+                rankArea.innerHTML = `<div style="text-align:center; padding:50px 0; color:#ff5252;">랭킹 데이터가 없습니다.</div>`;
                 return;
             }
 
@@ -2014,31 +2025,36 @@
                 let cName = user.characterName || "이름없음";
                 let sName = user.serverName || "서버";
                 let ap = user.point || 0; 
+                let pImg = user.profileImage || ""; // API에서 건너온 캐릭터 프로필 이미지
 
+                // 이름 앞에 동그란 프로필 아이콘이 함께 출력되도록 HTML 수정
                 html += `
                 <div class="rank-row" style="${index === 4 ? 'border:none;' : ''}">
                     <span style="color:${rankColor}; font-weight:bold; width:30px;">${index + 1}위</span>
-                    <span style="color:#fff; flex:1; cursor:pointer;" onclick="loadCharacterDetail('${user.characterId}', '${user.serverId}', '${cName}')">
-                        <span style="color:#4fc3f7;">[${sName}]</span> ${cName}
+                    <span style="display:flex; align-items:center; flex:1; gap:8px; cursor:pointer;" onclick="loadCharacterDetail('${user.characterId}', '${user.serverId}', '${cName}')">
+                        ${pImg ? `<img src="${pImg}" style="width:24px; height:24px; border-radius:50%; border:1px solid #444;" onerror="this.style.display='none'">` : ''}
+                        <span><span style="color:#4fc3f7;">[${sName}]</span> ${cName}</span>
                     </span>
                     <span style="color:#4fc3f7; font-weight:bold;">${Number(ap).toLocaleString()} AP</span>
                 </div>`;
             });
             rankArea.innerHTML = html;
         } catch (e) {
-            rankArea.innerHTML = `<div style="text-align:center; padding:50px 0; color:#ff5252;">랭킹 서버와 연결할 수 없습니다. (백엔드 구축 중)</div>`;
+            rankArea.innerHTML = `<div style="text-align:center; padding:50px 0; color:#ff5252;">서버 응답 오류 (나중에 다시 시도해주세요)</div>`;
         }
     }
 
-    // 🚀 사이트 켜질 때 랭킹 자동 실행되도록 기존 onload 덮어쓰기
+    // 초기화 및 첫 로딩 (사이트 켜질 때 '0(전체)' 탭을 기본으로 부르도록 변경)
     window.onload = () => { 
         if(typeof initPetCalc === "function") initPetCalc(); 
-        loadTotalRanking(1); 
+        if(typeof renderFavorites === "function") renderFavorites();
+        loadTotalRanking(0); 
     };
 </script>
 
 </body>
 </html>
+
 
 
 
