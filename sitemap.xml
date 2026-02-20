@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://aion2zang.info/</loc></url>
-  <url><loc>https://aion2zang.info/privacy.html</loc></url>
-  <url><loc>https://aion2zang.info/terms.html</loc></url>
-</urlset>
+  <url>
+    <loc>https://aion2zang.info/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <url>
+    <loc>https://aion2zang.info/user/1005/구캔</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://aion2zang.info/user/1001/지켈</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://aion2zang.info/user/1002/네자칸</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://aion2zang.info/user/1005/타하바타</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  </urlset>
