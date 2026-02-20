@@ -9,8 +9,14 @@ export default async function handler(req, res) {
     }
 
     const raceReq = req.query.race || '0'; 
-    const serverReq = req.query.server || ''; // 프론트에서 넘어온 서버 ID (예: 1005)
-    const jobReq = req.query.job || '';       // 프론트에서 넘어온 직업명 (예: 치유성)
+    const serverReq = req.query.server || ''; 
+    const jobReq = req.query.job || '';       
+
+    // 🚀 신규: NC 서버에 특정 직업 랭킹만 따로 달라고 요청하기 위한 직업 고유 번호
+    const CLASS_MAP = {
+        "검성": 2, "수호성": 3, "궁성": 4, "살성": 5, 
+        "정령성": 6, "마도성": 7, "치유성": 8, "호법성": 9
+    };
 
     const SERVER_LIST = {
         // 천족 (race: 1)
@@ -37,12 +43,17 @@ export default async function handler(req, res) {
         const fetchPromises = [];
 
         for (const [serverId, info] of Object.entries(SERVER_LIST)) {
-            // 🚀 핵심: 특정 서버를 선택했다면, 다른 서버는 긁어오지 않고 패스! (속도 엄청 빨라짐)
             if (serverReq && serverId !== serverReq) continue;
 
             if (raceReq === '0' || parseInt(raceReq) === info.race) {
-                const url = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=${serverId}`;
+                // 넉넉하게 200명어치 데이터를 요구합니다 (NC 서버 허용 범위 내)
+                let url = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=${serverId}&size=200`;
                 
+                // 🚀 직업이 선택되었다면 NC 서버에 해당 직업 랭킹만 달라고 파라미터 추가
+                if (jobReq && CLASS_MAP[jobReq]) {
+                    url += `&classId=${CLASS_MAP[jobReq]}`;
+                }
+
                 const p = fetch(url, {
                     headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
                 })
@@ -65,7 +76,7 @@ export default async function handler(req, res) {
 
         await Promise.all(fetchPromises);
 
-        // 🚀 직업 필터 적용: 선택한 직업(예: 치유성)만 남기고 다 날려버림
+        // 만약을 대비한 이중 필터 (NC 서버가 직업 파라미터를 무시했을 경우)
         if (jobReq) {
             allPlayers = allPlayers.filter(user => user.className === jobReq);
         }
@@ -74,11 +85,10 @@ export default async function handler(req, res) {
             return res.status(200).json({ list: [] });
         }
 
-        // 남은 유저들을 점수순으로 정렬
         allPlayers.sort((a, b) => (b.point || 0) - (a.point || 0));
 
-        // 최종적으로 위에서부터 50명만 전송
-        const topRanking = allPlayers.slice(0, 50);
+        // 🚀 최종 출력 인원: 기존 50명 -> 100명으로 시원하게 확장
+        const topRanking = allPlayers.slice(0, 100);
 
         res.status(200).json({ list: topRanking });
 
