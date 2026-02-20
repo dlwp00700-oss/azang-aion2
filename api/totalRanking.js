@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-    // CORS 설정 (프론트와 백엔드 통신 허용)
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
@@ -9,10 +8,9 @@ export default async function handler(req, res) {
         return;
     }
 
-    const raceId = req.query.race || '1'; // 1: 천족, 2: 마족
+    // 0: 전체, 1: 천족, 2: 마족
+    const raceId = req.query.race || '0'; 
 
-    // 🚨 [수정 필요 1] 아이온2의 모든 서버 번호와 이름 매핑
-    // (네트워크 탭을 확인하셔서 나머지 서버들의 번호도 직접 추가해 주셔야 완벽해집니다!)
     const SERVER_LIST = {
         1001: "시엘",
         1002: "네자칸",
@@ -62,22 +60,20 @@ export default async function handler(req, res) {
     // 🚨 [수정 필요 2] 종족별 파라미터 처리
     // 임시로 천족=0, 마족=1 로 설정해 두었습니다. 
     // 공식 홈페이지에서 '마족' 탭을 눌렀을 때 URL의 rankingType 숫자가 뭘로 변하는지 꼭 확인해서 맞춰주세요!
-    const rankingType = (raceId === '1') ? '0' : '1'; 
+    
 
     try {
         let allPlayers = [];
         const fetchPromises = [];
 
-        // 모든 서버에 동시에 API 요청을 쏴서 데이터를 긁어옵니다. (속도 향상)
         for (const [serverId, serverName] of Object.entries(SERVER_LIST)) {
-            const url = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=${rankingType}&serverId=${serverId}`;
+            // raceId (0, 1, 2) 를 그대로 rankingType에 적용합니다
+            const url = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=${raceId}&serverId=${serverId}`;
             
-            // Node.js 18 이상 내장 fetch 사용
             const p = fetch(url)
                 .then(r => r.json())
                 .then(data => {
                     if (data && data.rankingList) {
-                        // 긁어온 데이터에 '서버 이름' 이름표를 강제로 붙여줍니다.
                         const listWithServer = data.rankingList.map(user => ({
                             ...user,
                             serverId: serverId,
@@ -90,19 +86,12 @@ export default async function handler(req, res) {
             fetchPromises.push(p);
         }
 
-        // 모든 서버의 응답이 올 때까지 기다림
         await Promise.all(fetchPromises);
+        allPlayers.sort((a, b) => (b.point || 0) - (a.point || 0));
 
-        // 긁어온 수천 명의 데이터를 어포(point)가 높은 순서대로 내림차순 정렬
-        allPlayers.sort((a, b) => b.point - a.point);
-
-        // 상위 50명만 잘라서 프론트엔드로 전달
         const topRanking = allPlayers.slice(0, 50);
-
         res.status(200).json({ list: topRanking });
 
     } catch (error) {
-        console.error(error);
         res.status(500).json({ error: "랭킹 서버 오류" });
     }
-}
