@@ -185,10 +185,7 @@
         <div class="ad-banner-box">[광고]<br>좌측 배너 영역<br>(160x600)</div>
     </div>
 
-<div class="main-wrapper">
-    <div class="side-ad-area">
-        <div class="ad-banner-box">[광고]<br>좌측 배너 영역<br>(160x600)</div>
-    </div>
+
 
     <div class="container">
         <div class="ad-banner ad-top">[광고] 상단 배너 영역 (728x90)</div>
@@ -2325,16 +2322,100 @@
         }
     }
 
+    // ==========================================
     // 💾 전체 데이터 원버튼 통합 저장/불러오기
     // ==========================================
-    function saveGlobalState() { ... }
-    function loadGlobalState() { ... }
+    function saveGlobalState() {
+        const state = {
+            // 1. C창 스탯 정보 및 슬라이더 정보
+            stats: {
+                baseAtk: document.getElementById('baseAtk').value, baseAmp: document.getElementById('baseAmp').value, basePveAmp: document.getElementById('basePveAmp').value, basePvpAmp: document.getElementById('basePvpAmp').value, baseWAmp: document.getElementById('baseWAmp').value, baseCritDmg: document.getElementById('baseCritDmg').value, baseDef: document.getElementById('baseDef').value, baseHp: document.getElementById('baseHp').value, baseGenRes: document.getElementById('baseGenRes').value, basePveRes: document.getElementById('basePveRes').value, basePvpRes: document.getElementById('basePvpRes').value, enemyAtk: document.getElementById('enemyAtk').value, enemyAmp: document.getElementById('enemyAmp').value, enemyPvpAmp: document.getElementById('enemyPvpAmp').value, enemyGenRes: document.getElementById('enemyGenRes').value, enemyPvpRes: document.getElementById('enemyPvpRes').value,
+                basePower: document.getElementById('basePower').value, baseAgi: document.getElementById('baseAgi').value, baseAccStat: document.getElementById('baseAccStat').value, baseWill: document.getElementById('baseWill').value, baseKnow: document.getElementById('baseKnow').value, baseVit: document.getElementById('baseVit').value, baseDest: document.getElementById('baseDest').value, baseDeath: document.getElementById('baseDeath').value, baseWis: document.getElementById('baseWis').value, baseDestiny: document.getElementById('baseDestiny').value, baseSpace: document.getElementById('baseSpace').value, baseTime: document.getElementById('baseTime').value, baseLife: document.getElementById('baseLife').value, baseIllusion: document.getElementById('baseIllusion').value, baseFreedom: document.getElementById('baseFreedom').value, baseJustice: document.getElementById('baseJustice').value
+            },
+            // 2. 캐릭터 및 시뮬레이션 셋팅
+            charName: document.getElementById('charNameInput').value,
+            equipData: currentEquipData,
+            simState: simulationState,
+            // 3. 어비스 파밍 정보
+            abyss: {
+                myAp: document.getElementById('my_ap').value, s: document.getElementById('my_medal_silver').value, g: document.getElementById('my_medal_gold').value, p: document.getElementById('my_medal_plat').value, wAp: document.getElementById('week_ap').value, buy: document.getElementById('buy_medal_ap').checked, make: document.getElementById('make_medal').checked, cart: abyCart
+            },
+            // 4. 펫작 계산기 정보
+            pet: []
+        };
+        
+        for(let i=0; i<5; i++) {
+            if(document.getElementById(`curLv_${i}`)) {
+                state.pet.push({
+                    clv: document.getElementById(`curLv_${i}`).value, cex: document.getElementById(`curExp_${i}`).value, tlv: document.getElementById(`tarLv_${i}`).value, lock: document.getElementById(`lock_${i}`).value
+                });
+            }
+        }
+        
+        localStorage.setItem('aion2_global_save', JSON.stringify(state));
+        alert("💾 [통합 저장 완료]\n\n현재 로드된 캐릭터의 장비 시뮬레이션 상태, 어비스 장바구니 및 보유량, 펫작 진행 상황 등 모든 데이터가 기기에 완벽하게 저장되었습니다!");
+    }
+
+    function loadGlobalState() {
+        const raw = localStorage.getItem('aion2_global_save');
+        if(!raw) { alert("❌ 저장된 전체 데이터가 없습니다."); return; }
+        
+        if(!confirm("저장된 데이터를 불러오시겠습니까?\n현재 입력된 데이터는 덮어씌워집니다.")) return;
+
+        try {
+            const state = JSON.parse(raw);
+            
+            // 1. 스탯 & 슬라이더 복구
+            if(state.stats) {
+                for(let k in state.stats) {
+                    let el = document.getElementById(k);
+                    if(el) el.value = state.stats[k];
+                    // 슬라이더 바운딩 업데이트
+                    let rangeEl = document.getElementById(k+'Range');
+                    if(rangeEl) rangeEl.value = state.stats[k];
+                }
+            }
+            
+            // 2. 장비 복구
+            if(state.equipData && state.equipData.length > 0) {
+                currentEquipData = state.equipData;
+                simulationState = state.simState || {};
+                document.getElementById('charNameInput').value = state.charName || '';
+                
+                document.getElementById('statusMsg').innerHTML = `<span style="color:var(--pos)">✅ [${state.charName||'저장된 캐릭터'}] 로드 완료!</span>`;
+                document.getElementById('appBody').className = 'dash-mode';
+                renderEquipGrid();
+                updateDeltaDashboard();
+            }
+
+            // 3. 어비스 복구
+            if(state.abyss) {
+                document.getElementById('my_ap').value = state.abyss.myAp; document.getElementById('my_medal_silver').value = state.abyss.s; document.getElementById('my_medal_gold').value = state.abyss.g; document.getElementById('my_medal_plat').value = state.abyss.p; document.getElementById('week_ap').value = state.abyss.wAp; document.getElementById('buy_medal_ap').checked = state.abyss.buy; document.getElementById('make_medal').checked = state.abyss.make;
+                abyCart = state.abyss.cart || [];
+                renderAbyCart();
+                calcAbyss();
+            }
+
+            // 4. 펫작 복구
+            if(state.pet && state.pet.length > 0) {
+                state.pet.forEach((p, i) => {
+                    if(document.getElementById(`curLv_${i}`)) {
+                        document.getElementById(`curLv_${i}`).value = p.clv; document.getElementById(`curExp_${i}`).value = p.cex; document.getElementById(`tarLv_${i}`).value = p.tlv; document.getElementById(`lock_${i}`).value = p.lock;
+                    }
+                });
+                runPetCalc();
+            }
+
+            alert("📂 [불러오기 완료]\n\n성공적으로 모든 데이터를 복구했습니다.");
+        } catch(e) { alert("❌ 데이터를 불러오는 중 오류가 발생했습니다. 저장된 데이터가 손상되었을 수 있습니다."); }
+    }
 
     
 </script>
 
 </body>
 </html>
+
 
 
 
