@@ -1947,25 +1947,13 @@
         const data = ABY_DATA[rank];
         const partName = document.getElementById('aby_part').options[document.getElementById('aby_part').selectedIndex].text;
         
-        // 🚀 요청하신 대로 무기/가더는 무조건 '검 아이콘', 나머지는 깔끔한 각 부위별 기본 아이콘 세팅
-        const defaultIcons = {
-            'weapon': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Sword_01.png',
-            'guarder': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Sword_01.png', // 가더도 무기와 같은 검 아이콘 적용
-            'top': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Armor_01.png',
-            'bottom': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Pants_01.png',
-            'head': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Helmet_01.png',
-            'shoulder': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Shoulder_01.png',
-            'glove': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Gloves_01.png',
-            'shoe': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Boots_01.png',
-            'cloak': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Cloak_01.png',
-            'neck': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Necklace_01.png',
-            'ear': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Earring_01.png',
-            'ring': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Ring_01.png'
+        // 🚀 1. 엑스박스를 원천 차단하기 위해 무기/가더는 ⚔️ 고정, 나머지도 1차 이모지로 세팅
+        const EMOJI_MAP = {
+            'weapon': '⚔️', 'guarder': '⚔️', 'top': '👕', 'bottom': '👖', 'head': '🪖',
+            'shoulder': '🦾', 'glove': '🧤', 'shoe': '🥾', 'cloak': '🧥',
+            'neck': '📿', 'ear': '💎', 'ring': '💍'
         };
 
-        let iconUrl = defaultIcons[part] || defaultIcons['top'];
-
-        // 1. 유저가 버튼을 누르면 답답하지 않게 우선 기본 아이콘으로 장바구니에 넣고 즉시 렌더링
         let cartItem = {
             id: Date.now(),
             rank: rank,
@@ -1975,38 +1963,32 @@
             ap: data.ap[part],
             medal: data.mCount[part] || 0,
             color: data.color,
-            icon: iconUrl
+            iconType: 'emoji', // 기본값은 이모지 모드
+            icon: EMOJI_MAP[part] || '📦'
         };
+
         abyCart.push(cartItem);
         renderAbyCart();
         calcAbyss();
 
-        // 🚀 2. 무기/가더가 아닐 경우에만 API에 찔러서 아칸/가디언 진짜 아이콘 훔쳐오기
+        // 🚀 2. 무기/가더가 아니면 "가디언 십부장의 투구"처럼 풀네임으로 검색해서 진짜 아이콘 훔쳐오기
         if (part !== 'weapon' && part !== 'guarder') {
             try {
-                // 아이온은 '귀걸이'를 '귀고리'로 표기함 (예: 십부장의 터키석 귀고리)
                 let searchPartName = (part === 'ear') ? '귀고리' : partName;
-                
-                // 검색어 1순위: "십부장의 투구" (중간에 '의'를 넣어 가디언/아칸 매칭 확률 극대화)
-                let keyword1 = encodeURIComponent(data.name + '의 ' + searchPartName); 
-                let res = await fetch(`${API_BASE}/searchDictItem?keyword=${keyword1}`);
+                // 확실한 매칭을 위해 앞에 "가디언 "을 강제로 붙여서 검색!
+                let exactKeyword = encodeURIComponent('가디언 ' + data.name + '의 ' + searchPartName);
+
+                let res = await fetch(`${API_BASE}/searchDictItem?keyword=${exactKeyword}`);
                 let dictData = await res.json();
                 let items = dictData.contents || dictData.list || [];
                 
-                // 만약 "의"를 붙여서 안 나오면 2순위: "십부장 투구" 로 띄어쓰기 검색
-                if (items.length === 0) {
-                    let keyword2 = encodeURIComponent(data.name + ' ' + searchPartName);
-                    res = await fetch(`${API_BASE}/searchDictItem?keyword=${keyword2}`);
-                    dictData = await res.json();
-                    items = dictData.contents || dictData.list || [];
-                }
-                
-                // 검색 결과에서 첫 번째 아이콘을 쏙 빼와서 장바구니 아이콘 갈아끼우기
+                // 검색된 진짜 이미지가 있으면 아이콘 타입을 url로 바꾸고 교체
                 if (items.length > 0 && items[0].icon) {
+                    cartItem.iconType = 'url';
                     cartItem.icon = items[0].icon;
-                    renderAbyCart(); // 예쁜 실제 아이콘으로 부드럽게 화면 갱신!
+                    renderAbyCart(); // 바뀐 예쁜 아이콘으로 부드럽게 재렌더링!
                 }
-            } catch(e) { console.log("아이콘 갱신 실패 (기본 아이콘 유지)"); }
+            } catch(e) { console.log("아이콘 갱신 실패 (기본 이모지 유지)"); }
         }
     }
 
@@ -2015,7 +1997,6 @@
         renderAbyCart();
         calcAbyss();
     }
-        
 
     function renderAbyCart() {
         const container = document.getElementById('aby_cart_list');
@@ -2025,9 +2006,17 @@
         }
         let html = '';
         abyCart.forEach(item => {
+            // 🚀 핵심: iconType이 url이면 이미지 태그를, emoji면 네모 박스 안에 텍스트를 출력!
+            let iconHtml = '';
+            if (item.iconType === 'url') {
+                iconHtml = `<img src="${item.icon}" style="width:32px; height:32px; border-radius:4px; border:1px solid #444;" onerror="this.style.display='none'">`;
+            } else {
+                iconHtml = `<div style="width:32px; height:32px; border-radius:4px; border:1px solid #444; background:#1a1a24; display:flex; justify-content:center; align-items:center; font-size:18px;">${item.icon}</div>`;
+            }
+
             html += `
             <div style="display:flex; align-items:center; gap:10px; background:#111; padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid #333;">
-                <img src="${item.icon}" style="width:32px; height:32px; border-radius:4px; border:1px solid #444;">
+                ${iconHtml}
                 <div style="flex:1;">
                     <div style="font-size:12px; font-weight:bold; color:${item.color}">${item.rankName} ${item.partName}</div>
                     <div style="font-size:10px; color:#888;">${item.ap.toLocaleString()} AP / ${item.medal} 훈장</div>
@@ -2038,6 +2027,7 @@
         container.innerHTML = html;
     }
 
+   
     function calcAbyss() {
         const baseLimit = 5000000;
         const myAp = parseInt(document.getElementById('my_ap').value) || 0;
@@ -2276,6 +2266,7 @@
 
 </body>
 </html>
+
 
 
 
