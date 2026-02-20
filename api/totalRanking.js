@@ -8,9 +8,10 @@ export default async function handler(req, res) {
         return;
     }
 
-    const raceReq = req.query.race || '0'; // 0: 전체, 1: 천족, 2: 마족
+    const raceReq = req.query.race || '0'; 
+    const serverReq = req.query.server || ''; // 프론트에서 넘어온 서버 ID (예: 1005)
+    const jobReq = req.query.job || '';       // 프론트에서 넘어온 직업명 (예: 치유성)
 
-    // 공식 홈페이지 기준 완벽한 서버 매핑 (종족값 포함)
     const SERVER_LIST = {
         // 천족 (race: 1)
         1001: { name: "시엘", race: 1 }, 1002: { name: "네자칸", race: 1 }, 1003: { name: "바이젤", race: 1 },
@@ -36,9 +37,10 @@ export default async function handler(req, res) {
         const fetchPromises = [];
 
         for (const [serverId, info] of Object.entries(SERVER_LIST)) {
-            // 요청받은 종족(raceReq)이 '0(전체)'이거나, 현재 서버의 종족(info.race)과 일치할 때만 긁어옴
+            // 🚀 핵심: 특정 서버를 선택했다면, 다른 서버는 긁어오지 않고 패스! (속도 엄청 빨라짐)
+            if (serverReq && serverId !== serverReq) continue;
+
             if (raceReq === '0' || parseInt(raceReq) === info.race) {
-                // 랭킹 타입은 무조건 전체(0)로 고정하여 해당 서버의 랭킹을 가져옴
                 const url = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=${serverId}`;
                 
                 const p = fetch(url, {
@@ -51,7 +53,7 @@ export default async function handler(req, res) {
                             ...user,
                             serverId: serverId,
                             serverName: info.name,
-                            race: info.race // 프론트엔드에서 색상을 구분하기 위해 종족값 같이 전송
+                            race: info.race
                         }));
                         allPlayers.push(...listWithServer);
                     }
@@ -63,14 +65,19 @@ export default async function handler(req, res) {
 
         await Promise.all(fetchPromises);
 
+        // 🚀 직업 필터 적용: 선택한 직업(예: 치유성)만 남기고 다 날려버림
+        if (jobReq) {
+            allPlayers = allPlayers.filter(user => user.className === jobReq);
+        }
+
         if (allPlayers.length === 0) {
             return res.status(200).json({ list: [] });
         }
 
-        // 어포(point) 순으로 전체 내림차순 정렬
+        // 남은 유저들을 점수순으로 정렬
         allPlayers.sort((a, b) => (b.point || 0) - (a.point || 0));
 
-        // 상위 50명만 잘라서 프론트엔드로 전송
+        // 최종적으로 위에서부터 50명만 전송
         const topRanking = allPlayers.slice(0, 50);
 
         res.status(200).json({ list: topRanking });
