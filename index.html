@@ -2124,7 +2124,6 @@
     // 🏆 전체 화면(탭) 통합 랭킹 불러오기 (필터 적용)
     // ==========================================
     async function loadFullRanking(raceId) {
-        // 인자가 들어오면 탭을 누른 것이고, 없으면 드롭다운을 변경한 것
         if (raceId !== undefined) {
             currentFullRankRace = raceId;
         } else {
@@ -2136,16 +2135,16 @@
         const btnElyos = document.getElementById('btnFullRankElyos');
         const btnAsmo = document.getElementById('btnFullRankAsmo');
         
-        // 프론트에서 선택한 드롭다운 값 가져오기
-        const serverVal = document.getElementById('rankFilterServer').value;
+        // 🚀 신규: 천족과 마족 드롭다운 중 값이 있는 것을 서버에 전송
+        const elyosVal = document.getElementById('rankFilterElyos').value;
+        const asmoVal = document.getElementById('rankFilterAsmo').value;
+        const serverVal = elyosVal || asmoVal || '';
         const jobVal = document.getElementById('rankFilterJob').value;
 
-        // 버튼 색상 초기화
         [btnAll, btnElyos, btnAsmo].forEach(btn => {
             if(btn) btn.style.cssText = "flex:1; padding:12px; background:#111; color:#888; border:1px solid #333; border-radius:6px; cursor:pointer; transition:0.2s;";
         });
 
-        // 눌린 탭 하이라이트
         if (raceId === 0 && btnAll) {
             btnAll.style.cssText = "flex:1; padding:12px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:6px; font-weight:bold; cursor:pointer;";
         } else if (raceId === 1 && btnElyos) {
@@ -2157,7 +2156,6 @@
         rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>`;
 
         try {
-            // 🚀 백엔드로 종족, 서버, 직업 정보를 함께 던집니다!
             const res = await fetch(`${API_BASE}/totalRanking?race=${raceId}&server=${serverVal}&job=${encodeURIComponent(jobVal)}`);
             const data = await res.json();
             const rankList = data.list || [];
@@ -2206,6 +2204,7 @@
 
 </body>
 </html>
+
 
 
 
