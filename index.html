@@ -152,9 +152,38 @@
         .modal-content h3 { color: #ffca28; font-size: 14px; margin-top: 20px; margin-bottom: 8px; }
         .btn-close-modal { background: #ff5252; color: #fff; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; position: absolute; top: 20px; right: 20px; transition: 0.2s; }
         .btn-close-modal:hover { background: #ff1744; }
+
+        /* 슬라이더 및 추가 UI 스타일 */
+        .slider-group { display: flex; flex-direction: column; gap: 6px; background: #0f0f11; padding: 12px; border-radius: 6px; border: 1px solid #222; }
+        .slider-row { display: flex; align-items: center; gap: 10px; }
+        .slider-row input[type=range] { flex: 1; height: 6px; border-radius: 3px; outline: none; -webkit-appearance: none; background: #333; }
+        .slider-row input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; cursor: pointer; }
+        .slider-row.red-slider input[type=range]::-webkit-slider-thumb { background: #ff5252; }
+        .slider-row.blue-slider input[type=range]::-webkit-slider-thumb { background: #4fc3f7; }
+        .slider-row input[type=number] { width: 60px; padding: 6px; text-align: center; font-weight: bold; }
+
+        /* 결과창 공격/방어 분리 박스 */
+        .atk-box { background: linear-gradient(180deg, rgba(255, 82, 82, 0.08) 0%, rgba(0,0,0,0) 100%); border: 1px solid rgba(255, 82, 82, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .def-box { background: linear-gradient(180deg, rgba(105, 240, 174, 0.08) 0%, rgba(0,0,0,0) 100%); border: 1px solid rgba(105, 240, 174, 0.2); border-radius: 8px; padding: 15px; }
+        
+        /* 통합 저장 플로팅 버튼 */
+        .global-save-btn-group { position: fixed; top: 15px; right: 20px; display: flex; gap: 8px; z-index: 9999; }
+        .btn-gsave { background: #ffca28; color: #000; font-weight: bold; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .btn-gsave:hover { background: #ffb300; transform: translateY(-2px); }
+        .btn-gload { background: #2a2a35; color: #fff; border: 1px solid #ffca28; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .btn-gload:hover { background: #3a3a45; transform: translateY(-2px); }
     </style>
 </head>
 <body id="appBody" class="home-mode">
+
+<div class="global-save-btn-group">
+    <button class="btn-gsave" onclick="saveGlobalState()">💾 전체 데이터 저장</button>
+    <button class="btn-gload" onclick="loadGlobalState()">📂 불러오기</button>
+</div>
+<div class="main-wrapper">
+    <div class="side-ad-area">
+        <div class="ad-banner-box">[광고]<br>좌측 배너 영역<br>(160x600)</div>
+    </div>
 
 <div class="main-wrapper">
     <div class="side-ad-area">
@@ -333,16 +362,42 @@
                         </details>
 
                         <div class="dash-section-title" style="color:#ff9800; margin-top:20px;">🎯 상대방(적/보스) 스탯 가정 <span style="font-size:10px; font-weight:normal; color:#aaa;">* 방어력 차감 계산에 필요합니다.</span></div>
-                        <div class="stat-grid-3">
-                            <div class="stat-input-group"><label style="color:#ffca28;">적 표기 공격력</label><input type="number" id="enemyAtk" value="8000" style="border-color:#ffca28; color:#ffca28;"></div>
-                            <div class="stat-input-group"><label style="color:#ff5252;">적 일반 피증(%)</label><input type="number" id="enemyAmp" value="20" style="border-color:#ff5252; color:#ff5252;"></div>
-                            <div class="stat-input-group"><label style="color:#ff5252;">적 PVP 피증(%)</label><input type="number" id="enemyPvpAmp" value="10" style="border-color:#ff5252; color:#ff5252;"></div>
-                            
-                            <div class="stat-input-group" style="visibility:hidden;"><input type="number"></div>
-                            <div class="stat-input-group"><label style="color:#4fc3f7;">적 일반 피해 내성(%)</label><input type="number" id="enemyGenRes" value="30" style="border-color:#4fc3f7; color:#4fc3f7;"></div>
-                            <div class="stat-input-group"><label style="color:#4fc3f7;">적 PVP 피해 내성(%)</label><input type="number" id="enemyPvpRes" value="10" style="border-color:#4fc3f7; color:#4fc3f7;"></div>
+                        
+                        <div class="stat-input-group" style="margin-bottom:15px; max-width: 250px;">
+                            <label style="color:#ffca28;">적 표기 공격력 (보스/유저)</label>
+                            <input type="number" id="enemyAtk" value="8000" style="border-color:#ffca28; color:#ffca28;" oninput="updateDeltaDashboard()">
                         </div>
-                    </div>
+                        
+                        <div class="stat-grid-2">
+                            <div class="slider-group">
+                                <label style="color:#ff5252; font-size:12px; font-weight:bold;">적 일반 피증 (%)</label>
+                                <div class="slider-row red-slider">
+                                    <input type="range" id="enemyAmpRange" min="0" max="200" value="20" oninput="document.getElementById('enemyAmp').value=this.value; updateDeltaDashboard();">
+                                    <input type="number" id="enemyAmp" value="20" min="0" max="200" oninput="document.getElementById('enemyAmpRange').value=this.value; updateDeltaDashboard();" style="border-color:#ff5252; color:#ff5252;">
+                                </div>
+                            </div>
+                            <div class="slider-group">
+                                <label style="color:#ff5252; font-size:12px; font-weight:bold;">적 PVP 피증 (%)</label>
+                                <div class="slider-row red-slider">
+                                    <input type="range" id="enemyPvpAmpRange" min="0" max="200" value="10" oninput="document.getElementById('enemyPvpAmp').value=this.value; updateDeltaDashboard();">
+                                    <input type="number" id="enemyPvpAmp" value="10" min="0" max="200" oninput="document.getElementById('enemyPvpAmpRange').value=this.value; updateDeltaDashboard();" style="border-color:#ff5252; color:#ff5252;">
+                                </div>
+                            </div>
+                            <div class="slider-group">
+                                <label style="color:#4fc3f7; font-size:12px; font-weight:bold;">적 일반 피해 내성 (%)</label>
+                                <div class="slider-row blue-slider">
+                                    <input type="range" id="enemyGenResRange" min="0" max="80" value="30" oninput="document.getElementById('enemyGenRes').value=this.value; updateDeltaDashboard();">
+                                    <input type="number" id="enemyGenRes" value="30" min="0" max="80" oninput="document.getElementById('enemyGenResRange').value=this.value; updateDeltaDashboard();" style="border-color:#4fc3f7; color:#4fc3f7;">
+                                </div>
+                            </div>
+                            <div class="slider-group">
+                                <label style="color:#4fc3f7; font-size:12px; font-weight:bold;">적 PVP 피해 내성 (%)</label>
+                                <div class="slider-row blue-slider">
+                                    <input type="range" id="enemyPvpResRange" min="0" max="80" value="10" oninput="document.getElementById('enemyPvpRes').value=this.value; updateDeltaDashboard();">
+                                    <input type="number" id="enemyPvpRes" value="10" min="0" max="80" oninput="document.getElementById('enemyPvpResRange').value=this.value; updateDeltaDashboard();" style="border-color:#4fc3f7; color:#4fc3f7;">
+                                </div>
+                            </div>
+                        </div>
 
                     <div class="equip-list-container">
                         <div class="sec-title">
@@ -365,53 +420,60 @@
                                 </label>
                             </div>
                             
-                            <div class="dash-section-title" style="color:#ffca28;">⚔️ 공격 능력</div>
-                            <div class="d-row"><span>최종 표기 공격력</span> <span class="d-val" id="pve-atk">0 ➡ 0</span></div>
-                            <div class="d-row"><span>총 피증 (세트 포함)</span> <span class="d-val" id="pve-amp">0.0% ➡ 0.0%</span></div>
-                            <div class="d-row"><span>적용 배율 (피증 × 내성감소)</span> <span class="d-val" id="pve-mult">1.000x ➡ 1.000x</span></div>
-                            <div class="d-result-box" style="margin-top:5px; padding:10px;">
-                                <span style="color:#00e676; font-weight:bold;">피증 반영 실질 공격력</span>
-                                <span class="d-val" style="font-size:18px;" id="pve-real-atk">0 ➡ 0</span>
+                            <div class="atk-box">
+                                <div class="dash-section-title" style="color:#ffca28; border-bottom:1px solid rgba(255,202,40,0.3);">⚔️ 공격 능력</div>
+                                <div class="d-row"><span>최종 표기 공격력</span> <span class="d-val" id="pve-atk">0 ➡ 0</span></div>
+                                <div class="d-row"><span>총 피증 (세트 포함)</span> <span class="d-val" id="pve-amp">0.0% ➡ 0.0%</span></div>
+                                <div class="d-row"><span>적용 배율 (피증 × 내성감소)</span> <span class="d-val" id="pve-mult">1.000x ➡ 1.000x</span></div>
+                                <div class="d-result-box" style="margin-top:5px; padding:10px;">
+                                    <span style="color:#00e676; font-weight:bold;">피증 반영 실질 공격력</span>
+                                    <span class="d-val" style="font-size:18px;" id="pve-real-atk">0 ➡ 0</span>
+                                </div>
+                                <div class="d-final-text" id="pve-final-dps" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
                             </div>
-                            <div class="d-final-text" id="pve-final-dps" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
 
-                            <div class="dash-section-title" style="color:#69f0ae; margin-top:20px;">🛡️ 방어 / 생존 능력</div>
-                            <div class="d-row"><span>최종 방어력</span> <span class="d-val" id="pve-def">0 ➡ 0</span></div>
-                            <div class="d-row"><span>최종 생명력</span> <span class="d-val" id="pve-hp">0 ➡ 0</span></div>
-                            <div class="d-row"><span>적 내성관통 후 데미지</span> <span class="d-val" id="pve-incoming">0 ➡ 0</span></div>
-                            
-                            <div class="d-result-box" style="border-color:#69f0ae; background:rgba(105, 240, 174, 0.05); margin-top:5px; padding:10px;">
-                                <span style="color:#69f0ae; font-weight:bold;">실제 1타당 피격 데미지 <span style="font-size:10px; font-weight:normal;">(낮을수록 좋음)</span></span>
-                                <span class="d-val" style="font-size:18px;" id="pve-dmg-taken">0 ➡ 0</span>
+                            <div class="def-box">
+                                <div class="dash-section-title" style="color:#69f0ae; border-bottom:1px solid rgba(105,240,174,0.3);">🛡️ 방어 / 생존 능력</div>
+                                <div class="d-row"><span>최종 방어력</span> <span class="d-val" id="pve-def">0 ➡ 0</span></div>
+                                <div class="d-row"><span>최종 생명력</span> <span class="d-val" id="pve-hp">0 ➡ 0</span></div>
+                                <div class="d-row"><span>적 내성관통 후 데미지</span> <span class="d-val" id="pve-incoming">0 ➡ 0</span></div>
+                                
+                                <div class="d-result-box" style="border-color:#69f0ae; background:rgba(105, 240, 174, 0.05); margin-top:5px; padding:10px;">
+                                    <span style="color:#69f0ae; font-weight:bold;">실제 1타당 피격 데미지 <span style="font-size:10px; font-weight:normal;">(낮을수록 좋음)</span></span>
+                                    <span class="d-val" style="font-size:18px;" id="pve-dmg-taken">0 ➡ 0</span>
+                                </div>
+                                <div class="d-final-text" id="pve-final-surv" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
                             </div>
-                            <div class="d-final-text" id="pve-final-surv" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
                         </div>
                         
                         <div class="dash-card">
                             <div class="dash-header" style="color:#ff9800;">⚔️ PVP (유저 전투)</div>
                             
-                            <div class="dash-section-title" style="color:#ffca28;">⚔️ 공격 능력</div>
-                            <div class="d-row"><span>최종 표기 공격력</span> <span class="d-val" id="pvp-atk">0 ➡ 0</span></div>
-                            <div class="d-row"><span>총 피증 (세트 포함)</span> <span class="d-val" id="pvp-amp">0.0% ➡ 0.0%</span></div>
-                            <div class="d-row"><span>적용 배율 (피증 × 내성감소)</span> <span class="d-val" id="pvp-mult">1.000x ➡ 1.000x</span></div>
-                            <div class="d-result-box" style="border-color:#ff9800; background:rgba(255, 152, 0, 0.05); margin-top:5px; padding:10px;">
-                                <span style="color:#ff9800; font-weight:bold;">피증 반영 실질 공격력</span>
-                                <span class="d-val" style="font-size:18px;" id="pvp-real-atk">0 ➡ 0</span>
+                            <div class="atk-box" style="border-color: rgba(255, 152, 0, 0.3); background: linear-gradient(180deg, rgba(255, 152, 0, 0.08) 0%, rgba(0,0,0,0) 100%);">
+                                <div class="dash-section-title" style="color:#ffca28; border-bottom:1px solid rgba(255,202,40,0.3);">⚔️ 공격 능력</div>
+                                <div class="d-row"><span>최종 표기 공격력</span> <span class="d-val" id="pvp-atk">0 ➡ 0</span></div>
+                                <div class="d-row"><span>총 피증 (세트 포함)</span> <span class="d-val" id="pvp-amp">0.0% ➡ 0.0%</span></div>
+                                <div class="d-row"><span>적용 배율 (피증 × 내성감소)</span> <span class="d-val" id="pvp-mult">1.000x ➡ 1.000x</span></div>
+                                <div class="d-result-box" style="border-color:#ff9800; background:rgba(255, 152, 0, 0.05); margin-top:5px; padding:10px;">
+                                    <span style="color:#ff9800; font-weight:bold;">피증 반영 실질 공격력</span>
+                                    <span class="d-val" style="font-size:18px;" id="pvp-real-atk">0 ➡ 0</span>
+                                </div>
+                                <div class="d-final-text" id="pvp-final-dps" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
                             </div>
-                            <div class="d-final-text" id="pvp-final-dps" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
 
-                            <div class="dash-section-title" style="color:#69f0ae; margin-top:20px;">🛡️ 방어 / 생존 능력</div>
-                            <div class="d-row"><span>최종 방어력</span> <span class="d-val" id="pvp-def">0 ➡ 0</span></div>
-                            <div class="d-row"><span>최종 생명력</span> <span class="d-val" id="pvp-hp">0 ➡ 0</span></div>
-                            <div class="d-row"><span>적 내성관통 후 데미지</span> <span class="d-val" id="pvp-incoming">0 ➡ 0</span></div>
-                            
-                            <div class="d-result-box" style="border-color:#69f0ae; background:rgba(105, 240, 174, 0.05); margin-top:5px; padding:10px;">
-                                <span style="color:#69f0ae; font-weight:bold;">실제 1타당 피격 데미지 <span style="font-size:10px; font-weight:normal;">(낮을수록 좋음)</span></span>
-                                <span class="d-val" style="font-size:18px;" id="pvp-dmg-taken">0 ➡ 0</span>
+                            <div class="def-box">
+                                <div class="dash-section-title" style="color:#69f0ae; border-bottom:1px solid rgba(105,240,174,0.3);">🛡️ 방어 / 생존 능력</div>
+                                <div class="d-row"><span>최종 방어력</span> <span class="d-val" id="pvp-def">0 ➡ 0</span></div>
+                                <div class="d-row"><span>최종 생명력</span> <span class="d-val" id="pvp-hp">0 ➡ 0</span></div>
+                                <div class="d-row"><span>적 내성관통 후 데미지</span> <span class="d-val" id="pvp-incoming">0 ➡ 0</span></div>
+                                
+                                <div class="d-result-box" style="border-color:#69f0ae; background:rgba(105, 240, 174, 0.05); margin-top:5px; padding:10px;">
+                                    <span style="color:#69f0ae; font-weight:bold;">실제 1타당 피격 데미지 <span style="font-size:10px; font-weight:normal;">(낮을수록 좋음)</span></span>
+                                    <span class="d-val" style="font-size:18px;" id="pvp-dmg-taken">0 ➡ 0</span>
+                                </div>
+                                <div class="d-final-text" id="pvp-final-surv" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
                             </div>
-                            <div class="d-final-text" id="pvp-final-surv" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
                         </div>
-                    </div>
 
                     <div class="workbench" id="workbench">
                         <div class="empty-wb">
@@ -2262,10 +2324,18 @@
             rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">서버 응답 오류 (나중에 다시 시도해주세요)</div>`;
         }
     }
+
+    // 💾 전체 데이터 원버튼 통합 저장/불러오기
+    // ==========================================
+    function saveGlobalState() { ... }
+    function loadGlobalState() { ... }
+
+    
 </script>
 
 </body>
 </html>
+
 
 
 
