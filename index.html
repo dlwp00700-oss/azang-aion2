@@ -655,18 +655,43 @@
         { key: 'w_mace', label: '전곤', match: ['전곤', '망치'], queries: ['전곤'] },
         { key: 'w_staff', label: '법봉', match: ['법봉', '멸곤'], queries: ['법봉'] },
         { key: 'guarder', label: '가더', match: ['가더', '방패'], queries: ['가더'] },
-        { key: 'head', label: '투구', match: ['투구','머리','모자','관','두건'], queries: ['투구','머리','모자'] },
-        { key: 'top', label: '상의', match: ['상의','흉갑','튜닉','조끼','로브','가죽','판금','사슬'], queries: ['상의','흉갑','튜닉','조끼'] },
+        { key: 'head', label: '투구', match: ['투구','머리','모자','관','두건','안경','장식'], queries: ['투구','머리','모자'] },
+        // 🚀 수정: '갑옷', '가죽', '판금' 등을 빼서 오작동 원천 차단
+        { key: 'top', label: '상의', match: ['상의','흉갑','튜닉','조끼'], queries: ['상의','흉갑','튜닉','조끼'] },
         { key: 'bottom', label: '하의', match: ['하의','각반','바지','다리'], queries: ['하의','각반','바지'] },
-        { key: 'shoulder', label: '견갑', match: ['견갑','어깨','어깨갑옷','견대'], queries: ['견갑','어깨'] },
+        { key: 'shoulder', label: '견갑', match: ['견갑','어깨','견대'], queries: ['견갑','어깨'] },
         { key: 'glove', label: '장갑', match: ['장갑','토시'], queries: ['장갑'] },
         { key: 'shoe', label: '신발', match: ['신발','장화','토우'], queries: ['신발','장화'] },
         { key: 'cloak', label: '망토', match: ['망토'], queries: ['망토'] },
         { key: 'necklace', label: '목걸이', match: ['목걸이'], queries: ['목걸이'] },
-        // 🚀 수정됨: '귀고리' 추가
         { key: 'earring', label: '귀걸이', match: ['귀걸이', '귀고리'], queries: ['귀걸이', '귀고리'] }, 
         { key: 'ring', label: '반지', match: ['반지'], queries: ['반지'] }
     ];
+
+    function getSmartCategory(item) {
+        if (!item) return null;
+        let cName = item.categoryName || "";
+        let iName = item.name || "";
+        
+        // 🚀 수정: '아이템 이름(천룡왕의 장갑)'을 먼저 검사해서 무조건 맞는 부위로 직행하게 변경!
+        for (let cat of CATEGORY_MAP) {
+            if (cat.match.some(m => iName.includes(m))) return cat;
+        }
+        for (let cat of CATEGORY_MAP) {
+            if (cat.match.some(m => cName.includes(m))) return cat;
+        }
+
+        if (iName.endsWith('검')) return CATEGORY_MAP.find(c => c.key === 'w_longsword');
+        if (iName.endsWith('도')) return CATEGORY_MAP.find(c => c.key === 'w_dagger');
+        if (iName.endsWith('활') || iName.endsWith('궁')) return CATEGORY_MAP.find(c => c.key === 'w_bow');
+        if (iName.endsWith('곤')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
+        if (iName.endsWith('서')) return CATEGORY_MAP.find(c => c.key === 'w_spellbook');
+        if (iName.endsWith('주')) return CATEGORY_MAP.find(c => c.key === 'w_orb');
+        if (iName.endsWith('치')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
+        if (iName.endsWith('고리')) return CATEGORY_MAP.find(c => c.key === 'earring');
+        
+        return null;
+    }
 
     const STAT_KEYS = ["atk", "acc", "amp", "pvpAmp", "pveAmp", "crit", "critDmg", "critAddDmg", "critRes", "hp", "mp", "def", "spd", "multiHit", "shockHit", "power", "agi", "acc_stat", "will", "know", "vit", "dest", "death", "wis", "destiny", "space", "time_stat", "life", "illusion", "freedom", "justice", "rearAtk", "block", "evasion", "wAmp", "atkPct", "defPct", "bossAmp", "raceAmp", "pveRes", "pvpRes", "genRes", "hpPct", "statusRes", "statusAcc"];
     
@@ -1916,40 +1941,49 @@
 
     let abyCart = [];
 
-    function addToCart() {
+    async function addToCart() {
         const rank = document.getElementById('aby_rank').value;
         const part = document.getElementById('aby_part').value;
         const data = ABY_DATA[rank];
         const partName = document.getElementById('aby_part').options[document.getElementById('aby_part').selectedIndex].text;
         
-        // 🚀 수정: 각 부위별 NC 공식 기본 아이콘 세팅 (엑스박스 방지)
-        const defaultIcons = {
-            'weapon': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Sword_01.png',
-            'top': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Armor_01.png',
-            'bottom': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Pants_01.png',
-            'head': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Helmet_01.png',
-            'shoulder': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Shoulder_01.png',
-            'glove': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Gloves_01.png',
-            'shoe': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Boots_01.png',
-            'cloak': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Cloak_01.png',
-            'neck': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Necklace_01.png',
-            'ear': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Earring_01.png',
-            'ring': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Ring_01.png'
-        };
+        // 무기/가더는 고정 검 아이콘, 나머지는 로딩 중 임시 아이콘
+        let iconUrl = (part === 'weapon' || part === 'guarder') 
+            ? 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Sword_01.png'
+            : 'https://via.placeholder.com/40/111/fff?text=...'; 
 
-        let iconUrl = defaultIcons[part] || defaultIcons['top'];
-        
-        // 무기를 제외한 방어구/장신구는 내 착용 장비 아이콘이 있다면 덮어쓰기
-        if (part !== 'weapon' && currentEquipData.length > 0) {
-            const partKeyMap = { 'neck': 'necklace', 'ear': 'earring', 'ring': 'ring' };
-            const targetKey = partKeyMap[part] || part;
-            
-            const found = currentEquipData.find(e => {
-                const cat = getSmartCategory(e);
-                return cat && cat.key === targetKey;
-            });
-            if(found && found.icon) iconUrl = found.icon;
+        // 1. 장바구니에 우선 임시로 넣고 그리기
+        let cartItem = {
+            id: Date.now(),
+            rank: rank,
+            rankName: data.name,
+            part: part,
+            partName: partName,
+            ap: data.ap[part],
+            medal: data.mCount[part] || 0,
+            color: data.color,
+            icon: iconUrl
+        };
+        abyCart.push(cartItem);
+        renderAbyCart();
+        calcAbyss();
+
+        // 🚀 2. 백엔드에 몰래 "백부장 흉갑 아이콘 내놔!" 라고 요청해서 덮어씌우기
+        if (part !== 'weapon' && part !== 'guarder') {
+            try {
+                let keyword = encodeURIComponent(data.name + ' ' + partName); // "백부장 흉갑" 등
+                const res = await fetch(`${API_BASE}/searchDictItem?keyword=${keyword}`);
+                const dictData = await res.json();
+                const items = dictData.contents || dictData.list || [];
+                
+                // 첫 번째 검색 결과의 아이콘만 쏙 빼서 장바구니 정보 업데이트
+                if (items.length > 0 && items[0].icon) {
+                    cartItem.icon = items[0].icon;
+                    renderAbyCart(); // 바뀐 예쁜 아이콘으로 다시 그리기!
+                }
+            } catch(e) { }
         }
+    }
 
         abyCart.push({
             id: Date.now(),
@@ -2231,6 +2265,7 @@
 
 </body>
 </html>
+
 
 
 
