@@ -655,15 +655,16 @@
         { key: 'w_mace', label: '전곤', match: ['전곤', '망치'], queries: ['전곤'] },
         { key: 'w_staff', label: '법봉', match: ['법봉', '멸곤'], queries: ['법봉'] },
         { key: 'guarder', label: '가더', match: ['가더', '방패'], queries: ['가더'] },
-        { key: 'head', label: '투구', match: ['투구','머리','모자','관'], queries: ['투구','머리','모자'] },
-        { key: 'top', label: '상의', match: ['상의','흉갑','튜닉','조끼','로브','가죽'], queries: ['상의','흉갑','튜닉','조끼'] },
-        { key: 'bottom', label: '하의', match: ['하의','각반','바지'], queries: ['하의','각반','바지'] },
-        { key: 'shoulder', label: '견갑', match: ['견갑','어깨','어깨갑옷'], queries: ['견갑','어깨'] },
-        { key: 'glove', label: '장갑', match: ['장갑'], queries: ['장갑'] },
-        { key: 'shoe', label: '신발', match: ['신발','장화'], queries: ['신발','장화'] },
+        { key: 'head', label: '투구', match: ['투구','머리','모자','관','두건'], queries: ['투구','머리','모자'] },
+        { key: 'top', label: '상의', match: ['상의','흉갑','튜닉','조끼','로브','가죽','판금','사슬'], queries: ['상의','흉갑','튜닉','조끼'] },
+        { key: 'bottom', label: '하의', match: ['하의','각반','바지','다리'], queries: ['하의','각반','바지'] },
+        { key: 'shoulder', label: '견갑', match: ['견갑','어깨','어깨갑옷','견대'], queries: ['견갑','어깨'] },
+        { key: 'glove', label: '장갑', match: ['장갑','토시'], queries: ['장갑'] },
+        { key: 'shoe', label: '신발', match: ['신발','장화','토우'], queries: ['신발','장화'] },
         { key: 'cloak', label: '망토', match: ['망토'], queries: ['망토'] },
         { key: 'necklace', label: '목걸이', match: ['목걸이'], queries: ['목걸이'] },
-        { key: 'earring', label: '귀걸이', match: ['귀걸이'], queries: ['귀걸이'] },
+        // 🚀 수정됨: '귀고리' 추가
+        { key: 'earring', label: '귀걸이', match: ['귀걸이', '귀고리'], queries: ['귀걸이', '귀고리'] }, 
         { key: 'ring', label: '반지', match: ['반지'], queries: ['반지'] }
     ];
 
@@ -744,6 +745,7 @@
         if (iName.endsWith('서')) return CATEGORY_MAP.find(c => c.key === 'w_spellbook');
         if (iName.endsWith('주')) return CATEGORY_MAP.find(c => c.key === 'w_orb');
         if (iName.endsWith('치')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
+        if (iName.endsWith('고리')) return CATEGORY_MAP.find(c => c.key === 'earring');
         
         return null;
     }
@@ -1866,7 +1868,6 @@
             html += `<tr style="background:#0a0a0c; border-bottom:1px solid #1a1a20;">
                 <td style="padding:10px; text-align:center; font-weight:bold; color:${cat.c}">${cat.n}</td>
                 <td><input type="number" id="curLv_${i}" value="1" min="1" max="10" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="if(this.value>10)this.value=10; runPetCalc()"></td>
-                <td><input type="number" id="curLv_${i}" value="1" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
                 <td><input type="number" id="curExp_${i}" value="0" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
                 <td><input type="number" id="tarLv_${i}" value="1" style="width:80%; background:#111; border:1px solid #333; color:#fff; padding:5px; text-align:center;" oninput="runPetCalc()"></td>
                 <td><select id="lock_${i}" style="width:90%; background:#111; border:1px solid #333; color:#fff; padding:5px;" onchange="runPetCalc()"><option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option><option value="6">6개</option><option value="7">7개</option><option value="8">8개</option></select></td>
@@ -2026,7 +2027,9 @@
         let finalWeeks = Math.max(weeksForAp, weeksForMedal);
 
         document.getElementById('aby_res_time').innerText = `약 ${finalWeeks}주`;
-        document.getElementById('aby_res_desc').innerText = `총 필요: ${totalAp.toLocaleString()} AP / ${totalMedal} 훈장`;
+        
+        // 🚀 수정됨: '총 필요' 대신 현재 자원을 뺀 '남은 필요량'을 출력하도록 remAp, remM 변수 사용
+        document.getElementById('aby_res_desc').innerText = `남은 필요량: ${remAp.toLocaleString()} AP / ${remM} 훈장`;
     }
 
     // 탭 전환 시 초기화
@@ -2204,6 +2207,7 @@
 
 </body>
 </html>
+
 
 
 
