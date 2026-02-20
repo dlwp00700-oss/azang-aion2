@@ -168,10 +168,11 @@
             <img src="logo.png" alt="AZANG 아장 - 아이온2 장비 분석 도우미" onerror="this.style.display='none'; this.parentElement.innerHTML='<h1 style=\'color:#00e676; font-size:40px; text-align:center;\'>AZANG</h1><p style=\'text-align:center;\'>아이온2 장비 분석 도우미</p>';">
         </div>
 
-        <div class="top-nav">
+       <div class="top-nav">
             <div class="nav-item active" onclick="switchTab('equip', this)">⚔️ 장비 시뮬레이터</div>
             <div class="nav-item" onclick="switchTab('pet', this)">🐾 펫작 계산기</div>
             <div class="nav-item" onclick="switchTab('abyss', this)">🏅 어비스 파밍 계산기</div>
+            <div class="nav-item" onclick="switchTab('ranking', this); loadFullRanking(0);">🏆 랭킹</div>
         </div>
 
         <div id="tab-equip" class="tab-content active">
@@ -556,7 +557,33 @@
         
     </div>
 </div>
-        <div class="ad-banner ad-bottom">
+
+    <div id="tab-ranking" class="tab-content">
+            <div class="c-window" style="max-width: 900px; margin: 0 auto 30px auto; padding: 30px;">
+                <div class="sec-title" style="font-size: 18px; margin-bottom: 20px;">
+                    <span style="color:#ffca28;">🏆 전 서버 어비스 종합 랭킹 (TOP 50)</span>
+                </div>
+                
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <button id="btnFullRankAll" onclick="loadFullRanking(0)" style="flex:1; padding:12px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:6px; font-weight:bold; cursor:pointer; transition:0.2s;">🌍 통합 랭킹</button>
+                    <button id="btnFullRankElyos" onclick="loadFullRanking(1)" style="flex:1; padding:12px; background:#111; color:#888; border:1px solid #333; border-radius:6px; cursor:pointer; transition:0.2s;">🕊️ 천족 랭킹</button>
+                    <button id="btnFullRankAsmo" onclick="loadFullRanking(2)" style="flex:1; padding:12px; background:#111; color:#888; border:1px solid #333; border-radius:6px; cursor:pointer; transition:0.2s;">🦇 마족 랭킹</button>
+                </div>
+                
+                <div style="background:#0a0a0c; border:1px solid #222; border-radius:8px; padding:10px;">
+                    <div style="display:flex; padding:10px 15px; border-bottom:1px solid #222; color:#888; font-size:12px; font-weight:bold;">
+                        <div style="width:50px; text-align:center;">순위</div>
+                        <div style="flex:1;">캐릭터 정보 <span style="font-weight:normal; font-size:10px; color:#555;">(클릭 시 장비 조회)</span></div>
+                        <div style="width:120px; text-align:right;">어비스 포인트</div>
+                    </div>
+                    <div id="fullRankingArea" style="min-height: 400px;">
+                        <div style="text-align:center; padding:100px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    <div class="ad-banner ad-bottom">
             [광고] 하단 배너 영역 (728x90)
         </div>
         
@@ -1870,11 +1897,19 @@
         const data = ABY_DATA[rank];
         const partName = document.getElementById('aby_part').options[document.getElementById('aby_part').selectedIndex].text;
         
-        // 아이콘 이미지 찾기 (캐릭터 정보에 있으면 가져옴)
-        let iconUrl = 'https://via.placeholder.com/40/222/888?text=?';
-        if(currentEquipData.length > 0) {
-            const found = currentEquipData.find(e => getSmartCategory(e)?.key.includes(part === 'neck' ? 'necklace' : part === 'ear' ? 'earring' : part === 'ring' ? 'ring' : part));
-            if(found) iconUrl = found.icon;
+        // 🚀 아이콘 이미지 로직 수정 (무기/가더는 전용 아이콘, 나머지는 불러온 내 장비 아이콘)
+        let iconUrl = 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Armor_01.png'; // 기본 방어구 아이콘
+        
+        if (part === 'weapon') {
+            iconUrl = 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Sword_01.png'; // 무기 전용 검 아이콘
+        } else {
+            if(currentEquipData.length > 0) {
+                const found = currentEquipData.find(e => {
+                    const cat = getSmartCategory(e);
+                    return cat && cat.key.includes(part === 'neck' ? 'necklace' : part === 'ear' ? 'earring' : part === 'ring' ? 'ring' : part);
+                });
+                if(found && found.icon) iconUrl = found.icon;
+            }
         }
 
         abyCart.push({
@@ -2044,16 +2079,94 @@
         }
     }
 
+
+    
+
     // 🚀 사이트 켜질 때 통합 랭킹(0) 자동 실행되도록 기존 onload 덮어쓰기
     window.onload = () => { 
         if(typeof initPetCalc === "function") initPetCalc(); 
         if(typeof renderFavorites === "function") renderFavorites();
         loadTotalRanking(0); 
     };
+
+
+    // ==========================================
+    // 🏆 전체 화면(탭) 통합 랭킹 불러오기 (TOP 50)
+    // ==========================================
+    async function loadFullRanking(raceId = 0) {
+        const rankArea = document.getElementById('fullRankingArea');
+        const btnAll = document.getElementById('btnFullRankAll');
+        const btnElyos = document.getElementById('btnFullRankElyos');
+        const btnAsmo = document.getElementById('btnFullRankAsmo');
+
+        // 버튼 색상 초기화
+        [btnAll, btnElyos, btnAsmo].forEach(btn => {
+            if(btn) btn.style.cssText = "flex:1; padding:12px; background:#111; color:#888; border:1px solid #333; border-radius:6px; cursor:pointer; transition:0.2s;";
+        });
+
+        // 눌린 탭 하이라이트
+        if (raceId === 0 && btnAll) {
+            btnAll.style.cssText = "flex:1; padding:12px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:6px; font-weight:bold; cursor:pointer;";
+        } else if (raceId === 1 && btnElyos) {
+            btnElyos.style.cssText = "flex:1; padding:12px; background:#1a1a24; color:#fff; border:1px solid #4fc3f7; border-radius:6px; font-weight:bold; cursor:pointer;";
+        } else if (raceId === 2 && btnAsmo) {
+            btnAsmo.style.cssText = "flex:1; padding:12px; background:#241a1a; color:#fff; border:1px solid #448aff; border-radius:6px; font-weight:bold; cursor:pointer;";
+        }
+
+        rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>`;
+
+        try {
+            const res = await fetch(`${API_BASE}/totalRanking?race=${raceId}`);
+            const data = await res.json();
+            const rankList = data.list || [];
+            
+            if (rankList.length === 0) {
+                rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">랭킹 데이터가 없습니다.</div>`;
+                return;
+            }
+
+            let html = '';
+            // 🚀 대문과 달리 자르지 않고 50명 전부 렌더링!
+            rankList.forEach((user, index) => { 
+                let rankColor = "#aaa"; 
+                if(index === 0) rankColor = "#ffca28"; // 1위
+                else if(index === 1) rankColor = "#e0e0e0"; // 2위
+                else if(index === 2) rankColor = "#cd7f32"; // 3위
+
+                let rankSize = (index < 3) ? "18px" : "14px";
+                let cName = user.characterName || "이름없음";
+                let sName = user.serverName || "서버";
+                let ap = user.point || 0; 
+                let pImg = user.profileImage || ""; 
+
+                let serverColor = (user.race === 1) ? "#4fc3f7" : "#448aff";
+
+                // 랭커 클릭 시 자동으로 장비 탭으로 넘어가면서 해당 캐릭터를 검색하는 꿀기능 추가!
+                html += `
+                <div style="display:flex; align-items:center; padding:12px 15px; border-bottom:1px solid #222; transition:0.2s;" onmouseover="this.style.background='#1a1a24'" onmouseout="this.style.background='transparent'">
+                    <div style="width:50px; text-align:center; color:${rankColor}; font-weight:bold; font-size:${rankSize};">${index + 1}</div>
+                    
+                    <div style="flex:1; display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="switchTab('equip', document.querySelector('.nav-item')); loadCharacterDetail('${user.characterId}', '${user.serverId}', '${cName}')">
+                        ${pImg ? `<img src="${pImg}" style="width:36px; height:36px; border-radius:50%; border:2px solid ${serverColor};" onerror="this.style.display='none'">` : '<div style="width:36px; height:36px; border-radius:50%; border:2px solid #555; background:#111;"></div>'}
+                        <div>
+                            <div style="font-weight:bold; font-size:14px; color:#fff;">${cName}</div>
+                            <div style="font-size:11px; color:#888; margin-top:2px;"><span style="color:${serverColor};">[${sName}]</span> ${user.className || '직업 미확인'}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="width:120px; text-align:right; color:#ffca28; font-weight:bold; font-size:14px;">${Number(ap).toLocaleString()}</div>
+                </div>`;
+            });
+            rankArea.innerHTML = html;
+        } catch (e) {
+            rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">서버 응답 오류 (나중에 다시 시도해주세요)</div>`;
+        }
+    }
 </script>
 
 </body>
 </html>
+
 
 
 
