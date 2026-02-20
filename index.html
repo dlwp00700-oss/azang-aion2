@@ -194,6 +194,59 @@
                 <div id="selectionList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;"></div>
             </div>
 
+
+
+            <style>
+                .home-mode #homeContent { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; animation: fadeIn 0.5s ease; margin-bottom: 20px; max-width: 1600px; }
+                .dash-mode #homeContent { display: none; }
+                .info-box { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+                .info-title { color: #ffca28; font-size: 16px; font-weight: bold; border-bottom: 1px dashed #333; padding-bottom: 10px; margin-bottom: 15px; }
+                .news-list { list-style: none; padding: 0; margin: 0; }
+                .news-list li { padding: 10px 0; border-bottom: 1px solid #222; font-size: 13px; color: #ccc; display: flex; gap: 10px; line-height: 1.5; }
+                .news-list li:last-child { border-bottom: none; }
+                .news-date { color: #888; font-size: 11px; min-width: 70px; }
+                .rank-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 13px; align-items: center; }
+            </style>
+            
+            <div id="homeContent">
+                <div style="display:flex; flex-direction:column; gap:20px;">
+                    <div class="info-box">
+                        <div class="info-title">📰 아이온2 최신 뉴스 요약</div>
+                        <ul class="news-list">
+                            <li><span class="news-date">2026.02.20</span> <span>[가이드] 아이온2 템셋팅 가이드: 백부장 세트와 천부장 세트의 딜량 차이 분석 및 최적화 방법</span></li>
+                            <li><span class="news-date">2026.02.15</span> <span>어비스 파밍의 정석, 주간 획득 상한선 500만 AP를 가장 빠르게 채우는 파티 구성과 요새전 팁</span></li>
+                            <li><span class="news-date">2026.02.10</span> <span>영혼 각인과 마석 효율 분석: 유일 등급 마석 셋팅 시 실질 생존력(EHP) 상승 체감 후기</span></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
+                        <ul class="news-list">
+                            <li><span class="news-date">v1.2.0</span> <span>어비스 파밍 계산기 탭 개편 (훈장 종류 3분할 및 다중 장비 장바구니 추가 기능 반영)</span></li>
+                            <li><span class="news-date">v1.1.5</span> <span>PVP / PVE 전투력(CP) 데미지 공식 세분화 및 특수 스탯(파괴, 죽음, 시간 등) 연동 공식 적용</span></li>
+                            <li><span class="news-date">v1.1.0</span> <span>펫 종족 이해도 종합 계산기 탭 신설 (필요 영혼결정 및 키나 계산 로직 도입)</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-title" style="display:flex; justify-content:space-between; color:#4fc3f7;">
+                        <span>🏆 실시간 어비스 랭킹 (전 서버)</span>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <button id="btnRankElyos" onclick="loadTotalRanking(1)" style="flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #4fc3f7; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s;">🕊️ 천족 TOP 5</button>
+                        <button id="btnRankAsmo" onclick="loadTotalRanking(2)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🦇 마족 TOP 5</button>
+                    </div>
+                    
+                    <div id="totalRankingArea" style="min-height: 165px;">
+                        <div style="text-align:center; padding:50px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
+                    </div>
+                    
+                    <div style="margin-top:15px; font-size:11px; color:#666; text-align:center; line-height:1.4;">
+                        * 전 서버 통합 랭킹은 1시간 단위로 갱신됩니다.
+                    </div>
+                </div>
+            </div>
             <div class="layout-grid" id="mainDashboard">
                 <div>
                     <div class="c-window" style="padding-bottom: 10px;">
@@ -504,7 +557,10 @@
         
         <footer class="site-footer">
             <div class="footer-links">
-               <a href="https://aion2.plaync.co
+                <a href="https://aion2.plaync.com/" target="_blank">AION2 공식 홈페이지</a> | 
+                <a href="terms.html">이용약관</a> | 
+                <a href="privacy.html">개인정보처리방침</a> | 
+                <a href="https://discord.gg/N3EV4pxf" target="_blank">1:1 문의 (Discord)</a>
             </div>
             <div class="footer-copy">© 2026 AZANG (아장) - 아이온2 장비 시뮬레이터. All rights reserved.</div>
             <div class="footer-desc">
@@ -521,19 +577,8 @@
 
 </div>
 
-
-
 <script>
-    // 팝업(모달) 열기/닫기 함수
-    function openModal(modalId) {
-        document.getElementById(modalId).style.display = 'flex';
-    }
     
-    function closeModal(modalId, event) {
-        if (!event || event.target.id === modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-    }
 
     const API_BASE = "/api";
     let currentEquipData = []; 
@@ -1926,10 +1971,71 @@
         oldSwitch(id, el);
         if(id === 'abyss') calcAbyss();
     };
+
+    // ==========================================
+    // 🏆 메인 화면: 전 서버 통합 랭킹 불러오기
+    // ==========================================
+    async function loadTotalRanking(raceId = 1) {
+        const rankArea = document.getElementById('totalRankingArea');
+        const btnElyos = document.getElementById('btnRankElyos');
+        const btnAsmo = document.getElementById('btnRankAsmo');
+
+        if (raceId === 1) {
+            btnElyos.style.cssText = "flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #4fc3f7; border-radius:4px; font-weight:bold; cursor:pointer;";
+            btnAsmo.style.cssText = "flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer;";
+        } else {
+            btnAsmo.style.cssText = "flex:1; padding:8px; background:#241a1a; color:#fff; border:1px solid #ff5252; border-radius:4px; font-weight:bold; cursor:pointer;";
+            btnElyos.style.cssText = "flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer;";
+        }
+
+        rankArea.innerHTML = `<div style="text-align:center; padding:50px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>`;
+
+        try {
+            const res = await fetch(`${API_BASE}/totalRanking?race=${raceId}`);
+            const data = await res.json();
+            const rankList = data.list || [];
+            
+            if (rankList.length === 0) {
+                rankArea.innerHTML = `<div style="text-align:center; padding:50px 0; color:#ff5252;">랭킹 데이터가 없습니다. (백엔드 연동 필요)</div>`;
+                return;
+            }
+
+            let html = '';
+            rankList.slice(0, 5).forEach((user, index) => {
+                let rankColor = "#888"; 
+                if(index === 0) rankColor = "#ffca28"; 
+                else if(index === 1) rankColor = "#ccc"; 
+                else if(index === 2) rankColor = "#cd7f32"; 
+
+                let cName = user.characterName || "이름없음";
+                let sName = user.serverName || "서버";
+                let ap = user.point || 0; 
+
+                html += `
+                <div class="rank-row" style="${index === 4 ? 'border:none;' : ''}">
+                    <span style="color:${rankColor}; font-weight:bold; width:30px;">${index + 1}위</span>
+                    <span style="color:#fff; flex:1; cursor:pointer;" onclick="loadCharacterDetail('${user.characterId}', '${user.serverId}', '${cName}')">
+                        <span style="color:#4fc3f7;">[${sName}]</span> ${cName}
+                    </span>
+                    <span style="color:#4fc3f7; font-weight:bold;">${Number(ap).toLocaleString()} AP</span>
+                </div>`;
+            });
+            rankArea.innerHTML = html;
+        } catch (e) {
+            rankArea.innerHTML = `<div style="text-align:center; padding:50px 0; color:#ff5252;">랭킹 서버와 연결할 수 없습니다. (백엔드 구축 중)</div>`;
+        }
+    }
+
+    // 🚀 사이트 켜질 때 랭킹 자동 실행되도록 기존 onload 덮어쓰기
+    window.onload = () => { 
+        if(typeof initPetCalc === "function") initPetCalc(); 
+        loadTotalRanking(1); 
+    };
 </script>
 
 </body>
 </html>
+
 
 
 
