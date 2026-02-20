@@ -2432,13 +2432,12 @@ function copyShareLink() {
     });
 }
 
-// 🚀 기존 window.onload 덮어쓰기 (링크를 타고 오면 자동 검색!)
-const oldLoad = window.onload;
+
+// 🚀 기존 window.onload 덮어쓰기 (중복 오류 방지용 통합 버전!)
 window.onload = () => { 
-    if(oldLoad) oldLoad(); 
     if(typeof initPetCalc === "function") initPetCalc(); 
     if(typeof renderFavorites === "function") renderFavorites();
-    loadTotalRanking(0); 
+    if(typeof loadTotalRanking === "function") loadTotalRanking(0); 
 
     // 주소창에 ?server=1001&name=구캔 파라미터가 있으면 0.3초 뒤 자동 스캔
     const urlParams = new URLSearchParams(window.location.search);
@@ -2451,12 +2450,12 @@ window.onload = () => {
         setTimeout(() => { searchCharacter(); }, 300);
     }
 };
-
     
 </script>
 
 </body>
 </html>
+
 
 
 
