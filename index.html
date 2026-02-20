@@ -1947,12 +1947,25 @@
         const data = ABY_DATA[rank];
         const partName = document.getElementById('aby_part').options[document.getElementById('aby_part').selectedIndex].text;
         
-        // 무기/가더는 고정 검 아이콘, 나머지는 로딩 중 임시 아이콘
-        let iconUrl = (part === 'weapon' || part === 'guarder') 
-            ? 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Sword_01.png'
-            : 'https://via.placeholder.com/40/111/fff?text=...'; 
+        // 🚀 요청하신 대로 무기/가더는 무조건 '검 아이콘', 나머지는 깔끔한 각 부위별 기본 아이콘 세팅
+        const defaultIcons = {
+            'weapon': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Sword_01.png',
+            'guarder': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Sword_01.png', // 가더도 무기와 같은 검 아이콘 적용
+            'top': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Armor_01.png',
+            'bottom': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Pants_01.png',
+            'head': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Helmet_01.png',
+            'shoulder': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Shoulder_01.png',
+            'glove': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Gloves_01.png',
+            'shoe': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Boots_01.png',
+            'cloak': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Cloak_01.png',
+            'neck': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Necklace_01.png',
+            'ear': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Earring_01.png',
+            'ring': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Ring_01.png'
+        };
 
-        // 1. 장바구니에 우선 임시로 넣고 그리기
+        let iconUrl = defaultIcons[part] || defaultIcons['top'];
+
+        // 1. 유저가 버튼을 누르면 답답하지 않게 우선 기본 아이콘으로 장바구니에 넣고 즉시 렌더링
         let cartItem = {
             id: Date.now(),
             rank: rank,
@@ -1968,20 +1981,32 @@
         renderAbyCart();
         calcAbyss();
 
-        // 🚀 2. 백엔드에 몰래 "백부장 흉갑 아이콘 내놔!" 라고 요청해서 덮어씌우기
+        // 🚀 2. 무기/가더가 아닐 경우에만 API에 찔러서 아칸/가디언 진짜 아이콘 훔쳐오기
         if (part !== 'weapon' && part !== 'guarder') {
             try {
-                let keyword = encodeURIComponent(data.name + ' ' + partName); // "백부장 흉갑" 등
-                const res = await fetch(`${API_BASE}/searchDictItem?keyword=${keyword}`);
-                const dictData = await res.json();
-                const items = dictData.contents || dictData.list || [];
+                // 아이온은 '귀걸이'를 '귀고리'로 표기함 (예: 십부장의 터키석 귀고리)
+                let searchPartName = (part === 'ear') ? '귀고리' : partName;
                 
-                // 첫 번째 검색 결과의 아이콘만 쏙 빼서 장바구니 정보 업데이트
+                // 검색어 1순위: "십부장의 투구" (중간에 '의'를 넣어 가디언/아칸 매칭 확률 극대화)
+                let keyword1 = encodeURIComponent(data.name + '의 ' + searchPartName); 
+                let res = await fetch(`${API_BASE}/searchDictItem?keyword=${keyword1}`);
+                let dictData = await res.json();
+                let items = dictData.contents || dictData.list || [];
+                
+                // 만약 "의"를 붙여서 안 나오면 2순위: "십부장 투구" 로 띄어쓰기 검색
+                if (items.length === 0) {
+                    let keyword2 = encodeURIComponent(data.name + ' ' + searchPartName);
+                    res = await fetch(`${API_BASE}/searchDictItem?keyword=${keyword2}`);
+                    dictData = await res.json();
+                    items = dictData.contents || dictData.list || [];
+                }
+                
+                // 검색 결과에서 첫 번째 아이콘을 쏙 빼와서 장바구니 아이콘 갈아끼우기
                 if (items.length > 0 && items[0].icon) {
                     cartItem.icon = items[0].icon;
-                    renderAbyCart(); // 바뀐 예쁜 아이콘으로 다시 그리기!
+                    renderAbyCart(); // 예쁜 실제 아이콘으로 부드럽게 화면 갱신!
                 }
-            } catch(e) { }
+            } catch(e) { console.log("아이콘 갱신 실패 (기본 아이콘 유지)"); }
         }
     }
 
@@ -2251,6 +2276,7 @@
 
 </body>
 </html>
+
 
 
 
