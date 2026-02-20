@@ -1,8 +1,7 @@
 {
+  "version": 2,
   "rewrites": [
-    {
-      "source": "/user/:server/:name",
-      "destination": "/api/userPage"
-    }
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/user/:server/:name", "destination": "/api/userPage" }
   ]
 }
