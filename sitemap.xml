@@ -7,6 +7,22 @@
   </url>
   
   <url>
+    <loc>https://aion2zang.info/?menu=pet</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://aion2zang.info/?menu=abyss</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://aion2zang.info/?menu=ranking</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
     <loc>https://aion2zang.info/user/1005/구캔</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -26,4 +42,4 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  </urlset>
+</urlset>
