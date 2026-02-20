@@ -12,10 +12,10 @@ export default async function handler(req, res) {
     const serverReq = req.query.server || ''; 
     const jobReq = req.query.job || '';       
 
-    // 🚀 신규: NC 서버에 특정 직업 랭킹만 따로 달라고 요청하기 위한 직업 고유 번호
+    // 🚀 수정: 아이온 공식 직업 고유 번호(Class ID) 완벽 적용
     const CLASS_MAP = {
-        "검성": 2, "수호성": 3, "궁성": 4, "살성": 5, 
-        "정령성": 6, "마도성": 7, "치유성": 8, "호법성": 9
+        "검성": 2, "수호성": 3, "궁성": 6, "살성": 5, 
+        "마도성": 8, "정령성": 9, "치유성": 11, "호법성": 12
     };
 
     const SERVER_LIST = {
@@ -46,10 +46,10 @@ export default async function handler(req, res) {
             if (serverReq && serverId !== serverReq) continue;
 
             if (raceReq === '0' || parseInt(raceReq) === info.race) {
-                // 넉넉하게 200명어치 데이터를 요구합니다 (NC 서버 허용 범위 내)
+                // 넉넉하게 200명어치 데이터를 요구합니다
                 let url = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=${serverId}&size=200`;
                 
-                // 🚀 직업이 선택되었다면 NC 서버에 해당 직업 랭킹만 달라고 파라미터 추가
+                // 🚀 선택된 직업 번호를 파라미터로 추가!
                 if (jobReq && CLASS_MAP[jobReq]) {
                     url += `&classId=${CLASS_MAP[jobReq]}`;
                 }
@@ -76,7 +76,6 @@ export default async function handler(req, res) {
 
         await Promise.all(fetchPromises);
 
-        // 만약을 대비한 이중 필터 (NC 서버가 직업 파라미터를 무시했을 경우)
         if (jobReq) {
             allPlayers = allPlayers.filter(user => user.className === jobReq);
         }
@@ -87,7 +86,7 @@ export default async function handler(req, res) {
 
         allPlayers.sort((a, b) => (b.point || 0) - (a.point || 0));
 
-        // 🚀 최종 출력 인원: 기존 50명 -> 100명으로 시원하게 확장
+        // 🚀 최종 출력 인원: 시원하게 100명
         const topRanking = allPlayers.slice(0, 100);
 
         res.status(200).json({ list: topRanking });
