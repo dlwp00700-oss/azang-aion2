@@ -1922,19 +1922,33 @@
         const data = ABY_DATA[rank];
         const partName = document.getElementById('aby_part').options[document.getElementById('aby_part').selectedIndex].text;
         
-        // 🚀 아이콘 이미지 로직 수정 (무기/가더는 전용 아이콘, 나머지는 불러온 내 장비 아이콘)
-        let iconUrl = 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Armor_01.png'; // 기본 방어구 아이콘
+        // 🚀 수정: 각 부위별 NC 공식 기본 아이콘 세팅 (엑스박스 방지)
+        const defaultIcons = {
+            'weapon': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Sword_01.png',
+            'top': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Armor_01.png',
+            'bottom': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Pants_01.png',
+            'head': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Helmet_01.png',
+            'shoulder': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Shoulder_01.png',
+            'glove': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Gloves_01.png',
+            'shoe': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Boots_01.png',
+            'cloak': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Cloak_01.png',
+            'neck': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Necklace_01.png',
+            'ear': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Earring_01.png',
+            'ring': 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Ring_01.png'
+        };
+
+        let iconUrl = defaultIcons[part] || defaultIcons['top'];
         
-        if (part === 'weapon') {
-            iconUrl = 'https://assets.playnccdn.com/static-aion2-gamedata/resources/Icon_Item_Sword_01.png'; // 무기 전용 검 아이콘
-        } else {
-            if(currentEquipData.length > 0) {
-                const found = currentEquipData.find(e => {
-                    const cat = getSmartCategory(e);
-                    return cat && cat.key.includes(part === 'neck' ? 'necklace' : part === 'ear' ? 'earring' : part === 'ring' ? 'ring' : part);
-                });
-                if(found && found.icon) iconUrl = found.icon;
-            }
+        // 무기를 제외한 방어구/장신구는 내 착용 장비 아이콘이 있다면 덮어쓰기
+        if (part !== 'weapon' && currentEquipData.length > 0) {
+            const partKeyMap = { 'neck': 'necklace', 'ear': 'earring', 'ring': 'ring' };
+            const targetKey = partKeyMap[part] || part;
+            
+            const found = currentEquipData.find(e => {
+                const cat = getSmartCategory(e);
+                return cat && cat.key === targetKey;
+            });
+            if(found && found.icon) iconUrl = found.icon;
         }
 
         abyCart.push({
@@ -1980,7 +1994,6 @@
     }
 
     function calcAbyss() {
-        // 1. 주간 한도 계산 (2026-02-20 기준)
         const baseLimit = 5000000;
         const myAp = parseInt(document.getElementById('my_ap').value) || 0;
         const remainLimit = Math.max(0, baseLimit - myAp);
@@ -1992,46 +2005,57 @@
             return;
         }
 
-        // 2. 총 필요 자원 합산
+        // 🚀 수정: 은/금/백금 훈장을 각각 분리해서 계산
         let totalAp = 0;
-        let totalMedal = 0;
-        let targetRank = abyCart[0].rank; // 첫 번째 장비 기준 훈장 종류 판단
+        let reqSilver = 0, reqGold = 0, reqPlat = 0;
 
         abyCart.forEach(item => {
             totalAp += item.ap;
-            totalMedal += item.medal;
+            if (item.rank == 100) reqSilver += item.medal;
+            else if (item.rank == 1000) reqGold += item.medal;
+            else if (item.rank == 10000) reqPlat += item.medal;
         });
 
-        let myM = 0;
-        if (targetRank == 100) myM = parseInt(document.getElementById('my_medal_silver').value) || 0;
-        else if (targetRank == 1000) myM = parseInt(document.getElementById('my_medal_gold').value) || 0;
-        else if (targetRank == 10000) myM = parseInt(document.getElementById('my_medal_plat').value) || 0;
+        let mySilver = parseInt(document.getElementById('my_medal_silver').value) || 0;
+        let myGold = parseInt(document.getElementById('my_medal_gold').value) || 0;
+        let myPlat = parseInt(document.getElementById('my_medal_plat').value) || 0;
+
+        // 내 보유량을 뺀 '실제 남은 필요량' 계산
+        let remAp = Math.max(0, totalAp - myAp);
+        let remSilver = Math.max(0, reqSilver - mySilver);
+        let remGold = Math.max(0, reqGold - myGold);
+        let remPlat = Math.max(0, reqPlat - myPlat);
+
+        // 시간(주) 계산 로직 (가장 높은 랭크 장비 기준)
+        let highestRank = Math.max(...abyCart.map(i => parseInt(i.rank)));
         const wAp = parseInt(document.getElementById('week_ap').value) || 0;
         const useApBuy = document.getElementById('buy_medal_ap').checked;
         const useMake = document.getElementById('make_medal').checked;
 
-        let remAp = Math.max(0, totalAp - myAp);
-        let remM = Math.max(0, totalMedal - myM);
-
-        // 주간 훈장 및 어포 소모량 기대값
-        let weeklyMedal = (targetRank == 100 ? 9 : targetRank == 1000 ? 8 : 0);
+        let weeklyMedal = (highestRank == 100 ? 9 : highestRank == 1000 ? 8 : 0);
         let weeklyApCost = 0;
 
-        if(targetRank >= 100) {
-            if(useApBuy) { weeklyMedal += 10; weeklyApCost += (targetRank == 100 ? 100000 : 300000); }
-            if(useMake) { weeklyMedal += (targetRank == 100 ? 2 : 4); }
+        if(highestRank >= 100) {
+            if(useApBuy) { weeklyMedal += 10; weeklyApCost += (highestRank == 100 ? 100000 : 300000); }
+            if(useMake) { weeklyMedal += (highestRank == 100 ? 2 : 4); }
         }
 
         let weeksForAp = (wAp - weeklyApCost > 0) ? Math.ceil(remAp / (wAp - weeklyApCost)) : 999;
-        let weeksForMedal = (weeklyMedal > 0) ? Math.ceil(remM / weeklyMedal) : (remM > 0 ? 999 : 0);
+        let highestRemMedal = (highestRank == 10000) ? remPlat : (highestRank == 1000) ? remGold : remSilver;
+        let weeksForMedal = (weeklyMedal > 0) ? Math.ceil(highestRemMedal / weeklyMedal) : (highestRemMedal > 0 ? 999 : 0);
         let finalWeeks = Math.max(weeksForAp, weeksForMedal);
 
-        document.getElementById('aby_res_time').innerText = `약 ${finalWeeks}주`;
+        // 🚀 수정: 계산된 남은 훈장들을 예쁘게 텍스트로 묶어주기
+        let medalDesc = [];
+        if (reqSilver > 0 || remSilver > 0) medalDesc.push(`은 ${remSilver}개`);
+        if (reqGold > 0 || remGold > 0) medalDesc.push(`금 ${remGold}개`);
+        if (reqPlat > 0 || remPlat > 0) medalDesc.push(`백금 ${remPlat}개`);
         
-        // 🚀 수정됨: '총 필요' 대신 현재 자원을 뺀 '남은 필요량'을 출력하도록 remAp, remM 변수 사용
-        document.getElementById('aby_res_desc').innerText = `남은 필요량: ${remAp.toLocaleString()} AP / ${remM} 훈장`;
-    }
+        let medalStr = medalDesc.length > 0 ? medalDesc.join(', ') : "0개";
 
+        document.getElementById('aby_res_time').innerText = `약 ${finalWeeks}주`;
+        document.getElementById('aby_res_desc').innerText = `남은 필요량: ${remAp.toLocaleString()} AP / 훈장: ${medalStr}`;
+    }
     // 탭 전환 시 초기화
     const oldSwitch = switchTab;
     switchTab = (id, el) => {
@@ -2207,6 +2231,7 @@
 
 </body>
 </html>
+
 
 
 
