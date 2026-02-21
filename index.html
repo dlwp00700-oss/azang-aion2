@@ -601,11 +601,11 @@
             
             <div style="background:linear-gradient(90deg, #1a1a24 0%, #0a0a0c 100%); border:1px solid #4fc3f7; border-radius:10px; padding:20px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <h3 style="margin:0; color:#4fc3f7; font-size:14px;">📅 현재 시즌 누적 어포 한도 (2026-02-20 기준)</h3>
+                    <h3 style="margin:0; color:#4fc3f7; font-size:14px;">📅 현재 시즌 누적 어포 한도 (<span id="limit_today_date">오늘</span> 기준)</h3>
                     <div id="limit_display" style="font-size:24px; font-weight:bold; color:#fff; margin-top:5px;">5,000,000 AP</div>
                 </div>
                 <div style="text-align:right;">
-                    <div style="font-size:12px; color:#888;">다음 갱신일: 2월 25일(수)</div>
+                    <div style="font-size:12px; color:#888;">다음 갱신일: <span id="limit_next_date">-</span></div>
                     <div style="font-size:14px; color:#69f0ae; font-weight:bold;">+500,000 AP 충전 예정</div>
                 </div>
             </div>
@@ -2330,8 +2330,50 @@
         calcAbyss(); // 체크 후 자동 계산
     }
     
+    // ==========================================
+    // 🏅 어비스 파밍 정밀 계산 로직 (실시간 자동 갱신 탑재)
+    // ==========================================
+    let CURRENT_AP_LIMIT = 5000000;
+
+    // 🚀 신규: 매주 수요일 오전 5시(KST)를 귀신같이 잡아내는 자동 갱신 엔진
+    function updateApLimitUI() {
+        const now = new Date();
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const kstTime = new Date(utc + (9 * 3600000)); // 해외에서 접속해도 무조건 한국 시간으로 강제 맞춤!
+        
+        // 기준점: 2026년 2월 18일(수) 오전 5시 정각 (이때 한도가 5,000,000)
+        const baseDate = new Date("2026-02-18T05:00:00+09:00"); 
+        
+        let diffMs = kstTime.getTime() - baseDate.getTime();
+        if (diffMs < 0) diffMs = 0;
+        
+        const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+        const weeksPassed = Math.floor(diffMs / msPerWeek); // 몇 주가 지났는지 완벽 계산
+        
+        // 기본 500만에 + 매주 지날 때마다 50만씩 무한 증식!
+        CURRENT_AP_LIMIT = 5000000 + (weeksPassed * 500000); 
+        
+        // 1. 오늘 실시간 날짜 (YYYY-MM-DD)
+        const yyyy = kstTime.getFullYear();
+        const mm = String(kstTime.getMonth() + 1).padStart(2, '0');
+        const dd = String(kstTime.getDate()).padStart(2, '0');
+        
+        // 2. 다음 갱신일 날짜 계산 (다음 수요일)
+        const nextUpdate = new Date(baseDate.getTime() + ((weeksPassed + 1) * msPerWeek));
+        const nextMM = nextUpdate.getMonth() + 1;
+        const nextDD = nextUpdate.getDate();
+        
+        if (document.getElementById('limit_today_date')) {
+            document.getElementById('limit_today_date').innerText = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('limit_display').innerText = CURRENT_AP_LIMIT.toLocaleString() + " AP";
+            document.getElementById('limit_next_date').innerText = `${nextMM}월 ${nextDD}일(수) 오전 5:00`;
+        }
+    }
+
     function calcAbyss() {
-        const baseLimit = 5000000;
+        updateApLimitUI(); // 🚀 유저가 체크박스를 누를 때마다 최신 날짜와 한도로 즉시 갱신!
+        const baseLimit = CURRENT_AP_LIMIT;
+        
         const myAp = parseInt(document.getElementById('my_ap').value) || 0;
         const remainLimit = Math.max(0, baseLimit - myAp);
         document.getElementById('remain_limit_text').innerText = `한도까지 남은 획득 가능 어포: ${remainLimit.toLocaleString()} AP`;
@@ -2786,6 +2828,7 @@
 </script>
 </body>
 </html>
+
 
 
 
