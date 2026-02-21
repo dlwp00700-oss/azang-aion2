@@ -2482,6 +2482,7 @@
                 basePower: document.getElementById('basePower').value, baseAgi: document.getElementById('baseAgi').value, baseAccStat: document.getElementById('baseAccStat').value, baseWill: document.getElementById('baseWill').value, baseKnow: document.getElementById('baseKnow').value, baseVit: document.getElementById('baseVit').value, baseDest: document.getElementById('baseDest').value, baseDeath: document.getElementById('baseDeath').value, baseWis: document.getElementById('baseWis').value, baseDestiny: document.getElementById('baseDestiny').value, baseSpace: document.getElementById('baseSpace').value, baseTime: document.getElementById('baseTime').value, baseLife: document.getElementById('baseLife').value, baseIllusion: document.getElementById('baseIllusion').value, baseFreedom: document.getElementById('baseFreedom').value, baseJustice: document.getElementById('baseJustice').value
             },
             // 2. 캐릭터 및 시뮬레이션 셋팅
+            charInfo: currentLoadedChar, // 🚀 신규: 캐릭터 서버+이름 팩트 정보(메모리)를 통째로 저장!
             charName: document.getElementById('charNameInput').value,
             equipData: currentEquipData,
             simState: simulationState,
@@ -2525,13 +2526,22 @@
                 }
             }
             
-            // 2. 장비 복구
+            // 2. 장비 및 캐릭터 복구 🚀
             if(state.equipData && state.equipData.length > 0) {
                 currentEquipData = state.equipData;
                 simulationState = state.simState || {};
-                document.getElementById('charNameInput').value = state.charName || '';
                 
-                document.getElementById('statusMsg').innerHTML = `<span style="color:var(--pos)">✅ [${state.charName||'저장된 캐릭터'}] 로드 완료!</span>`;
+                // 🚀 신규: 캐릭터 정보가 통째로 있다면 100% 완벽 복구 (서버 설정 포함)
+                if (state.charInfo) {
+                    currentLoadedChar = state.charInfo;
+                    document.getElementById('searchServer').value = currentLoadedChar.serverId;
+                    document.getElementById('charNameInput').value = currentLoadedChar.characterName;
+                    document.getElementById('statusMsg').innerHTML = `<span style="color:var(--pos)">✅ [${currentLoadedChar.characterName}] 로드 완료!</span>`;
+                } else {
+                    document.getElementById('charNameInput').value = state.charName || '';
+                    document.getElementById('statusMsg').innerHTML = `<span style="color:var(--pos)">✅ [${state.charName||'저장된 캐릭터'}] 로드 완료!</span>`;
+                }
+                
                 document.getElementById('appBody').className = 'dash-mode';
                 renderEquipGrid();
                 updateDeltaDashboard();
@@ -2647,6 +2657,7 @@ async function loadGoogleSheetNotices() {
 </script>
 </body>
 </html>
+
 
 
 
