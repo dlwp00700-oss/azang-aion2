@@ -277,21 +277,21 @@
             </style>
             
             <div id="homeContent">
-                <div style="display:flex; flex-direction:column; gap:20px;">
-                    <div class="info-box">
-                        <div class="info-title">📰 아이온2 패치 노트 요약</div>
-                        <ul class="news-list" id="patchNoteList">
-                            <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="info-box">
-                        <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
-                        <ul class="news-list" id="updateNoteList">
-                            <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
-                        </ul>
-                    </div>
+            <div style="display:flex; flex-direction:column; gap:20px;">
+                <div class="info-box">
+                    <div class="info-title">📰 아이온2 패치 노트 요약</div>
+                    <ul class="news-list" id="patchNoteList">
+                        <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+                    </ul>
                 </div>
+                
+                <div class="info-box">
+                    <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
+                    <ul class="news-list" id="updateNoteList">
+                        <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+                    </ul>
+                </div>
+            </div>
 
                 <div class="info-box">
                     <div class="info-title" style="display:flex; justify-content:space-between; color:#4fc3f7;">
@@ -313,14 +313,7 @@
                 </div>
             </div>
 
-**✅ 추가할 CSS 디자인:**
-```css
-/* 🚀 게시판 아코디언 디자인 */
-.news-details { cursor: pointer; outline: none; width: 100%; }
-.news-details summary { display: flex; gap: 10px; padding: 10px 0; font-size: 13px; color: #ccc; list-style: none; align-items: center; }
-.news-details summary::-webkit-details-marker { display: none; }
-.news-details[open] summary { color: #fff; font-weight: bold; border-bottom: 1px dashed #333; padding-bottom: 8px; margin-bottom: 8px; }
-.news-content { padding: 15px; background: #0a0a0c; border-radius: 6px; border: 1px solid #333; margin-bottom: 10px; font-size: 12px; color: #aaa; line-height: 1.6; }
+
 
                 <div class="info-box">
                     <div class="info-title" style="display:flex; justify-content:space-between; color:#4fc3f7;">
@@ -2511,9 +2504,10 @@ function copyShareLink() {
 
 
 
-   // 🚀 구글 스프레드시트에서 공지사항 불러오기
+  <script>
+// 🚀 구글 스프레드시트에서 공지사항 불러오기
 async function loadGoogleSheetNotices() {
-    const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS7KVEKjGV3ccGMUSWxOor2AIyNx8TQRY6xU0cvCQP7SJqZC9-Q9sDdVll-YYffrzIe3KR9hIO75LA-/pub?output=tsv'; 
+    const tsvUrl = '[https://docs.google.com/spreadsheets/d/e/2PACX-1vS7KVEKjGV3ccGMUSWxOor2AIyNx8TQRY6xU0cvCQP7SJqZC9-Q9sDdVll-YYffrzIe3KR9hIO75LA-/pub?output=tsv](https://docs.google.com/spreadsheets/d/e/2PACX-1vS7KVEKjGV3ccGMUSWxOor2AIyNx8TQRY6xU0cvCQP7SJqZC9-Q9sDdVll-YYffrzIe3KR9hIO75LA-/pub?output=tsv)'; 
     try {
         const response = await fetch(tsvUrl);
         const data = await response.text();
@@ -2548,13 +2542,22 @@ async function loadGoogleSheetNotices() {
     }
 }
 
-// 🚀 기존 window.onload 덮어쓰기 (중복 오류 방지용 통합 버전!)
+const API_BASE = "/api";
+let currentLoadedChar = null; 
+let currentEquipData = []; 
+let simulationState = {};
+let activeSlotIndex = -1;
+let activeCategoryInfo = null;
+let currentNewItemAPIData = null;
+
+// 🚀 모든 탭과 기능을 자동으로 켜주는 마스터 스위치
 window.onload = () => { 
     if(typeof initPetCalc === "function") initPetCalc(); 
     if(typeof renderFavorites === "function") renderFavorites();
     if(typeof loadTotalRanking === "function") loadTotalRanking(0); 
     
-    loadGoogleSheetNotices(); // 👈 이 녀석이 스위치를 켜주는 역할을 합니다!
+    // 엑셀 게시판 불러오기 실행
+    loadGoogleSheetNotices(); 
 
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -2573,11 +2576,11 @@ window.onload = () => {
         setTimeout(() => { searchCharacter(); }, 300);
     }
 };
-    
 </script>
 
 </body>
 </html>
+
 
 
 
