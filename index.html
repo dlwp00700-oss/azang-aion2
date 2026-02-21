@@ -652,10 +652,84 @@
                             <input type="number" id="my_medal_plat" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; box-sizing: border-box;" oninput="calcAbyss()">
                         </div>
                     </div>
-                    <div><label style="font-size:11px; color:#888;">주간 평균 획득 어포</label><input type="number" id="week_ap" value="300000" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff;" oninput="calcAbyss()"></div>
-                    <div style="grid-column: span 2; border-top:1px solid #222; padding-top:10px; margin-top:5px;">
-                        <label style="font-size:12px; color:#ccc;"><input type="checkbox" id="buy_medal_ap" onchange="calcAbyss()" checked> 주간 어포로 훈장 구매(10개)</label><br>
-                        <label style="font-size:12px; color:#ccc;"><input type="checkbox" id="make_medal" onchange="calcAbyss()" checked> 주간 훈장 제작 시도(20회)</label>
+                    <div style="grid-column: span 2;">
+                        <label style="font-size:11px; color:#888;">주간 평균 획득 어포 (요새전, 퀘스트, 닥사 등 순수 파밍량)</label>
+                        <input type="number" id="week_ap" value="300000" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff;" oninput="calcAbyss()">
+                    </div>
+                </div>
+
+                <details style="margin-top:15px; background:#111; border:1px solid #333; border-radius:6px; padding:10px;">
+                    <summary style="color:#4fc3f7; font-size:13px; font-weight:bold; cursor:pointer;">🎯 시즌 미션 (1회성) 체크리스트</summary>
+                    <div style="font-size:11px; color:#888; margin-top:5px; margin-bottom:10px;">* 체크 시 위의 '현재 보유 훈장'에 즉시 합산되어 계산됩니다.</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; font-size:11px; color:#aaa;">
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            <div style="color:#ccc; font-weight:bold; border-bottom:1px solid #333; padding-bottom:4px; margin-bottom:4px;">은공 (총 14개)</div>
+                            <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-s" value="5" onchange="calcAbyss()"> 쉴 틈이 없어요I (5)</label>
+                            <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-s" value="3" onchange="calcAbyss()"> 장교 대결I (3)</label>
+                            <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-s" value="3" onchange="calcAbyss()"> 장교 대결II (3)</label>
+                            <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-s" value="3" onchange="calcAbyss()"> 장교 대결III (3)</label>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            <div style="color:#ffca28; font-weight:bold; border-bottom:1px solid #333; padding-bottom:4px; margin-bottom:4px;">금공 (총 11개)</div>
+                            <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-s" value="2" onchange="calcAbyss()"> 쉴 틈이 없어요II (2)</label>
+                            <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-s" value="3" onchange="calcAbyss()"> 장군 대결I (3)</label>
+                            <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-s" value="3" onchange="calcAbyss()"> 장군 대결II (3)</label>
+                            <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-s" value="3" onchange="calcAbyss()"> 장군 대결III (3)</label>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            <div style="color:#69f0ae; font-weight:bold; border-bottom:1px solid #333; padding-bottom:4px; margin-bottom:4px;">백금공 (총 8개)</div>
+                            <label class="filter-label"><input type="checkbox" class="abyss-chk chk-pla-s" value="2" onchange="calcAbyss()"> 쉴 틈이 없어요III (2)</label>
+                            <label class="filter-label"><input type="checkbox" class="abyss-chk chk-pla-s" value="3" onchange="calcAbyss()"> 사령관 대결I (3)</label>
+                            <label class="filter-label"><input type="checkbox" class="abyss-chk chk-pla-s" value="3" onchange="calcAbyss()"> 사령관 대결II (3)</label>
+                        </div>
+                    </div>
+                </details>
+
+                <div style="margin-top:15px; background:#0a0a0c; border:1px solid #333; border-radius:8px; padding:15px;">
+                    <h3 style="color:#ce93d8; margin-top:0; font-size:14px; margin-bottom:15px;">✅ 주간 훈장 수급 체크리스트</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; color:#ccc; border-bottom:1px solid #222; padding-bottom:5px; margin-bottom:10px;">
+                                <span style="font-weight:bold;">은 공훈 훈장</span>
+                                <span id="sil_week_cnt" style="color:#ffca28; font-weight:bold;">0 / 39</span>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto; padding-right:5px; font-size:11px;" class="chk-list">
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-w" value="1" onchange="calcAbyss()"> 에레슈란타 정화 작전I (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-w" value="1" onchange="calcAbyss()"> 에레슈란타 정화 작전II (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-w" value="1" onchange="calcAbyss()"> 에레슈란타 정화 작전IV (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-w" value="1" onchange="calcAbyss()"> 에레슈란타 정화 작전VI (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-w" value="1" onchange="calcAbyss()"> 에레슈란타 정화 작전VII (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-w" value="1" onchange="calcAbyss()"> 에레슈란타 정화 작전VIII (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-w" value="1" onchange="calcAbyss()"> 에레슈란타 정화 작전IX (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-w" value="1" onchange="calcAbyss()"> 수호신장 나흐마I (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-w" value="1" onchange="calcAbyss()"> 땅따먹기I (1)</label>
+                                <div style="border-top:1px dashed #333; margin:2px 0;"></div>
+                                <label class="filter-label" style="color:#ff9800;"><input type="checkbox" id="chk_sil_craft" class="abyss-chk chk-sil-w" value="20" onchange="calcAbyss()" checked> 주간 훈장 제작 (20개)</label>
+                                <label class="filter-label" style="color:#ff9800;"><input type="checkbox" id="chk_sil_ap" class="abyss-chk chk-sil-w" value="10" onchange="calcAbyss()" checked> AP 구매 (10개 / 10만AP)</label>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display:flex; justify-content:space-between; color:#ffca28; border-bottom:1px solid #222; padding-bottom:5px; margin-bottom:10px;">
+                                <span style="font-weight:bold;">금 공훈 훈장</span>
+                                <span id="gol_week_cnt" style="color:#ffca28; font-weight:bold;">0 / 18</span>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto; padding-right:5px; font-size:11px;" class="chk-list">
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-w" value="1" onchange="calcAbyss()"> 백색 깃발 휘날리며 VIII (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-w" value="1" onchange="calcAbyss()"> 백색 깃발 휘날리며 X (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-w" value="1" onchange="calcAbyss()"> 백색 깃발 휘날리며 XIII (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-w" value="1" onchange="calcAbyss()"> 천군의 자랑 VIII (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-w" value="1" onchange="calcAbyss()"> 천군의 자랑 X (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-w" value="1" onchange="calcAbyss()"> 천군의 자랑 XIII (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-w" value="1" onchange="calcAbyss()"> 에레슈란타 정화 작전V (1)</label>
+                                <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-w" value="1" onchange="calcAbyss()"> 에레슈란타 정화 작전X (1)</label>
+                                <div style="border-top:1px dashed #333; margin:2px 0;"></div>
+                                <label class="filter-label" style="color:#ff9800;"><input type="checkbox" id="chk_gol_ap" class="abyss-chk chk-gol-w" value="10" onchange="calcAbyss()"> AP 구매 (10개 / 30만AP)</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="font-size:10px; color:#888; margin-top:12px; text-align:center; background:#111; padding:8px; border-radius:4px;">
+                        * 목표 장비가 금/백금 훈장일 경우, 매주 파밍하는 <b>'은 공훈 훈장'은 확률에 따라 상위 훈장으로 자동 변환 계산</b>됩니다.<br>
+                        (은공 ➡ 금공 20% 성공 / 은공 ➡ 백금공 3% 대성공)
                     </div>
                 </div>
 
@@ -2230,11 +2304,28 @@
     }
 
    
+    // ==========================================
+    // 🏅 어비스 파밍 찐 고수용 정밀 계산 로직
+    // ==========================================
     function calcAbyss() {
         const baseLimit = 5000000;
         const myAp = parseInt(document.getElementById('my_ap').value) || 0;
         const remainLimit = Math.max(0, baseLimit - myAp);
         document.getElementById('remain_limit_text').innerText = `한도까지 남은 획득 가능 어포: ${remainLimit.toLocaleString()} AP`;
+
+        // 🚀 1. 시즌(1회성) 퀘스트 체크값 합산
+        let seasonSil = 0, seasonGol = 0, seasonPla = 0;
+        document.querySelectorAll('.chk-sil-s:checked').forEach(c => seasonSil += parseInt(c.value));
+        document.querySelectorAll('.chk-gol-s:checked').forEach(c => seasonGol += parseInt(c.value));
+        document.querySelectorAll('.chk-pla-s:checked').forEach(c => seasonPla += parseInt(c.value));
+
+        // 🚀 2. 주간 수급량 체크값 합산 및 카운터 UI 업데이트
+        let weekSil = 0, weekGol = 0;
+        document.querySelectorAll('.chk-sil-w:checked').forEach(c => weekSil += parseInt(c.value));
+        document.querySelectorAll('.chk-gol-w:checked').forEach(c => weekGol += parseInt(c.value));
+        
+        document.getElementById('sil_week_cnt').innerText = `${weekSil} / 39`;
+        document.getElementById('gol_week_cnt').innerText = `${weekGol} / 18`;
 
         if(abyCart.length === 0) {
             document.getElementById('aby_res_time').innerText = "0주";
@@ -2242,7 +2333,6 @@
             return;
         }
 
-        // 🚀 수정: 은/금/백금 훈장을 각각 분리해서 계산
         let totalAp = 0;
         let reqSilver = 0, reqGold = 0, reqPlat = 0;
 
@@ -2253,55 +2343,85 @@
             else if (item.rank == 10000) reqPlat += item.medal;
         });
 
-        let mySilver = parseInt(document.getElementById('my_medal_silver').value) || 0;
-        let myGold = parseInt(document.getElementById('my_medal_gold').value) || 0;
-        let myPlat = parseInt(document.getElementById('my_medal_plat').value) || 0;
+        // 내 보유량 + 시즌 퀘스트로 얻은 1회성 훈장을 합친 실 보유량
+        let mySilver = (parseInt(document.getElementById('my_medal_silver').value) || 0) + seasonSil;
+        let myGold = (parseInt(document.getElementById('my_medal_gold').value) || 0) + seasonGol;
+        let myPlat = (parseInt(document.getElementById('my_medal_plat').value) || 0) + seasonPla;
 
-        // 내 보유량을 뺀 '실제 남은 필요량' 계산
+        // 실제 모아야 하는 남은 필요량
         let remAp = Math.max(0, totalAp - myAp);
         let remSilver = Math.max(0, reqSilver - mySilver);
         let remGold = Math.max(0, reqGold - myGold);
         let remPlat = Math.max(0, reqPlat - myPlat);
 
-        // 시간(주) 계산 로직 (가장 높은 랭크 장비 기준)
+        // 가장 높은 랭크 (어떤 훈장을 메인으로 파밍하는지 결정)
         let highestRank = Math.max(...abyCart.map(i => parseInt(i.rank)));
         const wAp = parseInt(document.getElementById('week_ap').value) || 0;
-        const useApBuy = document.getElementById('buy_medal_ap').checked;
-        const useMake = document.getElementById('make_medal').checked;
 
-        let weeklyMedal = (highestRank == 100 ? 9 : highestRank == 1000 ? 8 : 0);
+        // 🚀 3. 주간 소모되는 AP 비용 (AP 구매 체크 시 어포 깎임)
         let weeklyApCost = 0;
+        if(document.getElementById('chk_sil_ap') && document.getElementById('chk_sil_ap').checked) weeklyApCost += 100000;
+        if(document.getElementById('chk_gol_ap') && document.getElementById('chk_gol_ap').checked) weeklyApCost += 300000;
 
-        if(highestRank >= 100) {
-            if(useApBuy) { weeklyMedal += 10; weeklyApCost += (highestRank == 100 ? 100000 : 300000); }
-            if(useMake) { weeklyMedal += (highestRank == 100 ? 2 : 4); }
+        let netWeeklyAp = wAp - weeklyApCost;
+        let finalWeeks = 0;
+        let apWeeks = 0;
+
+        // 어포가 모이는 기간 계산
+        if (remAp > 0) {
+            if (netWeeklyAp <= 0) apWeeks = 999;
+            else apWeeks = Math.ceil(remAp / netWeeklyAp);
         }
 
-        let weeksForAp = (wAp - weeklyApCost > 0) ? Math.ceil(remAp / (wAp - weeklyApCost)) : 999;
-        let highestRemMedal = (highestRank == 10000) ? remPlat : (highestRank == 1000) ? remGold : remSilver;
-        let weeksForMedal = (weeklyMedal > 0) ? Math.ceil(highestRemMedal / weeklyMedal) : (highestRemMedal > 0 ? 999 : 0);
-        let finalWeeks = Math.max(weeksForAp, weeksForMedal);
+        // 🚀 4. 훈장별 파밍 기간 계산 (하위 훈장 변환 로직 포함!)
+        let medalWeeks = 0;
+        let effectiveWeeklyMedal = 0;
 
-        // 🚀 수정: 계산된 남은 훈장들을 예쁘게 텍스트로 묶어주기
+        if (highestRank === 100 && remSilver > 0) {
+            // 은공 파밍
+            effectiveWeeklyMedal = weekSil;
+            medalWeeks = (effectiveWeeklyMedal > 0) ? Math.ceil(remSilver / effectiveWeeklyMedal) : 999;
+        } else if (highestRank === 1000 && remGold > 0) {
+            // 금공 파밍: 주간 금공 + (남는 은공을 금공으로 제작 * 20%)
+            effectiveWeeklyMedal = weekGol + (weekSil * 0.2);
+            medalWeeks = (effectiveWeeklyMedal > 0) ? Math.ceil(remGold / effectiveWeeklyMedal) : 999;
+        } else if (highestRank === 10000 && remPlat > 0) {
+            // 백금공 파밍: (남는 은공을 금공으로 제작 시 뜨는 대성공 * 3%)
+            effectiveWeeklyMedal = (weekSil * 0.03);
+            medalWeeks = (effectiveWeeklyMedal > 0) ? Math.ceil(remPlat / effectiveWeeklyMedal) : 999;
+        }
+
+        // 어포와 훈장 중 더 오래 걸리는 기간이 최종 파밍 기간!
+        finalWeeks = Math.max(apWeeks, medalWeeks);
+
         let medalDesc = [];
         if (reqSilver > 0 || remSilver > 0) medalDesc.push(`은 ${remSilver}개`);
         if (reqGold > 0 || remGold > 0) medalDesc.push(`금 ${remGold}개`);
         if (reqPlat > 0 || remPlat > 0) medalDesc.push(`백금 ${remPlat}개`);
-        
         let medalStr = medalDesc.length > 0 ? medalDesc.join(', ') : "0개";
 
-        document.getElementById('aby_res_time').innerText = `약 ${finalWeeks}주`;
-        document.getElementById('aby_res_desc').innerText = `남은 필요량: ${remAp.toLocaleString()} AP / 훈장: ${medalStr}`;
+        if (finalWeeks === 999) {
+            document.getElementById('aby_res_time').innerHTML = `<span style="font-size:20px; color:#ff5252;">주간 획득량 부족</span>`;
+            if (netWeeklyAp <= 0 && remAp > 0) {
+                document.getElementById('aby_res_desc').innerHTML = `AP 지출이 수입보다 많습니다. (구매를 줄이거나 주간 어포를 늘리세요!)`;
+            } else {
+                document.getElementById('aby_res_desc').innerHTML = `체크리스트에서 훈장 수급처를 하나라도 체크해주세요!`;
+            }
+        } else {
+            document.getElementById('aby_res_time').innerText = `약 ${finalWeeks}주`;
+            document.getElementById('aby_res_desc').innerText = `남은 필요량: ${remAp.toLocaleString()} AP / 훈장: ${medalStr}`;
+        }
     }
+
     // 탭 전환 시 초기화
     const oldSwitch = switchTab;
     switchTab = (id, el) => {
         oldSwitch(id, el);
         if(id === 'abyss') calcAbyss();
-        
-        // 🚀 추가: 메뉴 누를 때 새로고침 없이 주소창만 싹 바꾸기!
         window.history.pushState(null, '', '/?menu=' + id);
     };
+        
+       
 
     
    // ==========================================
@@ -2472,66 +2592,59 @@
     }
 
     // ==========================================
-    // 💾 전체 데이터 원버튼 통합 저장/불러오기
+    // 💾 전체 데이터 원버튼 통합 저장/불러오기 (체크박스 완벽 보존)
     // ==========================================
     function saveGlobalState() {
+        // 🚀 신규: 어비스 파밍 탭의 수많은 체크박스 상태를 영혼까지 긁어모아 저장!
+        let abyssCheckStates = [];
+        document.querySelectorAll('.abyss-chk').forEach(chk => abyssCheckStates.push(chk.checked));
+
         const state = {
-            // 1. C창 스탯 정보 및 슬라이더 정보
             stats: {
                 baseAtk: document.getElementById('baseAtk').value, baseAmp: document.getElementById('baseAmp').value, basePveAmp: document.getElementById('basePveAmp').value, basePvpAmp: document.getElementById('basePvpAmp').value, baseWAmp: document.getElementById('baseWAmp').value, baseCritDmg: document.getElementById('baseCritDmg').value, baseDef: document.getElementById('baseDef').value, baseHp: document.getElementById('baseHp').value, baseGenRes: document.getElementById('baseGenRes').value, basePveRes: document.getElementById('basePveRes').value, basePvpRes: document.getElementById('basePvpRes').value, enemyAtk: document.getElementById('enemyAtk').value, enemyAmp: document.getElementById('enemyAmp').value, enemyPvpAmp: document.getElementById('enemyPvpAmp').value, enemyGenRes: document.getElementById('enemyGenRes').value, enemyPvpRes: document.getElementById('enemyPvpRes').value,
                 basePower: document.getElementById('basePower').value, baseAgi: document.getElementById('baseAgi').value, baseAccStat: document.getElementById('baseAccStat').value, baseWill: document.getElementById('baseWill').value, baseKnow: document.getElementById('baseKnow').value, baseVit: document.getElementById('baseVit').value, baseDest: document.getElementById('baseDest').value, baseDeath: document.getElementById('baseDeath').value, baseWis: document.getElementById('baseWis').value, baseDestiny: document.getElementById('baseDestiny').value, baseSpace: document.getElementById('baseSpace').value, baseTime: document.getElementById('baseTime').value, baseLife: document.getElementById('baseLife').value, baseIllusion: document.getElementById('baseIllusion').value, baseFreedom: document.getElementById('baseFreedom').value, baseJustice: document.getElementById('baseJustice').value
             },
-            // 2. 캐릭터 및 시뮬레이션 셋팅
-            charInfo: currentLoadedChar, // 🚀 신규: 캐릭터 서버+이름 팩트 정보(메모리)를 통째로 저장!
+            charInfo: currentLoadedChar, 
             charName: document.getElementById('charNameInput').value,
             equipData: currentEquipData,
             simState: simulationState,
-            // 3. 어비스 파밍 정보
             abyss: {
-                myAp: document.getElementById('my_ap').value, s: document.getElementById('my_medal_silver').value, g: document.getElementById('my_medal_gold').value, p: document.getElementById('my_medal_plat').value, wAp: document.getElementById('week_ap').value, buy: document.getElementById('buy_medal_ap').checked, make: document.getElementById('make_medal').checked, cart: abyCart
+                myAp: document.getElementById('my_ap').value, s: document.getElementById('my_medal_silver').value, g: document.getElementById('my_medal_gold').value, p: document.getElementById('my_medal_plat').value, wAp: document.getElementById('week_ap').value, 
+                cart: abyCart,
+                checks: abyssCheckStates // 🚀 체크박스 기록 보존!
             },
-            // 4. 펫작 계산기 정보
             pet: []
         };
         
         for(let i=0; i<5; i++) {
             if(document.getElementById(`curLv_${i}`)) {
-                state.pet.push({
-                    clv: document.getElementById(`curLv_${i}`).value, cex: document.getElementById(`curExp_${i}`).value, tlv: document.getElementById(`tarLv_${i}`).value, lock: document.getElementById(`lock_${i}`).value
-                });
+                state.pet.push({ clv: document.getElementById(`curLv_${i}`).value, cex: document.getElementById(`curExp_${i}`).value, tlv: document.getElementById(`tarLv_${i}`).value, lock: document.getElementById(`lock_${i}`).value });
             }
         }
         
         localStorage.setItem('aion2_global_save', JSON.stringify(state));
-        alert("💾 [통합 저장 완료]\n\n현재 로드된 캐릭터의 장비 시뮬레이션 상태, 어비스 장바구니 및 보유량, 펫작 진행 상황 등 모든 데이터가 기기에 완벽하게 저장되었습니다!");
+        alert("💾 [통합 저장 완료]\n\n현재 로드된 캐릭터의 장비 시뮬레이션 상태, 어비스 체크리스트 및 장바구니, 펫작 진행 상황 등 모든 데이터가 완벽하게 저장되었습니다!");
     }
 
     function loadGlobalState() {
         const raw = localStorage.getItem('aion2_global_save');
         if(!raw) { alert("❌ 저장된 전체 데이터가 없습니다."); return; }
-        
-        if(!confirm("저장된 데이터를 불러오시겠습니까?\n현재 입력된 데이터는 덮어씌워집니다.")) return;
+        if(!confirm("저장된 데이터를 불러오시겠습니까?\n현재 체크리스트와 입력된 수치는 덮어씌워집니다.")) return;
 
         try {
             const state = JSON.parse(raw);
             
-            // 1. 스탯 & 슬라이더 복구
             if(state.stats) {
                 for(let k in state.stats) {
-                    let el = document.getElementById(k);
-                    if(el) el.value = state.stats[k];
-                    // 슬라이더 바운딩 업데이트
-                    let rangeEl = document.getElementById(k+'Range');
-                    if(rangeEl) rangeEl.value = state.stats[k];
+                    let el = document.getElementById(k); if(el) el.value = state.stats[k];
+                    let rangeEl = document.getElementById(k+'Range'); if(rangeEl) rangeEl.value = state.stats[k];
                 }
             }
             
-            // 2. 장비 및 캐릭터 복구 🚀
             if(state.equipData && state.equipData.length > 0) {
                 currentEquipData = state.equipData;
                 simulationState = state.simState || {};
                 
-                // 🚀 신규: 캐릭터 정보가 통째로 있다면 100% 완벽 복구 (서버 설정 포함)
                 if (state.charInfo) {
                     currentLoadedChar = state.charInfo;
                     document.getElementById('searchServer').value = currentLoadedChar.serverId;
@@ -2547,15 +2660,20 @@
                 updateDeltaDashboard();
             }
 
-            // 3. 어비스 복구
             if(state.abyss) {
-                document.getElementById('my_ap').value = state.abyss.myAp; document.getElementById('my_medal_silver').value = state.abyss.s; document.getElementById('my_medal_gold').value = state.abyss.g; document.getElementById('my_medal_plat').value = state.abyss.p; document.getElementById('week_ap').value = state.abyss.wAp; document.getElementById('buy_medal_ap').checked = state.abyss.buy; document.getElementById('make_medal').checked = state.abyss.make;
+                document.getElementById('my_ap').value = state.abyss.myAp; document.getElementById('my_medal_silver').value = state.abyss.s; document.getElementById('my_medal_gold').value = state.abyss.g; document.getElementById('my_medal_plat').value = state.abyss.p; document.getElementById('week_ap').value = state.abyss.wAp; 
+                
+                // 🚀 체크박스 기록 완벽 복구
+                if (state.abyss.checks) {
+                    let chks = document.querySelectorAll('.abyss-chk');
+                    state.abyss.checks.forEach((val, i) => { if(chks[i]) chks[i].checked = val; });
+                }
+                
                 abyCart = state.abyss.cart || [];
                 renderAbyCart();
                 calcAbyss();
             }
 
-            // 4. 펫작 복구
             if(state.pet && state.pet.length > 0) {
                 state.pet.forEach((p, i) => {
                     if(document.getElementById(`curLv_${i}`)) {
@@ -2565,8 +2683,8 @@
                 runPetCalc();
             }
 
-            alert("📂 [불러오기 완료]\n\n성공적으로 모든 데이터를 복구했습니다.");
-        } catch(e) { alert("❌ 데이터를 불러오는 중 오류가 발생했습니다. 저장된 데이터가 손상되었을 수 있습니다."); }
+            alert("📂 [불러오기 완료]\n\n성공적으로 체크리스트와 장비 데이터를 복구했습니다.");
+        } catch(e) { alert("❌ 데이터를 불러오는 중 오류가 발생했습니다."); }
     }
 
    // 🚀 신규: 링크 복사 기능
@@ -2657,6 +2775,7 @@ async function loadGoogleSheetNotices() {
 </script>
 </body>
 </html>
+
 
 
 
