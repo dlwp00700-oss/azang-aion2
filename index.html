@@ -1276,11 +1276,18 @@
             <label class="filter-label"><input type="checkbox" class="filter-category" value="${c.key}" ${activeCategoryInfo.key === c.key ? 'checked' : ''} onchange="searchDictItem()"> ${c.label}</label>
         `).join('');
 
-        let gradeFiltersHtml = `
+       let gradeFiltersHtml = `
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Unique" checked onchange="searchDictItem()"> 유일</label>
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Epic" checked onchange="searchDictItem()"> 영웅</label>
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Legend" onchange="searchDictItem()"> 전승</label>
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Rare" onchange="searchDictItem()"> 희귀</label>
+        `;
+
+        // 🚀 추가: 획득처(Source) 필터 HTML
+        let sourceFiltersHtml = `
+            <label class="filter-label"><input type="checkbox" class="filter-source" value="craft" onchange="searchDictItem()"> 🛠️ 제작</label>
+            <label class="filter-label"><input type="checkbox" class="filter-source" value="dungeon" onchange="searchDictItem()"> 🏰 원정/성역</label>
+            <label class="filter-label"><input type="checkbox" class="filter-source" value="abyss" onchange="searchDictItem()"> 🏅 어비스</label>
         `;
 
         let html = `
@@ -1300,6 +1307,12 @@
                     <span style="color:#ffca28; font-weight:bold; width:45px;">💎 등급</span>
                     ${gradeFiltersHtml}
                 </div>
+                <div style="display:flex; gap:15px; align-items:center; border-bottom:1px solid #222; padding-bottom:10px;">
+                    <span style="color:#ce93d8; font-weight:bold; width:45px;">📌 획득</span>
+                    <div style="display:flex; flex-wrap:wrap; gap:12px; flex:1;">
+                        ${sourceFiltersHtml}
+                    </div>
+                </div>
                 <div style="display:flex; gap:15px; align-items:flex-start;">
                     <span style="color:#ff5252; font-weight:bold; width:45px; margin-top:2px;">⚔️ 무기</span>
                     <div style="display:flex; flex-wrap:wrap; gap:8px; flex:1;">
@@ -1316,6 +1329,7 @@
         </div>
 
         <div id="dictResultArea" class="dict-result-area"></div>
+        `; 
 
         <div class="compare-container">
             <div class="card-box" id="wbOldCard"></div>
@@ -1408,24 +1422,24 @@
         
         const checkedGrades = Array.from(document.querySelectorAll('.filter-grade:checked')).map(cb => cb.value);
         const checkedCategories = Array.from(document.querySelectorAll('.filter-category:checked')).map(cb => cb.value);
+        // 🚀 신규: 획득처 체크박스 상태 가져오기
+        const checkedSources = Array.from(document.querySelectorAll('.filter-source:checked')).map(cb => cb.value);
 
         resultArea.style.display = 'block';
         resultArea.innerHTML = `<div style="padding:15px; text-align:center; color:#ffca28;">검색 중... ⏳</div>`;
 
         let queriesToRun = [];
         if (keyword) {
-            // 🚀 핵심: API 제한(20개) 때문에 뒷순서인 장갑/반지 등이 잘리는 현상 방지!
-            // 필터가 체크되어 있으면 "천룡왕의 장갑", "천룡왕의 반지" 처럼 이름을 직접 조립해서 서버에 찔러줍니다.
             if (checkedCategories.length > 0) {
                 checkedCategories.forEach(catKey => {
                     const catObj = CATEGORY_MAP.find(c => c.key === catKey);
                     if (catObj) {
-                        queriesToRun.push(keyword + "의 " + catObj.label); // 예: 천룡왕의 장갑
-                        queriesToRun.push(keyword + " " + catObj.label);   // 예: 천룡왕 장갑
+                        queriesToRun.push(keyword + "의 " + catObj.label); 
+                        queriesToRun.push(keyword + " " + catObj.label);   
                     }
                 });
             }
-            queriesToRun.push(keyword); // 기본 검색어도 마지막에 추가
+            queriesToRun.push(keyword); 
         } else {
             if (checkedCategories.length > 0) {
                 checkedCategories.forEach(catKey => {
@@ -1438,7 +1452,6 @@
         }
         
         try {
-            // 중복 쿼리 제거 후 최대 15개까지만 동시에 검색 (속도 유지)
             queriesToRun = [...new Set(queriesToRun)].slice(0, 15);
             
             const fetchPromises = queriesToRun.map(q => 
@@ -1448,18 +1461,13 @@
             );
 
             const results = await Promise.all(fetchPromises);
-            
-            let uniqueMap = new Map(); // 🚀 중복 아이템(이름 기준) 제거용 마법의 창고
+            let uniqueMap = new Map(); 
             
             results.forEach(data => {
                 let items = data.contents || data.list || [];
                 items.forEach(item => {
                     let baseName = (item.name || "").trim();
-                    
-                    // 필터 1: 제외 키워드 거르기 (이제 팔찌는 통과됩니다!)
                     if (EXCLUDE_KEYWORDS.some(kw => baseName.includes(kw))) return;
-                    
-                    // 필터 2: 이름이 같은 아이템이 여러 개면 한 개만 저장 (중복 방지)
                     if (!uniqueMap.has(baseName)) {
                         uniqueMap.set(baseName, item);
                     }
@@ -1469,12 +1477,26 @@
             let allItems = Array.from(uniqueMap.values());
             
             let items = allItems.filter(item => {
+                // 1. 등급 필터
                 if (checkedGrades.length > 0 && !checkedGrades.includes(item.grade)) return false;
                 
+                // 2. 부위(카테고리) 필터
                 let itemCat = getSmartCategory(item);
                 if (!itemCat) return false; 
-                
                 if (checkedCategories.length > 0 && !checkedCategories.includes(itemCat.key)) return false;
+                
+                // 🚀 3. 신규 획득처(Source) 필터! (체크된 게 있을 때만 작동)
+                if (checkedSources.length > 0) {
+                    let itemSources = item.sources || [];
+                    let matchSource = false;
+                    
+                    // 정답지 데이터 1:1 매칭
+                    if (checkedSources.includes('craft') && itemSources.includes('제작')) matchSource = true;
+                    if (checkedSources.includes('dungeon') && (itemSources.includes('원정') || itemSources.includes('성역'))) matchSource = true;
+                    if (checkedSources.includes('abyss') && itemSources.includes('교환 상점')) matchSource = true;
+                    
+                    if (!matchSource) return false; // 선택한 출신이 아니면 탈락!
+                }
                 
                 return true;
             });
@@ -1484,7 +1506,6 @@
                 return; 
             }
             
-            // 레벨이 높은 순서대로 정렬
             items.sort((a, b) => {
                 let lvA = parseInt(a.level || a.itemLevel || a.equipLevel || 0);
                 let lvB = parseInt(b.level || b.itemLevel || b.equipLevel || 0);
@@ -1494,9 +1515,21 @@
             let html = '';
             items.forEach(item => {
                 let dispLv = item.level || item.itemLevel || item.equipLevel || "?";
+                
+                // 🚀 신규: 아이템 옆에 귀여운 획득처 뱃지 달아주기
+                let sourceBadge = '';
+                if (item.sources && item.sources.includes('제작')) sourceBadge = '<span style="background:#4a148c; color:#e1bee7; font-size:9px; padding:2px 4px; border-radius:3px; margin-left:4px;">🛠️제작</span>';
+                else if (item.sources && (item.sources.includes('원정') || item.sources.includes('성역'))) sourceBadge = '<span style="background:#004d40; color:#b2dfdb; font-size:9px; padding:2px 4px; border-radius:3px; margin-left:4px;">🏰원정</span>';
+                else if (item.sources && item.sources.includes('교환 상점')) sourceBadge = '<span style="background:#b71c1c; color:#ffcdd2; font-size:9px; padding:2px 4px; border-radius:3px; margin-left:4px;">🏅어비스</span>';
+
                 html += `<div class="dict-item" onclick="selectDictItem('${item.id}', '${item.name}')">
                     <img src="${item.icon||''}" style="width:36px; height:36px; border-radius:4px; border:1px solid #444;" onerror="this.style.display='none'">
-                    <div><div style="color:${getGradeColor(item.grade)}; font-weight:bold; font-size:13px;">${item.name}</div><div style="font-size:11px; color:#888;">Lv.${dispLv} | ${item.gradeName||item.grade}</div></div>
+                    <div>
+                        <div style="color:${getGradeColor(item.grade)}; font-weight:bold; font-size:13px; display:flex; align-items:center;">
+                            ${item.name} ${sourceBadge}
+                        </div>
+                        <div style="font-size:11px; color:#888;">Lv.${dispLv} | ${item.gradeName||item.grade}</div>
+                    </div>
                 </div>`;
             });
             resultArea.innerHTML = html;
@@ -2628,6 +2661,7 @@ async function loadGoogleSheetNotices() {
 </script>
 </body>
 </html>
+
 
 
 
