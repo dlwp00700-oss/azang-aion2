@@ -539,6 +539,10 @@
                             아장 시뮬레이터는 이 공식을 바탕으로 내가 몬스터나 유저에게 몇 대를 더 버틸 수 있는지(EHP, 유효 생명력)를 직관적으로 분석합니다.</p>
                         </div>
                     </details>
+
+                    </div>
+            </div>
+        </div>
                <div id="tab-pet" class="tab-content">
             <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a20; border-color: #ce93d8;">
                 <summary style="color: #ce93d8; font-size: 15px;">🐾 [필독] 펫작 계산기 사용 방법 (클릭하여 열기)</summary>
@@ -2937,7 +2941,37 @@
         }
     }
 
-    // 🚀 마스터 스위치: 사이트 켜질 때 필요한 기능 모두 실행
+    // 🚀 삭제되었던 1번 툴(경험치 계산기) 핵심 로직 복구
+    function runPetCalc() {
+        let totalClicks = 0; let totalCrys = 0; let totalKinah = 0; let totalMobs = 0;
+        for(let i=0; i<5; i++) {
+            let cLv = parseInt(document.getElementById(`curLv_${i}`).value)||1;
+            let cExp = parseInt(document.getElementById(`curExp_${i}`).value)||0;
+            let tLv = parseInt(document.getElementById(`tarLv_${i}`).value)||1;
+            let lock = parseInt(document.getElementById(`lock_${i}`).value)||0;
+            
+            if(tLv <= cLv) continue;
+            let reqExp = 0;
+            for(let L=cLv; L<tLv; L++) { reqExp += PET_EXP[L]; }
+            reqExp -= cExp;
+            
+            if(reqExp > 0) {
+                let costC = 50 + (PET_PENALTY[lock] ? PET_PENALTY[lock].c : 0);
+                let costK = 10000 + (PET_PENALTY[lock] ? PET_PENALTY[lock].k : 0);
+                let clicks = Math.ceil(reqExp/30);
+                totalClicks += clicks; 
+                totalCrys += clicks*costC; 
+                totalKinah += clicks*costK; 
+                totalMobs += reqExp;
+            }
+        }
+        document.getElementById('res_clicks').innerText = totalClicks.toLocaleString() + "회";
+        document.getElementById('res_crystal').innerText = totalCrys.toLocaleString() + "개";
+        document.getElementById('res_kinah').innerText = totalKinah.toLocaleString();
+        document.getElementById('res_mobs').innerText = totalMobs.toLocaleString() + "마리";
+    }
+
+    // 🚀 마스터 스위치: 사이트 켜질 때 필요한 모든 기능을 하나로 완벽 통합
     window.onload = () => { 
         if(typeof initPetCalc === "function") initPetCalc(); 
         if(typeof renderFavorites === "function") renderFavorites();
@@ -2945,6 +2979,10 @@
         
         initServerList();
         loadGoogleSheetNotices(); 
+        
+        // 펫작 신규 시뮬레이터 초기화 반영
+        if(typeof runResourceSim === "function") runResourceSim();
+        if(typeof changePetCategory === "function") changePetCategory();
 
         const urlParams = new URLSearchParams(window.location.search);
 
@@ -2966,6 +3004,7 @@
 </script>
 </body>
 </html>
+
 
 
 
