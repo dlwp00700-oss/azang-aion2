@@ -1073,18 +1073,30 @@
         selectionDiv.style.display = 'none'; 
 
         try {
-            // 🚀 수정: '전체(0)'를 선택했을 때는 API에 종족 필터를 떼고 보내서 양쪽 다 검색하게 만듦!
-            let apiUrl = `${API_BASE}/searchList?name=${encodeURIComponent(name)}`;
-            if (race !== "0" && race !== 0) {
-                apiUrl += `&race=${race}`;
+            let charList = [];
+            
+            // 🚀 마법의 코드: '전체(0)'일 때는 천족(1)과 마족(2) API를 동시에 찔러서 결과를 싹 다 긁어모읍니다!
+            if (race === "0" || race === 0) {
+                const url1 = `${API_BASE}/searchList?name=${encodeURIComponent(name)}&race=1${serverId ? `&serverId=${serverId}` : ''}`;
+                const url2 = `${API_BASE}/searchList?name=${encodeURIComponent(name)}&race=2${serverId ? `&serverId=${serverId}` : ''}`;
+                
+                // Promise.all을 써서 두 번의 검색을 빛의 속도로 동시에 진행
+                const [res1, res2] = await Promise.all([
+                    fetch(url1).then(r => r.json()).catch(e => ({ list: [] })),
+                    fetch(url2).then(r => r.json()).catch(e => ({ list: [] }))
+                ]);
+                
+                const list1 = res1.contents || res1.list || [];
+                const list2 = res2.contents || res2.list || [];
+                charList = [...list1, ...list2]; // 두 종족 결과 합치기!
+            } else {
+                // 특정 종족이 선택되었을 때는 기존처럼 한 번만 검색
+                let apiUrl = `${API_BASE}/searchList?name=${encodeURIComponent(name)}&race=${race}`;
+                if (serverId) apiUrl += `&serverId=${serverId}`;
+                const listRes = await fetch(apiUrl);
+                const listData = await listRes.json();
+                charList = listData.contents || listData.list || [];
             }
-            if (serverId) {
-                apiUrl += `&serverId=${serverId}`;
-            }
-
-            const listRes = await fetch(apiUrl);
-            const listData = await listRes.json();
-            const charList = listData.contents || listData.list || [];
 
             if (charList.length === 0) { statusMsg.innerHTML = "❌ 검색된 캐릭터가 없습니다."; return; }
 
@@ -2591,6 +2603,7 @@ async function loadGoogleSheetNotices() {
 </script>
 </body>
 </html>
+
 
 
 
