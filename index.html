@@ -543,102 +543,121 @@
                     </div>
             </div>
         </div>
-               <div id="tab-pet" class="tab-content">
-            <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a20; border-color: #ce93d8;">
-                <summary style="color: #ce93d8; font-size: 15px;">🐾 [필독] 펫작 계산기 사용 방법 (클릭하여 열기)</summary>
-                <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
-                    <ul style="line-height: 1.8;">
-                        <li><b>1. 종족 이해도 종합 계산기:</b> 레벨업에 필요한 몹 수와 결정을 계산합니다.</li>
-                        <li><b>2. 10레벨 자원 시뮬레이터:</b> 만렙 달성 후 모아둔 결정으로 옵션을 몇 번이나 돌릴 수 있는지, 키나가 얼마나 깨지는지 계산합니다.</li>
-                        <li><b>3. 옵션 기댓값 계산기:</b> 원하는 종결 옵션들을 조합했을 때, 획득 확률과 예상되는 재화 소모량을 계산합니다.</li>
-                    </ul>
-                </div>
-            </details>
+              <div id="tab-pet" class="tab-content">
+    <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a20; border-color: #ce93d8;">
+        <summary style="color: #ce93d8; font-size: 15px;">🐾 [필독] 펫작 계산기 통합 매뉴얼</summary>
+        <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
+            <ul style="line-height: 1.8;">
+                <li><b>1. 레벨업 계산기:</b> 1~10레벨까지 필요한 몹 수와 재화를 계산합니다.</li>
+                <li><b>2. 자원 소모 시뮬레이터:</b> 10레벨 달성 후, 보유한 결정으로 총 몇 회 분석이 가능한지 계산합니다.</li>
+                <li><b>3. 옵션 기댓값 계산기:</b> 원하는 종결 옵션을 뽑기 위한 정밀 확률과 필요 재화량을 계산합니다.</li>
+            </ul>
+        </div>
+    </details>
 
-            <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:900px; margin:0 auto;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #2a2a35; padding-bottom:15px; margin-bottom:20px;">
-                    <h2 style="margin:0; color:#ce93d8; font-size:20px;">1. 🐾 펫 종족 이해도 종합 계산기 (레벨업)</h2>
-                </div>
-                <table style="width:100%; border-collapse:collapse; margin-bottom:25px;">
-                    <thead>
-                        <tr style="color:#888; font-size:12px; border-bottom:1px solid #222;">
-                            <th style="padding:10px;">카테고리</th><th>현재 레벨</th><th>현재 경험치</th><th>목표 레벨</th><th>잠금 옵션</th>
-                        </tr>
-                    </thead>
-                    <tbody id="petTableBody"></tbody>
-                </table>
-                <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:15px; margin-top:20px;">
-                    <div class="pr-card" style="background:#1a1a20; border:1px solid #333; border-radius:10px; padding:15px; text-align:center;"><i style="display:block; font-style:normal; font-size:11px; color:#888; margin-bottom:5px;">총 분석 횟수</i><b id="res_clicks" style="font-size:18px;">0회</b></div>
-                    <div class="pr-card" style="background:#1a1a20; border:1px solid #333; border-radius:10px; padding:15px; text-align:center;"><i style="display:block; font-style:normal; font-size:11px; color:#888; margin-bottom:5px;">필요 영혼결정</i><b id="res_crystal" style="font-size:18px;">0개</b></div>
-                    <div class="pr-card" style="background:#1a1a20; border:1px solid #333; border-radius:10px; padding:15px; text-align:center;"><i style="display:block; font-style:normal; font-size:11px; color:#888; margin-bottom:5px;">필요 키나</i><b id="res_kinah" style="font-size:18px;">0</b></div>
-                    <div class="pr-card" style="background:rgba(255,202,40,0.1); border:1px solid #ffca28; border-radius:10px; padding:15px; text-align:center;"><i style="display:block; font-style:normal; font-size:11px; color:#888; margin-bottom:5px;">필요 몹 수</i><b id="res_mobs" style="font-size:18px; color:#ffca28;">0마리</b></div>
-                </div>
+    <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:1000px; margin:0 auto;">
+        <h2 style="margin:0 0 20px 0; color:#ce93d8; font-size:20px; border-bottom:2px solid #2a2a35; padding-bottom:15px;">1. 🐾 펫 종족 이해도 종합 계산기 (레벨업)</h2>
+        <table style="width:100%; border-collapse:collapse; margin-bottom:25px;">
+            <thead>
+                <tr style="color:#888; font-size:12px; border-bottom:1px solid #222;">
+                    <th style="padding:10px;">카테고리</th><th>현재 레벨</th><th>현재 경험치</th><th>목표 레벨</th><th>잠금 옵션</th>
+                </tr>
+            </thead>
+            <tbody id="petTableBody"></tbody>
+        </table>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:15px;">
+            <div class="pr-card" style="background:#1a1a20; border:1px solid #333; border-radius:10px; padding:15px; text-align:center;"><i style="font-style:normal; font-size:11px; color:#888; display:block; margin-bottom:5px;">총 분석 횟수</i><b id="res_clicks" style="font-size:18px;">0회</b></div>
+            <div class="pr-card" style="background:#1a1a20; border:1px solid #333; border-radius:10px; padding:15px; text-align:center;"><i style="font-style:normal; font-size:11px; color:#888; display:block; margin-bottom:5px;">필요 영혼결정</i><b id="res_crystal" style="font-size:18px;">0개</b></div>
+            <div class="pr-card" style="background:#1a1a20; border:1px solid #333; border-radius:10px; padding:15px; text-align:center;"><i style="font-style:normal; font-size:11px; color:#888; display:block; margin-bottom:5px;">필요 키나</i><b id="res_kinah" style="font-size:18px;">0</b></div>
+            <div class="pr-card" style="background:rgba(255,202,40,0.1); border:1px solid #ffca28; border-radius:10px; padding:15px; text-align:center;"><i style="font-style:normal; font-size:11px; color:#888; display:block; margin-bottom:5px;">필요 몹 수</i><b id="res_mobs" style="font-size:18px; color:#ffca28;">0마리</b></div>
+        </div>
+    </div>
+
+    <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:1000px; margin:20px auto 0 auto;">
+        <h2 style="margin:0 0 20px 0; color:#4fc3f7; font-size:20px; border-bottom:2px solid #2a2a35; padding-bottom:15px;">2. 🔮 10레벨 내 자원 소모 시뮬레이터</h2>
+        <div style="display:grid; grid-template-columns:1fr 1.5fr 1fr; gap:20px; background:#0a0a0c; padding:20px; border-radius:8px;">
+            <div>
+                <label style="font-size:12px; color:#ccc;">카테고리</label>
+                <select id="sim2_cat" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:#fff; margin-top:5px;" onchange="runResourceSim()">
+                    <option value="지성">지성</option><option value="야성">야성</option><option value="자연">자연</option><option value="변형">변형</option><option value="특수">특수</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size:12px; color:#ccc;">보유 영혼결정</label>
+                <input type="number" id="sim2_cry" value="1000" style="width:100%; padding:10px; background:#111; border:1px solid #4fc3f7; color:#fff; font-size:16px; margin-top:5px;" oninput="runResourceSim()">
+            </div>
+            <div>
+                <label style="font-size:12px; color:#ccc;">현재 잠금 개수</label>
+                <select id="sim2_locks" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:#fff; margin-top:5px;" onchange="runResourceSim()">
+                    <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option>
+                    <option value="4">4개</option><option value="5">5개</option><option value="6">6개</option><option value="7">7개</option><option value="8">8개</option>
+                </select>
+            </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:15px;">
+            <div style="background:rgba(79, 195, 247, 0.1); border:1px solid #4fc3f7; border-radius:8px; padding:15px; text-align:center;">
+                <span style="font-size:12px; color:#aaa;">분석 가능 횟수: </span><b id="sim2_res_rolls" style="font-size:20px; color:#fff; margin-left:10px;">0회</b>
+            </div>
+            <div style="background:rgba(255, 202, 40, 0.1); border:1px solid #ffca28; border-radius:8px; padding:15px; text-align:center;">
+                <span style="font-size:12px; color:#aaa;">소모 예상 키나: </span><b id="sim2_res_kinah" style="font-size:20px; color:#ffca28; margin-left:10px;">0</b>
+            </div>
+        </div>
+    </div>
+
+    <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:1000px; margin:20px auto 0 auto;">
+        <div style="border-bottom:2px solid #2a2a35; padding-bottom:15px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h2 style="margin:0; color:#00e676; font-size:20px;">3. 🎲 펫작 옵션 기댓값 계산기 (정밀형)</h2>
+                <div style="font-size:12px; color:#888; margin-top:5px;">* 1,4,7 / 2,5,8 / 3,6,9 슬롯 로테이션 확률을 개별 적용합니다.</div>
+            </div>
+            <div id="total_summary_box" style="background:rgba(255,202,40,0.1); border:1px solid #ffca28; padding:10px 20px; border-radius:8px; text-align:right;">
+                <div style="font-size:11px; color:#aaa;">모든 카테고리 합산 기댓값</div>
+                <div style="font-size:16px; font-weight:bold; color:#ffca28;">결정 <span id="grand_total_cry">0</span>개 / 키나 <span id="grand_total_kinah">0</span></div>
+            </div>
+        </div>
+        
+        <div style="display:flex; gap:5px; margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:10px;">
+            <button class="pet-cat-btn active" onclick="switchPetCat('지성', this)">지성</button>
+            <button class="pet-cat-btn" onclick="switchPetCat('야성', this)">야성</button>
+            <button class="pet-cat-btn" onclick="switchPetCat('자연', this)">자연</button>
+            <button class="pet-cat-btn" onclick="switchPetCat('변형', this)">변형</button>
+            <button class="pet-cat-btn" onclick="switchPetCat('특수', this)" style="border-color:#ce93d8; color:#ce93d8;">특수</button>
+        </div>
+
+        <div id="pet_cat_title" style="font-size:16px; font-weight:bold; color:#fff; margin-bottom:15px; display:flex; justify-content:space-between;">
+            <span>[지성] 9개 슬롯 설정</span>
+            <button onclick="resetPetCat()" style="font-size:11px; background:#222; color:#888; border:1px solid #444; padding:2px 8px; border-radius:4px; cursor:pointer;">초기화</button>
+        </div>
+        
+        <div id="sim3_slots_container" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; background:#0a0a0c; padding:15px; border-radius:8px; border:1px solid #333;">
             </div>
 
-            <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:900px; margin:20px auto 0 auto;">
-                <div style="border-bottom:2px solid #2a2a35; padding-bottom:15px; margin-bottom:20px;">
-                    <h2 style="margin:0; color:#4fc3f7; font-size:20px;">2. 🔮 10레벨 내 자원 소모 시뮬레이터</h2>
-                    <div style="font-size:12px; color:#888; margin-top:5px;">* 모아둔 영혼결정으로 옵션을 몇 번이나 돌릴 수 있는지, 키나가 얼마나 깨지는지 대충(?) 계산해 줍니다.</div>
+        <div style="margin-top:20px; background:#1a1a24; border:1px solid #444; border-radius:10px; padding:20px; display:grid; grid-template-columns:1.5fr 1fr; gap:30px;">
+            <div>
+                <h3 style="margin-top:0; color:#ffca28; font-size:14px; border-bottom:1px dashed #555; padding-bottom:10px;">📊 <span id="current_cat_name">지성</span> 기댓값 결과</h3>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px; color:#ccc;">
+                    <span>성공 확률 (잠금 제외):</span><span id="sim3_res_prob" style="font-weight:bold; color:#00e676;">100%</span>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-                    <div>
-                        <label style="font-size:12px; color:#ccc; font-weight:bold;">보유 영혼결정 개수</label>
-                        <input type="number" id="sim2_cry" value="1000" style="width:100%; padding:10px; background:#111; border:1px solid #4fc3f7; color:#fff; font-size:16px; margin-top:5px; box-sizing:border-box;" oninput="runResourceSim()">
-                    </div>
-                    <div>
-                        <label style="font-size:12px; color:#ccc; font-weight:bold;">슬롯 잠금 개수 (비용 페널티)</label>
-                        <select id="sim2_locks" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:#fff; font-size:14px; margin-top:5px; box-sizing:border-box;" onchange="runResourceSim()">
-                            <option value="0">0개 (페널티 없음)</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option><option value="6">6개</option><option value="7">7개</option><option value="8">8개 (페널티 최대)</option>
-                        </select>
-                    </div>
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px;">
-                    <div style="background:rgba(79, 195, 247, 0.1); border:1px solid #4fc3f7; border-radius:8px; padding:15px; text-align:center;">
-                        <div style="font-size:12px; color:#aaa; margin-bottom:5px;">돌릴 수 있는 횟수</div>
-                        <div id="sim2_res_rolls" style="font-size:24px; font-weight:bold; color:#fff;">0회</div>
-                    </div>
-                    <div style="background:rgba(255, 82, 82, 0.1); border:1px solid #ff5252; border-radius:8px; padding:15px; text-align:center;">
-                        <div style="font-size:12px; color:#aaa; margin-bottom:5px;">소모되는 총 키나</div>
-                        <div id="sim2_res_kinah" style="font-size:24px; font-weight:bold; color:#ffca28;">0</div>
-                    </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px; color:#ccc;">
+                    <span>평균 굴림 횟수:</span><span id="sim3_res_rolls" style="font-weight:bold; color:#fff;">0회</span>
                 </div>
             </div>
-
-            <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:900px; margin:20px auto 0 auto;">
-                <div style="border-bottom:2px solid #2a2a35; padding-bottom:15px; margin-bottom:20px;">
-                    <h2 style="margin:0; color:#00e676; font-size:20px;">3. 🎲 펫작 옵션 기댓값 계산기</h2>
-                    <div style="font-size:12px; color:#888; margin-top:5px;">* 1,4,7 / 2,5,8 / 3,6,9 로테이션 확률을 적용하여, 원하는 옵션들을 띄우는 데 필요한 평균 기댓값을 계산합니다.</div>
+            <div style="border-left:1px solid #333; padding-left:30px; display:flex; flex-direction:column; justify-content:center;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+                    <span style="color:#aaa;">필요 결정:</span><span id="sim3_res_cry" style="font-weight:bold; color:#ff5252; font-size:16px;">0개</span>
                 </div>
-                
-                <div style="margin-bottom:15px;">
-                    <label style="font-size:12px; color:#ccc; font-weight:bold;">카테고리 선택</label>
-                    <select id="sim3_category" style="padding:10px; background:#111; border:1px solid #444; color:#fff; font-size:14px; margin-left:10px; border-radius:4px;" onchange="changePetCategory()">
-                        <option value="지성">지성</option><option value="야성">야성</option><option value="자연">자연</option><option value="변형">변형</option>
-                    </select>
-                </div>
-
-                <div style="font-size:11px; color:#ffca28; margin-bottom:10px;">* 이미 띄워서 잠글 슬롯은 <b>[잠금]</b>을 체크하세요. (확률 계산에서 제외되고 굴림 비용이 증가합니다.)</div>
-                
-                <div id="sim3_slots_container" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; background:#0a0a0c; padding:15px; border-radius:8px; border:1px solid #333;">
-                    </div>
-
-                <div style="margin-top:20px; background:#1a1a24; border:1px solid #444; border-radius:10px; padding:20px;">
-                    <h3 style="margin-top:0; color:#ffca28; font-size:14px; border-bottom:1px dashed #555; padding-bottom:10px; text-align:center;">📊 목표 옵션 조합 평균 기댓값</h3>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px; color:#ccc;">
-                        <span>모두 뜰 확률 (잠금 제외):</span><span id="sim3_res_prob" style="font-weight:bold; color:#00e676;">100%</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px; color:#ccc;">
-                        <span>평균 필요 굴림 횟수:</span><span id="sim3_res_rolls" style="font-weight:bold; color:#fff;">0회</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px; color:#ccc;">
-                        <span>예상 소모 영혼결정:</span><span id="sim3_res_cry" style="font-weight:bold; color:#ff5252;">0개</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size:13px; color:#ccc;">
-                        <span>예상 소모 키나:</span><span id="sim3_res_kinah" style="font-weight:bold; color:#ffca28;">0</span>
-                    </div>
+                <div style="display:flex; justify-content:space-between; font-size:13px;">
+                    <span style="color:#aaa;">필요 키나:</span><span id="sim3_res_kinah" style="font-weight:bold; color:#ffca28; font-size:16px;">0</span>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<style>
+    .pet-cat-btn { flex:1; padding:10px; background:#111; border:1px solid #444; color:#888; cursor:pointer; font-size:13px; border-radius:4px; }
+    .pet-cat-btn.active { background:#1a1a24; color:#00e676; border-color:#00e676; }
+</style>
         
         <div id="tab-abyss" class="tab-content">
             <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a24; border-color: #ffca28;">
@@ -2241,24 +2260,50 @@
         document.getElementById('petTableBody').innerHTML = html;
     }
 
-    // ==========================================
-    // 🐾 2번 툴: 10레벨 내 자원 소모 시뮬레이터
-    // ==========================================
-    function runResourceSim() {
-        let cry = parseInt(document.getElementById('sim2_cry').value) || 0;
-        let locks = parseInt(document.getElementById('sim2_locks').value) || 0;
-
-        // 10레벨 기준 1회 굴림 기본 비용 (영혼결정 50개, 키나 1만)
-        let costC = 50 + (PET_PENALTY[locks] ? PET_PENALTY[locks].c : 0);
-        let costK = 10000 + (PET_PENALTY[locks] ? PET_PENALTY[locks].k : 0);
-
-        let rolls = Math.floor(cry / costC);
-        let kinah = rolls * costK;
-
-        document.getElementById('sim2_res_rolls').innerText = rolls.toLocaleString() + "회";
-        document.getElementById('sim2_res_kinah').innerText = kinah.toLocaleString() + " 키나";
+    // 🐾 1번 툴: 레벨업 계산기 (기본 로직 유지)
+function runPetCalc() {
+    let totalClicks = 0; let totalCrys = 0; let totalKinah = 0; let totalMobs = 0;
+    for(let i=0; i<5; i++) {
+        let cLv = parseInt(document.getElementById(`curLv_${i}`).value)||1;
+        let cExp = parseInt(document.getElementById(`curExp_${i}`).value)||0;
+        let tLv = parseInt(document.getElementById(`tarLv_${i}`).value)||1;
+        let lock = parseInt(document.getElementById(`lock_${i}`).value)||0;
+        if(tLv <= cLv) continue;
+        let reqExp = 0;
+        for(let L=cLv; L<tLv; L++) { reqExp += (PET_EXP[L] || 0); }
+        reqExp -= cExp;
+        if(reqExp > 0) {
+            let costC = 50 + (PET_PENALTY[lock] ? PET_PENALTY[lock].c : 0);
+            let costK = 10000 + (PET_PENALTY[lock] ? PET_PENALTY[lock].k : 0);
+            let clicks = Math.ceil(reqExp/30);
+            totalClicks += clicks; totalCrys += clicks*costC; totalKinah += clicks*costK; totalMobs += reqExp;
+        }
     }
+    document.getElementById('res_clicks').innerText = totalClicks.toLocaleString() + "회";
+    document.getElementById('res_crystal').innerText = totalCrys.toLocaleString() + "개";
+    document.getElementById('res_kinah').innerText = totalKinah.toLocaleString();
+    document.getElementById('res_mobs').innerText = totalMobs.toLocaleString() + "마리";
+}
 
+// 🐾 2번 툴: 10레벨 자원 소모 시뮬레이터 (카테고리별 계산)
+function runResourceSim() {
+    let cat = document.getElementById('sim2_cat').value;
+    let cry = parseInt(document.getElementById('sim2_cry').value) || 0;
+    let locks = parseInt(document.getElementById('sim2_locks').value) || 0;
+
+    // 카테고리가 '특수'일 경우 비용이 다를 수 있다는 점을 고려하여 확장 가능하게 설계
+    // 현재는 모든 종족 10레벨 기본 비용이 동일하므로 공통 공식 적용
+    let baseC = 50; let baseK = 10000;
+    
+    let costC = baseC + (PET_PENALTY[locks] ? PET_PENALTY[locks].c : 0);
+    let costK = baseK + (PET_PENALTY[locks] ? PET_PENALTY[locks].k : 0);
+
+    let rolls = Math.floor(cry / costC);
+    let totalKinah = rolls * costK;
+
+    document.getElementById('sim2_res_rolls').innerText = rolls.toLocaleString() + "회";
+    document.getElementById('sim2_res_kinah').innerText = totalKinah.toLocaleString();
+}
     // ==========================================
     // 🐾 3번 툴: 펫작 옵션 기댓값 계산기 (스프레드시트 로테이션 반영)
     // ==========================================
@@ -2941,35 +2986,7 @@
         }
     }
 
-    // 🚀 삭제되었던 1번 툴(경험치 계산기) 핵심 로직 복구
-    function runPetCalc() {
-        let totalClicks = 0; let totalCrys = 0; let totalKinah = 0; let totalMobs = 0;
-        for(let i=0; i<5; i++) {
-            let cLv = parseInt(document.getElementById(`curLv_${i}`).value)||1;
-            let cExp = parseInt(document.getElementById(`curExp_${i}`).value)||0;
-            let tLv = parseInt(document.getElementById(`tarLv_${i}`).value)||1;
-            let lock = parseInt(document.getElementById(`lock_${i}`).value)||0;
-            
-            if(tLv <= cLv) continue;
-            let reqExp = 0;
-            for(let L=cLv; L<tLv; L++) { reqExp += PET_EXP[L]; }
-            reqExp -= cExp;
-            
-            if(reqExp > 0) {
-                let costC = 50 + (PET_PENALTY[lock] ? PET_PENALTY[lock].c : 0);
-                let costK = 10000 + (PET_PENALTY[lock] ? PET_PENALTY[lock].k : 0);
-                let clicks = Math.ceil(reqExp/30);
-                totalClicks += clicks; 
-                totalCrys += clicks*costC; 
-                totalKinah += clicks*costK; 
-                totalMobs += reqExp;
-            }
-        }
-        document.getElementById('res_clicks').innerText = totalClicks.toLocaleString() + "회";
-        document.getElementById('res_crystal').innerText = totalCrys.toLocaleString() + "개";
-        document.getElementById('res_kinah').innerText = totalKinah.toLocaleString();
-        document.getElementById('res_mobs').innerText = totalMobs.toLocaleString() + "마리";
-    }
+   
 
     // 🚀 마스터 스위치: 사이트 켜질 때 필요한 모든 기능을 하나로 완벽 통합
     window.onload = () => { 
@@ -3004,6 +3021,7 @@
 </script>
 </body>
 </html>
+
 
 
 
