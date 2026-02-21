@@ -1283,13 +1283,6 @@
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Rare" onchange="searchDictItem()"> 희귀</label>
         `;
 
-        // 🚀 추가: 획득처(Source) 필터 HTML
-        let sourceFiltersHtml = `
-            <label class="filter-label"><input type="checkbox" class="filter-source" value="craft" onchange="searchDictItem()"> 🛠️ 제작</label>
-            <label class="filter-label"><input type="checkbox" class="filter-source" value="dungeon" onchange="searchDictItem()"> 🏰 원정/성역</label>
-            <label class="filter-label"><input type="checkbox" class="filter-source" value="abyss" onchange="searchDictItem()"> 🏅 어비스</label>
-        `;
-
         let html = `
         <div class="wb-title">
             <span>🛠️ 시뮬레이팅: <span style="color:#fff;">[${eq.name.split(' ')[0]||'장비'}]</span> 교체</span>
@@ -1306,12 +1299,6 @@
                 <div style="display:flex; gap:15px; align-items:center; border-bottom:1px solid #222; padding-bottom:10px;">
                     <span style="color:#ffca28; font-weight:bold; width:45px;">💎 등급</span>
                     ${gradeFiltersHtml}
-                </div>
-                <div style="display:flex; gap:15px; align-items:center; border-bottom:1px solid #222; padding-bottom:10px;">
-                    <span style="color:#ce93d8; font-weight:bold; width:45px;">📌 획득</span>
-                    <div style="display:flex; flex-wrap:wrap; gap:12px; flex:1;">
-                        ${sourceFiltersHtml}
-                    </div>
                 </div>
                 <div style="display:flex; gap:15px; align-items:flex-start;">
                     <span style="color:#ff5252; font-weight:bold; width:45px; margin-top:2px;">⚔️ 무기</span>
@@ -2660,6 +2647,7 @@ async function loadGoogleSheetNotices() {
 </script>
 </body>
 </html>
+
 
 
 
