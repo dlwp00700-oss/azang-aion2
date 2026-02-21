@@ -585,115 +585,71 @@
         </div>
         <div id="tab-abyss" class="tab-content">
             <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a24; border-color: #ffca28;">
-    <summary style="color: #ffca28; font-size: 15px;">🏅 [필독] 어비스 파밍 계산기 사용 방법 (클릭하여 열기)</summary>
-    <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
-        <ul style="line-height: 1.8;">
-            <li><b>1. 목표 장비 장바구니 담기:</b> 맞추고 싶은 어비스 장비(백부장, 천부장 등)의 부위를 모두 선택해서 장바구니에 넣으세요.</li>
-            <li><b>2. 내 자원 입력:</b> 현재 내가 보유한 어포와 훈장(은/금/백금) 개수를 적어줍니다.</li>
-            <li><b>3. 주간 수급량 입력:</b> 요새전과 퀘스트로 1주일에 평균적으로 먹는 어포량을 대략 적어줍니다.</li>
-            <li>입력을 마치면 모든 장비를 맞추는 데 <b>몇 주가 걸리는지</b>, 그리고 <b>부족한 훈장 개수</b>가 정확히 표시됩니다!</li>
-        </ul>
-    </div>
-</details>
-    <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:1000px; margin:0 auto;">
-        <div style="background:linear-gradient(90deg, #1a1a24 0%, #0a0a0c 100%); border:1px solid #4fc3f7; border-radius:10px; padding:20px; margin-bottom:25px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <h3 style="margin:0; color:#4fc3f7; font-size:14px;">📅 현재 시즌 누적 어포 한도 (2026-02-20 기준)</h3>
-                <div id="limit_display" style="font-size:24px; font-weight:bold; color:#fff; margin-top:5px;">5,000,000 AP</div>
+            <summary style="color: #ffca28; font-size: 15px;">🏅 [필독] 어비스 파밍 계산기 사용 방법 (클릭하여 열기)</summary>
+            <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
+                <ul style="line-height: 1.8;">
+                    <li><b>1. 미션 체크:</b> 이번 주에 완료한 시즌 미션과 주간 미션을 체크하세요.</li>
+                    <li><b>2. 목표 장비 장바구니 담기:</b> 맞추고 싶은 어비스 장비(백부장, 천부장 등)의 부위를 모두 선택해서 장바구니에 넣으세요.</li>
+                    <li><b>3. 내 자원 입력:</b> 현재 내가 보유한 어포와 훈장 개수를 적어줍니다.</li>
+                    <li>입력을 마치면 모든 장비를 맞추는 데 <b>몇 주가 걸리는지</b> 정확히 계산되어 나옵니다!</li>
+                </ul>
             </div>
-            <div style="text-align:right;">
-                <div style="font-size:12px; color:#888;">다음 갱신일: 2월 25일(수)</div>
-                <div style="font-size:14px; color:#69f0ae; font-weight:bold;">+500,000 AP 충전 예정</div>
-            </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:20px;">
-            <div>
-                <h3 style="font-size:14px; color:#ffca28; margin-top:0;">1. 파밍 목표 장비 (다중 선택 가능)</h3>
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <select id="aby_rank" style="flex:1; padding:8px; background:#111; color:#fff; border:1px solid #444;" onchange="updateAbyTarget()">
-                        <option value="10">십부장</option><option value="100">백부장</option>
-                        <option value="1000">천부장</option><option value="10000">군단장</option>
-                    </select>
-                    <select id="aby_part" style="flex:1; padding:8px; background:#111; color:#fff; border:1px solid #444;" onchange="updateAbyTarget()">
-                        <option value="weapon">무기/가더</option><option value="top">흉갑</option>
-                        <option value="bottom">각반</option><option value="head">투구</option>
-                        <option value="shoulder">견갑</option><option value="glove">장갑</option>
-                        <option value="shoe">장화</option><option value="cloak">망토</option>
-                        <option value="neck">목걸이</option><option value="ear">귀걸이</option><option value="ring">반지</option>
-                    </select>
+        </details>
+        
+        <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:1100px; margin:0 auto;">
+            
+            <div style="background:linear-gradient(90deg, #1a1a24 0%, #0a0a0c 100%); border:1px solid #4fc3f7; border-radius:10px; padding:20px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 style="margin:0; color:#4fc3f7; font-size:14px;">📅 현재 시즌 누적 어포 한도 (2026-02-20 기준)</h3>
+                    <div id="limit_display" style="font-size:24px; font-weight:bold; color:#fff; margin-top:5px;">5,000,000 AP</div>
                 </div>
-                <button onclick="addToCart()" style="width:100%; padding:10px; background:#4fc3f7; color:#000; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-bottom:15px;">+ 추가</button>
+                <div style="text-align:right;">
+                    <div style="font-size:12px; color:#888;">다음 갱신일: 2월 25일(수)</div>
+                    <div style="font-size:14px; color:#69f0ae; font-weight:bold;">+500,000 AP 충전 예정</div>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1.5fr; gap:20px; margin-bottom:25px;">
                 
-                <div id="aby_cart_list" style="background:#0a0a0c; border:1px solid #333; border-radius:8px; min-height:150px; padding:10px;">
-                    <p style="text-align:center; color:#444; font-size:12px; margin-top:60px;">장바구니가 비어있습니다.</p>
-                </div>
-            </div>
-
-            <div>
-                <h3 style="font-size:14px; color:#4fc3f7; margin-top:0;">2. 내 현재 자원 정보</h3>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#0a0a0c; padding:15px; border-radius:8px; border:1px solid #333;">
-                    <div style="grid-column: span 2;">
-                       <label style="font-size:11px; color:#888;">내 현재 보유 어포</label>
-                       <input type="number" id="my_ap" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; font-size:16px;" oninput="calcAbyss()">
-                       <div id="remain_limit_text" style="font-size:11px; color:#ff5252; margin-top:5px;">한도까지 남은 획득 가능 어포: 5,000,000 AP</div>
-                    </div>
-                    <div style="grid-column: span 2; display:flex; gap:10px;">
-                        <div style="flex:1;">
-                            <label style="font-size:11px; color:#888;">은 공훈 훈장</label>
-                            <input type="number" id="my_medal_silver" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; box-sizing: border-box;" oninput="calcAbyss()">
-                        </div>
-                        <div style="flex:1;">
-                            <label style="font-size:11px; color:#888;">금 공훈 훈장</label>
-                            <input type="number" id="my_medal_gold" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; box-sizing: border-box;" oninput="calcAbyss()">
-                        </div>
-                        <div style="flex:1;">
-                            <label style="font-size:11px; color:#888;">백금 공훈 훈장</label>
-                            <input type="number" id="my_medal_plat" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; box-sizing: border-box;" oninput="calcAbyss()">
-                        </div>
-                    </div>
-                    <div style="grid-column: span 2;">
-                        <label style="font-size:11px; color:#888;">주간 평균 획득 어포 (요새전, 퀘스트, 닥사 등 순수 파밍량)</label>
-                        <input type="number" id="week_ap" value="300000" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff;" oninput="calcAbyss()">
-                    </div>
-                </div>
-
-                <details style="margin-top:15px; background:#111; border:1px solid #333; border-radius:6px; padding:10px;">
-                    <summary style="color:#4fc3f7; font-size:13px; font-weight:bold; cursor:pointer;">🎯 시즌 미션 (1회성) 체크리스트</summary>
-                    <div style="font-size:11px; color:#888; margin-top:5px; margin-bottom:10px;">* 체크 시 위의 '현재 보유 훈장'에 즉시 합산되어 계산됩니다.</div>
+                <div style="background:#111; border:1px solid #333; border-radius:8px; padding:15px;">
+                    <h3 style="color:#4fc3f7; font-size:14px; font-weight:bold; margin-top:0; margin-bottom:10px; border-bottom:1px solid #222; padding-bottom:8px;">
+                        🎯 시즌 미션 (1회성) <span style="font-size:11px; color:#888; font-weight:normal; float:right;">*보유 훈장에 합산</span>
+                    </h3>
                     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; font-size:11px; color:#aaa;">
                         <div style="display:flex; flex-direction:column; gap:4px;">
-                            <div style="color:#ccc; font-weight:bold; border-bottom:1px solid #333; padding-bottom:4px; margin-bottom:4px;">은공 (총 14개)</div>
+                            <div style="color:#ccc; font-weight:bold; border-bottom:1px solid #333; padding-bottom:4px; margin-bottom:4px;">은공 (총 14)</div>
                             <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-s" value="5" onchange="calcAbyss()"> 쉴 틈이 없어요I (5)</label>
                             <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-s" value="3" onchange="calcAbyss()"> 장교 대결I (3)</label>
                             <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-s" value="3" onchange="calcAbyss()"> 장교 대결II (3)</label>
                             <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-s" value="3" onchange="calcAbyss()"> 장교 대결III (3)</label>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:4px;">
-                            <div style="color:#ffca28; font-weight:bold; border-bottom:1px solid #333; padding-bottom:4px; margin-bottom:4px;">금공 (총 11개)</div>
+                            <div style="color:#ffca28; font-weight:bold; border-bottom:1px solid #333; padding-bottom:4px; margin-bottom:4px;">금공 (총 11)</div>
                             <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-s" value="2" onchange="calcAbyss()"> 쉴 틈이 없어요II (2)</label>
                             <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-s" value="3" onchange="calcAbyss()"> 장군 대결I (3)</label>
                             <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-s" value="3" onchange="calcAbyss()"> 장군 대결II (3)</label>
                             <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-s" value="3" onchange="calcAbyss()"> 장군 대결III (3)</label>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:4px;">
-                            <div style="color:#69f0ae; font-weight:bold; border-bottom:1px solid #333; padding-bottom:4px; margin-bottom:4px;">백금공 (총 8개)</div>
+                            <div style="color:#69f0ae; font-weight:bold; border-bottom:1px solid #333; padding-bottom:4px; margin-bottom:4px;">백금공 (총 8)</div>
                             <label class="filter-label"><input type="checkbox" class="abyss-chk chk-pla-s" value="2" onchange="calcAbyss()"> 쉴 틈이 없어요III (2)</label>
                             <label class="filter-label"><input type="checkbox" class="abyss-chk chk-pla-s" value="3" onchange="calcAbyss()"> 사령관 대결I (3)</label>
                             <label class="filter-label"><input type="checkbox" class="abyss-chk chk-pla-s" value="3" onchange="calcAbyss()"> 사령관 대결II (3)</label>
                         </div>
                     </div>
-                </details>
+                </div>
 
-                <div style="margin-top:15px; background:#0a0a0c; border:1px solid #333; border-radius:8px; padding:15px;">
-                    <h3 style="color:#ce93d8; margin-top:0; font-size:14px; margin-bottom:15px;">✅ 주간 훈장 수급 체크리스트</h3>
+                <div style="background:#0a0a0c; border:1px solid #333; border-radius:8px; padding:15px;">
+                    <h3 style="color:#ce93d8; font-size:14px; font-weight:bold; margin-top:0; margin-bottom:10px; border-bottom:1px solid #222; padding-bottom:8px;">
+                        ✅ 주간 훈장 수급 체크리스트 <span style="font-size:11px; color:#888; font-weight:normal; float:right;">*파밍 기간 계산용</span>
+                    </h3>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
                         <div>
                             <div style="display:flex; justify-content:space-between; color:#ccc; border-bottom:1px solid #222; padding-bottom:5px; margin-bottom:10px;">
                                 <span style="font-weight:bold;">은 공훈 훈장</span>
                                 <span id="sil_week_cnt" style="color:#ffca28; font-weight:bold;">0 / 39</span>
                             </div>
-                            <div style="display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto; padding-right:5px; font-size:11px;" class="chk-list">
+                            <div style="display:flex; flex-direction:column; gap:6px; max-height:120px; overflow-y:auto; padding-right:5px; font-size:11px;" class="chk-list">
                                 <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-w" value="1" onchange="calcAbyss()"> 에레슈란타 정화 작전I (1)</label>
                                 <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-w" value="1" onchange="calcAbyss()"> 에레슈란타 정화 작전II (1)</label>
                                 <label class="filter-label"><input type="checkbox" class="abyss-chk chk-sil-w" value="1" onchange="calcAbyss()"> 에레슈란타 정화 작전IV (1)</label>
@@ -713,7 +669,7 @@
                                 <span style="font-weight:bold;">금 공훈 훈장</span>
                                 <span id="gol_week_cnt" style="color:#ffca28; font-weight:bold;">0 / 18</span>
                             </div>
-                            <div style="display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto; padding-right:5px; font-size:11px;" class="chk-list">
+                            <div style="display:flex; flex-direction:column; gap:6px; max-height:120px; overflow-y:auto; padding-right:5px; font-size:11px;" class="chk-list">
                                 <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-w" value="1" onchange="calcAbyss()"> 백색 깃발 휘날리며 VIII (1)</label>
                                 <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-w" value="1" onchange="calcAbyss()"> 백색 깃발 휘날리며 X (1)</label>
                                 <label class="filter-label"><input type="checkbox" class="abyss-chk chk-gol-w" value="1" onchange="calcAbyss()"> 백색 깃발 휘날리며 XIII (1)</label>
@@ -727,21 +683,69 @@
                             </div>
                         </div>
                     </div>
-                    <div style="font-size:10px; color:#888; margin-top:12px; text-align:center; background:#111; padding:8px; border-radius:4px;">
-                        * 목표 장비가 금/백금 훈장일 경우, 매주 파밍하는 <b>'은 공훈 훈장'은 확률에 따라 상위 훈장으로 자동 변환 계산</b>됩니다.<br>
-                        (은공 ➡ 금공 20% 성공 / 은공 ➡ 백금공 3% 대성공)
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:20px;">
+                <div>
+                    <h3 style="font-size:14px; color:#ffca28; margin-top:0;">🛒 파밍 목표 장비 (다중 선택 가능)</h3>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <select id="aby_rank" style="flex:1; padding:8px; background:#111; color:#fff; border:1px solid #444;" onchange="updateAbyTarget()">
+                            <option value="10">십부장</option><option value="100">백부장</option>
+                            <option value="1000">천부장</option><option value="10000">군단장</option>
+                        </select>
+                        <select id="aby_part" style="flex:1; padding:8px; background:#111; color:#fff; border:1px solid #444;" onchange="updateAbyTarget()">
+                            <option value="weapon">무기/가더</option><option value="top">흉갑</option>
+                            <option value="bottom">각반</option><option value="head">투구</option>
+                            <option value="shoulder">견갑</option><option value="glove">장갑</option>
+                            <option value="shoe">장화</option><option value="cloak">망토</option>
+                            <option value="neck">목걸이</option><option value="ear">귀걸이</option><option value="ring">반지</option>
+                        </select>
+                    </div>
+                    <button onclick="addToCart()" style="width:100%; padding:10px; background:#4fc3f7; color:#000; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-bottom:15px;">+ 추가</button>
+                    
+                    <div id="aby_cart_list" style="background:#0a0a0c; border:1px solid #333; border-radius:8px; min-height:150px; padding:10px;">
+                        <p style="text-align:center; color:#444; font-size:12px; margin-top:60px;">장바구니가 비어있습니다.</p>
                     </div>
                 </div>
 
-                <div style="margin-top:20px; background:rgba(0,230,118,0.05); border:1px solid #00e676; border-radius:10px; padding:20px; text-align:center;">
-                    <div style="font-size:13px; color:#aaa; margin-bottom:5px;">모든 목표 달성까지</div>
-                    <div id="aby_res_time" style="font-size:32px; font-weight:bold; color:#fff;">0주</div>
-                    <div id="aby_res_desc" style="font-size:12px; color:#888; margin-top:8px;">-</div>
+                <div>
+                    <h3 style="font-size:14px; color:#4fc3f7; margin-top:0;">📊 내 현재 자원 정보</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#0a0a0c; padding:15px; border-radius:8px; border:1px solid #333;">
+                        <div style="grid-column: span 2;">
+                           <label style="font-size:11px; color:#888;">내 현재 보유 어포</label>
+                           <input type="number" id="my_ap" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; font-size:16px;" oninput="calcAbyss()">
+                           <div id="remain_limit_text" style="font-size:11px; color:#ff5252; margin-top:5px;">한도까지 남은 획득 가능 어포: 5,000,000 AP</div>
+                        </div>
+                        <div style="grid-column: span 2; display:flex; gap:10px;">
+                            <div style="flex:1;">
+                                <label style="font-size:11px; color:#888;">은 공훈 훈장</label>
+                                <input type="number" id="my_medal_silver" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; box-sizing: border-box;" oninput="calcAbyss()">
+                            </div>
+                            <div style="flex:1;">
+                                <label style="font-size:11px; color:#888;">금 공훈 훈장</label>
+                                <input type="number" id="my_medal_gold" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; box-sizing: border-box;" oninput="calcAbyss()">
+                            </div>
+                            <div style="flex:1;">
+                                <label style="font-size:11px; color:#888;">백금 공훈 훈장</label>
+                                <input type="number" id="my_medal_plat" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; box-sizing: border-box;" oninput="calcAbyss()">
+                            </div>
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <label style="font-size:11px; color:#888;">주간 평균 순수 어포 획득량 (요새전, 필드 닥사 등)</label>
+                            <input type="number" id="week_ap" value="300000" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff;" oninput="calcAbyss()">
+                        </div>
+                    </div>
+
+                    <div style="margin-top:20px; background:rgba(0,230,118,0.05); border:1px solid #00e676; border-radius:10px; padding:20px; text-align:center;">
+                        <div style="font-size:13px; color:#aaa; margin-bottom:5px;">모든 장비 목표 달성까지</div>
+                        <div id="aby_res_time" style="font-size:32px; font-weight:bold; color:#fff;">0주</div>
+                        <div id="aby_res_desc" style="font-size:12px; color:#888; margin-top:8px;">-</div>
+                        <div style="font-size:11px; color:#4fc3f7; margin-top:8px;">* 주간 수급 중 남는 은공은 금공(20%)/백금공(3%) 변환으로 자동 계산됩니다.</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
 <div id="tab-ranking" class="tab-content">
             <div class="c-window" style="max-width: 900px; margin: 0 auto 30px auto; padding: 30px;">
@@ -2304,8 +2308,8 @@
     }
 
    
-    // ==========================================
-    // 🏅 어비스 파밍 찐 고수용 정밀 계산 로직
+  // ==========================================
+    // 🏅 어비스 파밍 정밀 계산 로직
     // ==========================================
     function calcAbyss() {
         const baseLimit = 5000000;
@@ -2313,13 +2317,13 @@
         const remainLimit = Math.max(0, baseLimit - myAp);
         document.getElementById('remain_limit_text').innerText = `한도까지 남은 획득 가능 어포: ${remainLimit.toLocaleString()} AP`;
 
-        // 🚀 1. 시즌(1회성) 퀘스트 체크값 합산
+        // 1. 시즌 퀘스트 체크값 합산 (1회성)
         let seasonSil = 0, seasonGol = 0, seasonPla = 0;
         document.querySelectorAll('.chk-sil-s:checked').forEach(c => seasonSil += parseInt(c.value));
         document.querySelectorAll('.chk-gol-s:checked').forEach(c => seasonGol += parseInt(c.value));
         document.querySelectorAll('.chk-pla-s:checked').forEach(c => seasonPla += parseInt(c.value));
 
-        // 🚀 2. 주간 수급량 체크값 합산 및 카운터 UI 업데이트
+        // 2. 주간 수급량 체크값 합산 (매주)
         let weekSil = 0, weekGol = 0;
         document.querySelectorAll('.chk-sil-w:checked').forEach(c => weekSil += parseInt(c.value));
         document.querySelectorAll('.chk-gol-w:checked').forEach(c => weekGol += parseInt(c.value));
@@ -2329,7 +2333,7 @@
 
         if(abyCart.length === 0) {
             document.getElementById('aby_res_time').innerText = "0주";
-            document.getElementById('aby_res_desc').innerText = "목표 장비를 추가해주세요.";
+            document.getElementById('aby_res_desc').innerText = "장바구니에 장비를 담아주세요.";
             return;
         }
 
@@ -2343,56 +2347,48 @@
             else if (item.rank == 10000) reqPlat += item.medal;
         });
 
-        // 내 보유량 + 시즌 퀘스트로 얻은 1회성 훈장을 합친 실 보유량
+        // 실 보유량 = 직접입력 보유량 + 시즌 퀘스트로 획득한 1회성 훈장
         let mySilver = (parseInt(document.getElementById('my_medal_silver').value) || 0) + seasonSil;
         let myGold = (parseInt(document.getElementById('my_medal_gold').value) || 0) + seasonGol;
         let myPlat = (parseInt(document.getElementById('my_medal_plat').value) || 0) + seasonPla;
 
-        // 실제 모아야 하는 남은 필요량
+        // 남은 필요량
         let remAp = Math.max(0, totalAp - myAp);
         let remSilver = Math.max(0, reqSilver - mySilver);
         let remGold = Math.max(0, reqGold - myGold);
         let remPlat = Math.max(0, reqPlat - myPlat);
 
-        // 가장 높은 랭크 (어떤 훈장을 메인으로 파밍하는지 결정)
         let highestRank = Math.max(...abyCart.map(i => parseInt(i.rank)));
         const wAp = parseInt(document.getElementById('week_ap').value) || 0;
 
-        // 🚀 3. 주간 소모되는 AP 비용 (AP 구매 체크 시 어포 깎임)
+        // 3. AP 소모 비용 (구매 시)
         let weeklyApCost = 0;
         if(document.getElementById('chk_sil_ap') && document.getElementById('chk_sil_ap').checked) weeklyApCost += 100000;
         if(document.getElementById('chk_gol_ap') && document.getElementById('chk_gol_ap').checked) weeklyApCost += 300000;
 
         let netWeeklyAp = wAp - weeklyApCost;
-        let finalWeeks = 0;
         let apWeeks = 0;
-
-        // 어포가 모이는 기간 계산
         if (remAp > 0) {
             if (netWeeklyAp <= 0) apWeeks = 999;
             else apWeeks = Math.ceil(remAp / netWeeklyAp);
         }
 
-        // 🚀 4. 훈장별 파밍 기간 계산 (하위 훈장 변환 로직 포함!)
+        // 4. 훈장 파밍 기간 (하위 훈장 변환 로직 포함)
         let medalWeeks = 0;
         let effectiveWeeklyMedal = 0;
 
         if (highestRank === 100 && remSilver > 0) {
-            // 은공 파밍
             effectiveWeeklyMedal = weekSil;
             medalWeeks = (effectiveWeeklyMedal > 0) ? Math.ceil(remSilver / effectiveWeeklyMedal) : 999;
         } else if (highestRank === 1000 && remGold > 0) {
-            // 금공 파밍: 주간 금공 + (남는 은공을 금공으로 제작 * 20%)
-            effectiveWeeklyMedal = weekGol + (weekSil * 0.2);
+            effectiveWeeklyMedal = weekGol + (weekSil * 0.2); // 은공 남는 걸 금공으로(20%)
             medalWeeks = (effectiveWeeklyMedal > 0) ? Math.ceil(remGold / effectiveWeeklyMedal) : 999;
         } else if (highestRank === 10000 && remPlat > 0) {
-            // 백금공 파밍: (남는 은공을 금공으로 제작 시 뜨는 대성공 * 3%)
-            effectiveWeeklyMedal = (weekSil * 0.03);
+            effectiveWeeklyMedal = (weekSil * 0.03); // 은공 남는 걸 백금공 대성공으로(3%)
             medalWeeks = (effectiveWeeklyMedal > 0) ? Math.ceil(remPlat / effectiveWeeklyMedal) : 999;
         }
 
-        // 어포와 훈장 중 더 오래 걸리는 기간이 최종 파밍 기간!
-        finalWeeks = Math.max(apWeeks, medalWeeks);
+        let finalWeeks = Math.max(apWeeks, medalWeeks);
 
         let medalDesc = [];
         if (reqSilver > 0 || remSilver > 0) medalDesc.push(`은 ${remSilver}개`);
@@ -2403,9 +2399,9 @@
         if (finalWeeks === 999) {
             document.getElementById('aby_res_time').innerHTML = `<span style="font-size:20px; color:#ff5252;">주간 획득량 부족</span>`;
             if (netWeeklyAp <= 0 && remAp > 0) {
-                document.getElementById('aby_res_desc').innerHTML = `AP 지출이 수입보다 많습니다. (구매를 줄이거나 주간 어포를 늘리세요!)`;
+                document.getElementById('aby_res_desc').innerHTML = `AP 지출이 수입보다 많습니다.`;
             } else {
-                document.getElementById('aby_res_desc').innerHTML = `체크리스트에서 훈장 수급처를 하나라도 체크해주세요!`;
+                document.getElementById('aby_res_desc').innerHTML = `체크리스트에서 훈장 수급처를 체크해주세요!`;
             }
         } else {
             document.getElementById('aby_res_time').innerText = `약 ${finalWeeks}주`;
@@ -2413,14 +2409,12 @@
         }
     }
 
-    // 탭 전환 시 초기화
     const oldSwitch = switchTab;
     switchTab = (id, el) => {
         oldSwitch(id, el);
         if(id === 'abyss') calcAbyss();
         window.history.pushState(null, '', '/?menu=' + id);
     };
-        
        
 
     
@@ -2591,11 +2585,10 @@
         }
     }
 
-    // ==========================================
+   // ==========================================
     // 💾 전체 데이터 원버튼 통합 저장/불러오기 (체크박스 완벽 보존)
     // ==========================================
     function saveGlobalState() {
-        // 🚀 신규: 어비스 파밍 탭의 수많은 체크박스 상태를 영혼까지 긁어모아 저장!
         let abyssCheckStates = [];
         document.querySelectorAll('.abyss-chk').forEach(chk => abyssCheckStates.push(chk.checked));
 
@@ -2611,7 +2604,7 @@
             abyss: {
                 myAp: document.getElementById('my_ap').value, s: document.getElementById('my_medal_silver').value, g: document.getElementById('my_medal_gold').value, p: document.getElementById('my_medal_plat').value, wAp: document.getElementById('week_ap').value, 
                 cart: abyCart,
-                checks: abyssCheckStates // 🚀 체크박스 기록 보존!
+                checks: abyssCheckStates 
             },
             pet: []
         };
@@ -2663,7 +2656,6 @@
             if(state.abyss) {
                 document.getElementById('my_ap').value = state.abyss.myAp; document.getElementById('my_medal_silver').value = state.abyss.s; document.getElementById('my_medal_gold').value = state.abyss.g; document.getElementById('my_medal_plat').value = state.abyss.p; document.getElementById('week_ap').value = state.abyss.wAp; 
                 
-                // 🚀 체크박스 기록 완벽 복구
                 if (state.abyss.checks) {
                     let chks = document.querySelectorAll('.abyss-chk');
                     state.abyss.checks.forEach((val, i) => { if(chks[i]) chks[i].checked = val; });
@@ -2775,6 +2767,7 @@ async function loadGoogleSheetNotices() {
 </script>
 </body>
 </html>
+
 
 
 
