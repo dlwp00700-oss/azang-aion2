@@ -239,18 +239,26 @@
         </ul>
     </div>
 </details>
+            <style>
+                .fac-btn { padding: 10px 15px; background: #111; color: #888; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s; white-space: nowrap; }
+                .fac-btn.active { background: #1a1a24; color: #fff; border-color: #ffca28; }
+            </style>
+            
             <div class="search-bar">
-                <select id="searchFaction" onchange="updateServerList()">
-                    <option value="1">🕊️ 천족</option>
-                    <option value="2">🦇 마족</option>
-                </select>
+                <div style="display:flex; gap:5px;">
+                    <button class="fac-btn active" onclick="selectSearchFaction(0, this)">🌐 전체</button>
+                    <button class="fac-btn" onclick="selectSearchFaction(1, this)">🕊️ 천족</button>
+                    <button class="fac-btn" onclick="selectSearchFaction(2, this)">🦇 마족</button>
+                </div>
+                <input type="hidden" id="searchFaction" value="0">
+                
                 <select id="searchServer">
-                    <option value="">🌐 전체 서버 로딩 중...</option>
+                    <option value="">🌐 모든 서버</option>
                 </select>
                 <input type="text" id="charNameInput" placeholder="캐릭터명을 입력하세요." onkeypress="if(event.keyCode==13) searchCharacter()">
                 <button class="btn-search" onclick="searchCharacter()">내 캐릭터 불러오기</button>
                 <span id="statusMsg" style="color: #aaa; margin-left: 10px;">* 서버 연동 완료</span>
-            </div> 
+            </div>
             
             <div id="favoritesBar" style="background: var(--panel); border: 1px solid var(--border); padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
                 <span style="color:#ffca28; font-weight:bold; font-size:14px;">⭐ 즐겨찾기</span>
@@ -884,22 +892,37 @@
 
     let serverListCache = [];
     
-    async function updateServerList() {
-        const faction = parseInt(document.getElementById('searchFaction').value);
-        const serverSelect = document.getElementById('searchServer');
-        if (serverListCache.length === 0) {
-            try {
-                serverSelect.innerHTML = `<option value="">🌐 서버 불러오는 중...</option>`;
-                const res = await fetch(`${API_BASE}/servers`);
-                const data = await res.json();
-                serverListCache = data.serverList || [];
-            } catch (e) {
-                serverSelect.innerHTML = `<option value="">서버 목록 실패 (유스티엘로 검색됨)</option>`;
-                return;
-            }
+    // 🚀 페이지 켜질 때 몰래 서버 목록만 받아오기 (유저 몰래)
+    async function initServerList() {
+        try {
+            const res = await fetch(`${API_BASE}/servers`);
+            const data = await res.json();
+            serverListCache = data.serverList || [];
+            selectSearchFaction(0, document.querySelector('.fac-btn.active')); // 전체 목록 띄우기
+        } catch (e) {
+            document.getElementById('searchServer').innerHTML = `<option value="">서버 목록 불러오기 실패</option>`;
         }
+    }
+
+    // 🚀 종족 버튼 누를 때마다 서버 목록 즉시 변경
+    function selectSearchFaction(raceId, btnEl) {
+        document.getElementById('searchFaction').value = raceId;
+        
+        // 버튼 색상 변경 로직
+        document.querySelectorAll('.fac-btn').forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.borderColor = '#333';
+        });
+        if(btnEl) {
+            btnEl.classList.add('active');
+            btnEl.style.borderColor = raceId === 1 ? '#4fc3f7' : (raceId === 2 ? '#448aff' : '#ffca28');
+        }
+
+        const serverSelect = document.getElementById('searchServer');
+        if (serverListCache.length === 0) return; // 아직 몰래 로딩 중이면 대기
+
         let html = `<option value="">🌐 전체 서버 검색</option>`;
-        const filtered = serverListCache.filter(s => s.raceId === faction);
+        const filtered = raceId === 0 ? serverListCache : serverListCache.filter(s => s.raceId === raceId);
         filtered.forEach(s => { html += `<option value="${s.serverId}">${s.serverName}</option>`; });
         serverSelect.innerHTML = html;
     }
@@ -2261,14 +2284,15 @@
                 let className = user.className || "직업 미확인"; 
 
                 // 🚀 수정: 무조건 한 줄로 나오도록 flex-shrink와 white-space 옵션 추가!
+                // 🚀 간격과 크기를 시원시원하게 변경 (padding: 12px 0, 이미지 32px, 폰트 14px 등)
                 html += `
-                <div class="rank-row" style="${index === 4 ? 'border:none;' : ''} display:flex; align-items:center; flex-wrap:nowrap;">
-                    <span style="color:${rankColor}; font-weight:bold; width:35px; flex-shrink:0;">${index + 1}위</span>
-                    <span style="display:flex; align-items:center; flex:1; gap:8px; cursor:pointer; overflow:hidden; white-space:nowrap;" onclick="loadCharacterDetail('${user.characterId}', '${user.serverId}', '${cName}')">
-                        ${pImg ? `<img src="${pImg}" style="width:24px; height:24px; border-radius:50%; border:1px solid #444; flex-shrink:0;" onerror="this.style.display='none'">` : ''}
-                        <span style="overflow:hidden; text-overflow:ellipsis;"><span style="color:${serverColor};">[${sName}]</span> ${cName} <span style="font-size:11px; color:#888;">(${className})</span></span>
+                <div class="rank-row" style="${index === 4 ? 'border:none;' : ''} display:flex; align-items:center; flex-wrap:nowrap; padding: 12px 0; margin-bottom: 4px;">
+                    <span style="color:${rankColor}; font-weight:bold; width:45px; flex-shrink:0; font-size: 15px;">${index + 1}위</span>
+                    <span style="display:flex; align-items:center; flex:1; gap:12px; cursor:pointer; overflow:hidden; white-space:nowrap;" onclick="loadCharacterDetail('${user.characterId}', '${user.serverId}', '${cName}')">
+                        ${pImg ? `<img src="${pImg}" style="width:32px; height:32px; border-radius:50%; border:1px solid #444; flex-shrink:0;" onerror="this.style.display='none'">` : '<div style="width:32px; height:32px; border-radius:50%; border:1px solid #444; background:#111; flex-shrink:0;"></div>'}
+                        <span style="overflow:hidden; text-overflow:ellipsis; font-size:14px;"><span style="color:${serverColor};">[${sName}]</span> ${cName} <span style="font-size:12px; color:#888;">(${className})</span></span>
                     </span>
-                    <span style="color:#ffca28; font-weight:bold; flex-shrink:0; font-size:12px;">${Number(ap).toLocaleString()} AP</span>
+                    <span style="color:#ffca28; font-weight:bold; flex-shrink:0; font-size:14px;">${Number(ap).toLocaleString()} AP</span>
                 </div>`;
             });
             rankArea.innerHTML = html;
@@ -2528,6 +2552,7 @@ async function loadGoogleSheetNotices() {
         if(typeof renderFavorites === "function") renderFavorites();
         if(typeof loadTotalRanking === "function") loadTotalRanking(0); 
         
+        initServerList();
         loadGoogleSheetNotices(); 
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -2550,6 +2575,7 @@ async function loadGoogleSheetNotices() {
 </script>
 </body>
 </html>
+
 
 
 
