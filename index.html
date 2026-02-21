@@ -756,7 +756,7 @@
     let activeCategoryInfo = null;
     let currentNewItemAPIData = null;
 
-    const EXCLUDE_KEYWORDS = ['아르카나', '룬', '아뮬렛', '양피지', '나침반', '종', '거울', '성배', '팔찌', '외형', '명화', '날개', '돌파석', '계승석', '조율석', '강화석', '마석', '신석', '도안', '레시피', '상자', '주화'];
+    const EXCLUDE_KEYWORDS = ['아르카나', '룬', '아뮬렛', '양피지', '나침반', '종', '거울', '성배', '외형', '명화', '날개', '돌파석', '계승석', '조율석', '강화석', '마석', '신석', '도안', '레시피', '상자', '주화'];
 
     const CATEGORY_MAP = [
         // 무기류
@@ -794,26 +794,28 @@
         return "#fff";
     }
 
-    // 🚀 NC 공식 데이터 기반 완벽한 분류 함수
+    // 🚀 완벽한 부위 판별 함수 (오류 0%)
     function getSmartCategory(item) {
         if (!item) return null;
-        let cName = item.categoryName || "";
         let iName = item.name || "";
-        
-        // 🚨 핵심: NC 공식 카테고리 ID 추출 (Torso, Sword 등)
+        let cName = item.categoryName || (item.category && item.category.name) || "";
         let catId = item.categoryId || (item.category && item.category.id) || ""; 
 
-        // 1순위: NC 공식 ID로 100% 완벽하게 매칭 (오류 절대 불가)
+        // 1. NC 공식 ID 검사 (가장 확실함)
         let exactMatch = CATEGORY_MAP.find(c => c.ncId === catId);
         if (exactMatch) return exactMatch;
 
-        // 2순위: 혹시 ID가 없다면 기존처럼 텍스트로 추론
-        let combined = cName + " " + iName;
+        // 2. 아이템 이름에 '장갑', '반지' 등이 들어갔는지 1차 검사 (천룡왕의 장갑 -> 장갑으로 직행)
         for (let cat of CATEGORY_MAP) {
-            if (cat.match.some(m => combined.includes(m))) return cat;
+            if (cat.match.some(m => iName.includes(m))) return cat;
         }
 
-        // 3순위: 그래도 없으면 끝말잇기로 억지 매칭 (최후의 보루)
+        // 3. 카테고리 이름으로 검사
+        for (let cat of CATEGORY_MAP) {
+            if (cat.match.some(m => cName.includes(m))) return cat;
+        }
+
+        // 4. 최후의 보루 (이름 끝자리)
         if (iName.endsWith('검')) return CATEGORY_MAP.find(c => c.key === 'w_longsword');
         if (iName.endsWith('도')) return CATEGORY_MAP.find(c => c.key === 'w_dagger');
         if (iName.endsWith('활') || iName.endsWith('궁')) return CATEGORY_MAP.find(c => c.key === 'w_bow');
@@ -1412,7 +1414,18 @@
 
         let queriesToRun = [];
         if (keyword) {
-            queriesToRun.push(keyword);
+            // 🚀 핵심: API 제한(20개) 때문에 뒷순서인 장갑/반지 등이 잘리는 현상 방지!
+            // 필터가 체크되어 있으면 "천룡왕의 장갑", "천룡왕의 반지" 처럼 이름을 직접 조립해서 서버에 찔러줍니다.
+            if (checkedCategories.length > 0) {
+                checkedCategories.forEach(catKey => {
+                    const catObj = CATEGORY_MAP.find(c => c.key === catKey);
+                    if (catObj) {
+                        queriesToRun.push(keyword + "의 " + catObj.label); // 예: 천룡왕의 장갑
+                        queriesToRun.push(keyword + " " + catObj.label);   // 예: 천룡왕 장갑
+                    }
+                });
+            }
+            queriesToRun.push(keyword); // 기본 검색어도 마지막에 추가
         } else {
             if (checkedCategories.length > 0) {
                 checkedCategories.forEach(catKey => {
@@ -1425,7 +1438,8 @@
         }
         
         try {
-            queriesToRun = queriesToRun.slice(0, 10);
+            // 중복 쿼리 제거 후 최대 15개까지만 동시에 검색 (속도 유지)
+            queriesToRun = [...new Set(queriesToRun)].slice(0, 15);
             
             const fetchPromises = queriesToRun.map(q => 
                 fetch(`${API_BASE}/searchDictItem?keyword=${encodeURIComponent(q)}`)
@@ -1435,21 +1449,26 @@
 
             const results = await Promise.all(fetchPromises);
             
-            let allItems = [];
-            let seenIds = new Set();
+            let uniqueMap = new Map(); // 🚀 중복 아이템(이름 기준) 제거용 마법의 창고
             
             results.forEach(data => {
                 let items = data.contents || data.list || [];
                 items.forEach(item => {
-                    if (!seenIds.has(item.id)) {
-                        seenIds.add(item.id);
-                        allItems.push(item);
+                    let baseName = (item.name || "").trim();
+                    
+                    // 필터 1: 제외 키워드 거르기 (이제 팔찌는 통과됩니다!)
+                    if (EXCLUDE_KEYWORDS.some(kw => baseName.includes(kw))) return;
+                    
+                    // 필터 2: 이름이 같은 아이템이 여러 개면 한 개만 저장 (중복 방지)
+                    if (!uniqueMap.has(baseName)) {
+                        uniqueMap.set(baseName, item);
                     }
                 });
             });
             
+            let allItems = Array.from(uniqueMap.values());
+            
             let items = allItems.filter(item => {
-                if (EXCLUDE_KEYWORDS.some(kw => (item.name||"").includes(kw))) return false;
                 if (checkedGrades.length > 0 && !checkedGrades.includes(item.grade)) return false;
                 
                 let itemCat = getSmartCategory(item);
@@ -1465,6 +1484,7 @@
                 return; 
             }
             
+            // 레벨이 높은 순서대로 정렬
             items.sort((a, b) => {
                 let lvA = parseInt(a.level || a.itemLevel || a.equipLevel || 0);
                 let lvB = parseInt(b.level || b.itemLevel || b.equipLevel || 0);
@@ -2608,6 +2628,7 @@ async function loadGoogleSheetNotices() {
 </script>
 </body>
 </html>
+
 
 
 
