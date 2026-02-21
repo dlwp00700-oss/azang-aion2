@@ -583,6 +583,65 @@
                 </div>
             </div>
         </div>
+
+        <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:900px; margin:20px auto 0 auto;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #2a2a35; padding-bottom:15px; margin-bottom:20px;">
+                    <h2 style="margin:0; color:#4fc3f7; font-size:20px;">🎲 10레벨 종결 옵션 저격 시뮬레이터</h2>
+                    <span style="font-size:12px; color:#888;">*스프레드시트의 확률표를 참고하여 계산하세요.</span>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; background:#0a0a0c; border:1px solid #333; border-radius:8px; padding:20px; margin-bottom:20px;">
+                    <div>
+                        <label style="font-size:12px; color:#ccc; font-weight:bold;">1. 목표 옵션 획득 확률 (%)</label>
+                        <input type="number" id="sim_target_prob" placeholder="예: 0.15" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:#ffca28; font-size:16px; margin-top:5px; box-sizing:border-box;" oninput="runEndgameSim()">
+                        <div style="font-size:11px; color:#888; margin-top:5px;">* 1,4,7 / 2,5,8 / 3,6,9 슬롯 그룹별 확률표를 확인하고 입력하세요.</div>
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#ccc; font-weight:bold;">2. 슬롯 잠금 개수 (비용 페널티)</label>
+                        <select id="sim_lock_count" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:#fff; font-size:14px; margin-top:5px; box-sizing:border-box;" onchange="runEndgameSim()">
+                            <option value="0">0개 (페널티 없음)</option>
+                            <option value="1">1개</option>
+                            <option value="2">2개</option>
+                            <option value="3">3개</option>
+                            <option value="4">4개</option>
+                            <option value="5">5개</option>
+                            <option value="6">6개</option>
+                            <option value="7">7개</option>
+                            <option value="8" selected>8개 (특정 1개 슬롯만 저격 시)</option>
+                        </select>
+                    </div>
+                    <div style="grid-column:span 2; border-top:1px dashed #333; padding-top:15px;">
+                        <label style="font-size:12px; color:#69f0ae; font-weight:bold;">3. 내 보유 영혼결정 (시뮬레이션용)</label>
+                        <input type="number" id="sim_my_crystals" value="5000" style="width:100%; padding:10px; background:#111; border:1px solid #4fc3f7; color:#fff; font-size:16px; margin-top:5px; box-sizing:border-box;" oninput="runEndgameSim()">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                    <div style="background:#1a1a24; border:1px solid #444; border-radius:10px; padding:20px;">
+                        <h3 style="margin-top:0; color:#ffca28; font-size:14px; border-bottom:1px dashed #555; padding-bottom:10px; text-align:center;">📊 통계적 평균 기댓값 (1회 성공 기준)</h3>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px; color:#ccc;">
+                            <span>평균 필요 굴림 횟수:</span>
+                            <span id="sim_res_avg_rolls" style="font-weight:bold; color:#fff;">0회</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px; color:#ccc;">
+                            <span>예상 소모 영혼결정:</span>
+                            <span id="sim_res_avg_cry" style="font-weight:bold; color:#ff5252;">0개</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:13px; color:#ccc;">
+                            <span>예상 소모 키나:</span>
+                            <span id="sim_res_avg_kinah" style="font-weight:bold; color:#ffca28;">0</span>
+                        </div>
+                    </div>
+
+                    <div style="background:rgba(0, 230, 118, 0.05); border:1px solid #00e676; border-radius:10px; padding:20px; text-align:center; display:flex; flex-direction:column; justify-content:center;">
+                        <div style="font-size:12px; color:#aaa; margin-bottom:5px;">현재 보유한 영혼결정으로</div>
+                        <div style="font-size:18px; color:#fff; font-weight:bold; margin-bottom:10px;">총 <span id="sim_res_my_rolls" style="color:#4fc3f7; font-size:24px;">0</span>번 굴릴 수 있으며</div>
+                        <div style="font-size:12px; color:#aaa; margin-bottom:5px;">이 안에서 목표 옵션이 1번이라도 뜰 확률은</div>
+                        <div id="sim_res_my_prob" style="font-size:32px; font-weight:bold; color:#00e676;">0.00%</div>
+                    </div>
+                </div>
+            </div>
+        
         <div id="tab-abyss" class="tab-content">
             <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a24; border-color: #ffca28;">
             <summary style="color: #ffca28; font-size: 15px;">🏅 [필독] 어비스 파밍 계산기 사용 방법 (클릭하여 열기)</summary>
@@ -2208,9 +2267,71 @@
         document.getElementById('res_kinah').innerText = tK.toLocaleString();
         document.getElementById('res_mobs').innerText = tCry.toLocaleString() + '마리';
     }
-    // 기존 window.onload에 추가
-    const oldLoad = window.onload;
-    window.onload = () => { if(oldLoad) oldLoad(); initPetCalc(); };
+    // 🚀 신규: 10레벨 종결 펫작 저격 시뮬레이터 로직
+    function runEndgameSim() {
+        let targetProb = parseFloat(document.getElementById('sim_target_prob').value) || 0;
+        let lockCount = parseInt(document.getElementById('sim_lock_count').value) || 0;
+        let myCrystals = parseInt(document.getElementById('sim_my_crystals').value) || 0;
+
+        const avgRollsEl = document.getElementById('sim_res_avg_rolls');
+        const avgCryEl = document.getElementById('sim_res_avg_cry');
+        const avgKinahEl = document.getElementById('sim_res_avg_kinah');
+        const myRollsEl = document.getElementById('sim_res_my_rolls');
+        const myProbEl = document.getElementById('sim_res_my_prob');
+
+        if (targetProb <= 0 || targetProb > 100) {
+            avgRollsEl.innerText = "0회"; avgCryEl.innerText = "0개"; avgKinahEl.innerText = "0";
+            myRollsEl.innerText = "0"; myProbEl.innerText = "0.00%";
+            return;
+        }
+
+        // 10레벨 기준 1회 굴림 기본 비용 (영혼결정 50개, 키나 1만)
+        let baseCry = 50; 
+        let baseKinah = 10000;
+        
+        // 잠금 페널티 가져오기
+        let penCry = PET_PENALTY[lockCount] ? PET_PENALTY[lockCount].c : 0;
+        let penKinah = PET_PENALTY[lockCount] ? PET_PENALTY[lockCount].k : 0;
+
+        let costPerRollCry = baseCry + penCry;
+        let costPerRollKinah = baseKinah + penKinah;
+
+        // 1. 통계적 기댓값 계산 (1 / 확률)
+        let expectedRolls = Math.ceil(100 / targetProb);
+        let expectedCry = expectedRolls * costPerRollCry;
+        let expectedKinah = expectedRolls * costPerRollKinah;
+
+        avgRollsEl.innerText = expectedRolls.toLocaleString() + "회";
+        avgCryEl.innerText = expectedCry.toLocaleString() + "개";
+        avgKinahEl.innerText = expectedKinah.toLocaleString();
+
+        // 2. 내 보유 자원 시뮬레이션 (이항 분포)
+        let possibleRolls = Math.floor(myCrystals / costPerRollCry);
+        myRollsEl.innerText = possibleRolls.toLocaleString();
+
+        if (possibleRolls > 0) {
+            // 1번이라도 성공할 확률 = 1 - (실패할 확률 ^ 시도 횟수)
+            let failProb = 1 - (targetProb / 100);
+            let successChance = (1 - Math.pow(failProb, possibleRolls)) * 100;
+            
+            myProbEl.innerText = successChance.toFixed(2) + "%";
+            
+            // 확률에 따라 색상 변경
+            if(successChance >= 80) myProbEl.style.color = "#00e676"; // 안전권 (초록)
+            else if(successChance >= 40) myProbEl.style.color = "#ffca28"; // 도박권 (노랑)
+            else myProbEl.style.color = "#ff5252"; // 위험권 (빨강)
+        } else {
+            myProbEl.innerText = "0.00%";
+            myProbEl.style.color = "#555";
+        }
+    }
+
+    // 탭 전환이나 로드 시 시뮬레이터도 초기화
+    const oldPetCalcLoad = window.onload;
+    window.onload = () => { 
+        if(oldPetCalcLoad) oldPetCalcLoad(); 
+        runEndgameSim(); 
+    };
 
     // 🏅 어비스 데이터 및 다중 계산 로직
     const ABY_DATA = {
@@ -2828,6 +2949,7 @@
 </script>
 </body>
 </html>
+
 
 
 
