@@ -262,21 +262,26 @@
                 <div id="selectionList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;"></div>
         </div>
 
+        <style>
+            /* 3개를 나란히 배치하고 랭킹칸을 살짝 더 넓게 주는 마법의 정렬 코드 */
+            .home-mode #homeContent { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 20px; align-items: start; margin-bottom: 30px; width: 100%; }
+            .dash-mode #homeContent { display: none; } /* 캐릭터 검색하면 깔끔하게 숨김 */
+            @media (max-width: 1000px) { .home-mode #homeContent { grid-template-columns: 1fr; } }
+        </style>
+
         <div id="homeContent">
-            <div style="display:flex; flex-direction:column; gap:20px;">
-                <div class="info-box">
-                    <div class="info-title">📰 아이온2 패치 노트 요약</div>
-                    <ul class="news-list" id="patchNoteList">
-                        <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
-                    </ul>
-                </div>
-                
-                <div class="info-box">
-                    <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
-                    <ul class="news-list" id="updateNoteList">
-                        <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
-                    </ul>
-                </div>
+            <div class="info-box">
+                <div class="info-title">📰 아이온2 패치 노트 요약</div>
+                <ul class="news-list" id="patchNoteList">
+                    <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+                </ul>
+            </div>
+            
+            <div class="info-box">
+                <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
+                <ul class="news-list" id="updateNoteList">
+                    <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+                </ul>
             </div>
 
             <div class="info-box">
@@ -2531,6 +2536,7 @@
 </script>
 </body>
 </html>
+
 
 
 
