@@ -260,13 +260,48 @@
             <div id="characterSelection" style="display:none; background: #141418; padding: 20px; border-radius: 8px; border: 1px solid #4fc3f7; box-shadow: 0 0 15px rgba(79, 195, 247, 0.2);">
                 <h3 style="color: #4fc3f7; margin-top: 0; margin-bottom: 15px; font-size: 16px;">🔍 검색된 캐릭터 목록 (선택 시 바로 로드)</h3>
                 <div id="selectionList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;"></div>
+        </div>
+
+        <div id="homeContent">
+            <div style="display:flex; flex-direction:column; gap:20px;">
+                <div class="info-box">
+                    <div class="info-title">📰 아이온2 패치 노트 요약</div>
+                    <ul class="news-list" id="patchNoteList">
+                        <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+                    </ul>
+                </div>
+                
+                <div class="info-box">
+                    <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
+                    <ul class="news-list" id="updateNoteList">
+                        <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+                    </ul>
+                </div>
             </div>
 
+            <div class="info-box">
+                <div class="info-title" style="display:flex; justify-content:space-between; color:#4fc3f7;">
+                    <span>🏆 실시간 어비스 랭킹</span>
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <button id="btnRankAll" onclick="loadTotalRanking(0)" style="flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s;">🌍 전체</button>
+                    <button id="btnRankElyos" onclick="loadTotalRanking(1)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🕊️ 천족</button>
+                    <button id="btnRankAsmo" onclick="loadTotalRanking(2)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🦇 마족</button>
+                </div>
+                
+                <div id="totalRankingArea" style="min-height: 165px;">
+                    <div style="text-align:center; padding:50px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
+                </div>
+                
+                <div style="margin-top:15px; font-size:11px; color:#666; text-align:center; line-height:1.4;">
+                    * 전 서버 통합 랭킹은 1시간 단위로 갱신됩니다.
+                </div>
+            </div>
+        </div>
 
-
-            home-mode #homeConte
-                <div>
-                    <div class="c-window" style="padding-bottom: 10px;">
+        <div class="layout-grid" id="mainDashboard">
+            <div>
+                <div class="c-window" style="padding-bottom: 10px;">
                         <div class="sec-title" style="align-items: center;">
                             <div style="display:flex; flex-direction:column; gap:6px;">
                                 <span style="font-size:16px; font-weight:bold; color:#4fc3f7;">📊 내 캐릭터 실제 스탯 (P창)</span>
@@ -2421,95 +2456,82 @@
         } catch(e) { alert("❌ 데이터를 불러오는 중 오류가 발생했습니다. 저장된 데이터가 손상되었을 수 있습니다."); }
     }
 
-    // 🚀 신규: 링크 복사 기능
-function copyShareLink() {
-    if(!currentLoadedChar) return alert("캐릭터를 먼저 불러오세요!");
-    const url = `https://aion2zang.info/user/${currentLoadedChar.serverId}/${encodeURIComponent(currentLoadedChar.characterName)}`;
-    navigator.clipboard.writeText(url).then(() => {
-        alert(`🔗 공유 링크가 복사되었습니다!\n\n${url}\n\n커뮤니티나 단톡방에 내 템셋팅을 자랑해보세요!`);
-    });
-}
+   // 🚀 신규: 링크 복사 기능
+    function copyShareLink() {
+        if(!currentLoadedChar) return alert("캐릭터를 먼저 불러오세요!");
+        const url = `https://aion2zang.info/user/${currentLoadedChar.serverId}/${encodeURIComponent(currentLoadedChar.characterName)}`;
+        navigator.clipboard.writeText(url).then(() => {
+            alert(`🔗 공유 링크가 복사되었습니다!\n\n${url}\n\n커뮤니티나 단톡방에 내 템셋팅을 자랑해보세요!`);
+        });
+    }
 
-
-
-
-
-  <script>
-// 🚀 구글 스프레드시트에서 공지사항 불러오기
-async function loadGoogleSheetNotices() {
-    const tsvUrl = '[https://docs.google.com/spreadsheets/d/e/2PACX-1vS7KVEKjGV3ccGMUSWxOor2AIyNx8TQRY6xU0cvCQP7SJqZC9-Q9sDdVll-YYffrzIe3KR9hIO75LA-/pub?output=tsv](https://docs.google.com/spreadsheets/d/e/2PACX-1vS7KVEKjGV3ccGMUSWxOor2AIyNx8TQRY6xU0cvCQP7SJqZC9-Q9sDdVll-YYffrzIe3KR9hIO75LA-/pub?output=tsv)'; 
-    try {
-        const response = await fetch(tsvUrl);
-        const data = await response.text();
-        const rows = data.split('\n'); 
-        let patchHtml = ''; let updateHtml = '';
-        for(let i = 1; i < rows.length; i++) {
-            if(!rows[i].trim()) continue; 
-            const cols = rows[i].split('\t'); 
-            const type = (cols[0] || '').trim(); 
-            const date = (cols[1] || '').trim(); 
-            const title = (cols[2] || '').trim(); 
-            const content = (cols[3] || '').trim(); 
-            const itemHtml = `
-            <li style="padding: 0; border-bottom: 1px solid #222;">
-                <details class="news-details">
-                    <summary>
-                        <span style="color:#4fc3f7; min-width:75px; font-weight:bold;">${date}</span> 
-                        <span style="flex:1;">${title}</span>
-                        <span style="color:#888; font-size:10px;">▼</span>
-                    </summary>
-                    <div class="news-content">${content}</div>
-                </details>
-            </li>`;
-            if(type === '패치') patchHtml += itemHtml;
-            else if(type === '업데이트') updateHtml += itemHtml;
+    // 🚀 구글 스프레드시트에서 공지사항 불러오기
+    async function loadGoogleSheetNotices() {
+        // 주소에 대괄호([])가 들어가지 않도록 순수 주소만 완벽하게 넣었습니다!
+        const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS7KVEKjGV3ccGMUSWxOor2AIyNx8TQRY6xU0cvCQP7SJqZC9-Q9sDdVll-YYffrzIe3KR9hIO75LA-/pub?output=tsv'; 
+        try {
+            const response = await fetch(tsvUrl);
+            const data = await response.text();
+            const rows = data.split('\n'); 
+            let patchHtml = ''; let updateHtml = '';
+            for(let i = 1; i < rows.length; i++) {
+                if(!rows[i].trim()) continue; 
+                const cols = rows[i].split('\t'); 
+                const type = (cols[0] || '').trim(); 
+                const date = (cols[1] || '').trim(); 
+                const title = (cols[2] || '').trim(); 
+                const content = (cols[3] || '').trim(); 
+                const itemHtml = `
+                <li style="padding: 0; border-bottom: 1px solid #222;">
+                    <details class="news-details">
+                        <summary>
+                            <span style="color:#4fc3f7; min-width:75px; font-weight:bold;">${date}</span> 
+                            <span style="flex:1;">${title}</span>
+                            <span style="color:#888; font-size:10px;">▼</span>
+                        </summary>
+                        <div class="news-content">${content}</div>
+                    </details>
+                </li>`;
+                if(type === '패치') patchHtml += itemHtml;
+                else if(type === '업데이트') updateHtml += itemHtml;
+            }
+            document.getElementById('patchNoteList').innerHTML = patchHtml || '<li style="padding:15px; text-align:center; color:#888;">등록된 내용이 없습니다.</li>';
+            document.getElementById('updateNoteList').innerHTML = updateHtml || '<li style="padding:15px; text-align:center; color:#888;">등록된 내용이 없습니다.</li>';
+        } catch (error) {
+            document.getElementById('patchNoteList').innerHTML = '<li style="padding:15px; text-align:center; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
+            document.getElementById('updateNoteList').innerHTML = '<li style="padding:15px; text-align:center; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
         }
-        document.getElementById('patchNoteList').innerHTML = patchHtml || '<li style="padding:15px; text-align:center; color:#888;">등록된 내용이 없습니다.</li>';
-        document.getElementById('updateNoteList').innerHTML = updateHtml || '<li style="padding:15px; text-align:center; color:#888;">등록된 내용이 없습니다.</li>';
-    } catch (error) {
-        document.getElementById('patchNoteList').innerHTML = '<li style="padding:15px; text-align:center; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
-        document.getElementById('updateNoteList').innerHTML = '<li style="padding:15px; text-align:center; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
-    }
-}
-
-const API_BASE = "/api";
-let currentLoadedChar = null; 
-let currentEquipData = []; 
-let simulationState = {};
-let activeSlotIndex = -1;
-let activeCategoryInfo = null;
-let currentNewItemAPIData = null;
-
-// 🚀 모든 탭과 기능을 자동으로 켜주는 마스터 스위치
-window.onload = () => { 
-    if(typeof initPetCalc === "function") initPetCalc(); 
-    if(typeof renderFavorites === "function") renderFavorites();
-    if(typeof loadTotalRanking === "function") loadTotalRanking(0); 
-    
-    // 엑셀 게시판 불러오기 실행
-    loadGoogleSheetNotices(); 
-
-    const urlParams = new URLSearchParams(window.location.search);
-
-    const pMenu = urlParams.get('menu');
-    if (pMenu) {
-        const targetBtn = document.querySelector(`.nav-item[onclick*="'${pMenu}'"]`);
-        if (targetBtn) { switchTab(pMenu, targetBtn); }
     }
 
-    const pServer = urlParams.get('server');
-    const pName = urlParams.get('name');
-    if (pServer && pName) {
-        document.getElementById('searchServer').innerHTML = `<option value="${pServer}">공유된 캐릭터 로딩 중...</option>`;
-        document.getElementById('searchServer').value = pServer;
-        document.getElementById('charNameInput').value = pName;
-        setTimeout(() => { searchCharacter(); }, 300);
-    }
-};
+    // 🚀 마스터 스위치: 사이트 켜질 때 필요한 기능 모두 실행
+    window.onload = () => { 
+        if(typeof initPetCalc === "function") initPetCalc(); 
+        if(typeof renderFavorites === "function") renderFavorites();
+        if(typeof loadTotalRanking === "function") loadTotalRanking(0); 
+        
+        loadGoogleSheetNotices(); 
+
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const pMenu = urlParams.get('menu');
+        if (pMenu) {
+            const targetBtn = document.querySelector(`.nav-item[onclick*="'${pMenu}'"]`);
+            if (targetBtn) { switchTab(pMenu, targetBtn); }
+        }
+
+        const pServer = urlParams.get('server');
+        const pName = urlParams.get('name');
+        if (pServer && pName) {
+            document.getElementById('searchServer').innerHTML = `<option value="${pServer}">공유된 캐릭터 로딩 중...</option>`;
+            document.getElementById('searchServer').value = pServer;
+            document.getElementById('charNameInput').value = pName;
+            setTimeout(() => { searchCharacter(); }, 300);
+        }
+    };
 </script>
-
 </body>
 </html>
+
 
 
 
