@@ -264,77 +264,7 @@
 
 
 
-            <style>
-                .home-mode #homeContent { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; animation: fadeIn 0.5s ease; margin-bottom: 20px; max-width: 1600px; }
-                .dash-mode #homeContent { display: none; }
-                .info-box { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-                .info-title { color: #ffca28; font-size: 16px; font-weight: bold; border-bottom: 1px dashed #333; padding-bottom: 10px; margin-bottom: 15px; }
-                .news-list { list-style: none; padding: 0; margin: 0; }
-                .news-list li { padding: 10px 0; border-bottom: 1px solid #222; font-size: 13px; color: #ccc; display: flex; gap: 10px; line-height: 1.5; }
-                .news-list li:last-child { border-bottom: none; }
-                .news-date { color: #888; font-size: 11px; min-width: 70px; }
-                .rank-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 13px; align-items: center; }
-            </style>
-            
-            <div id="homeContent">
-            <div style="display:flex; flex-direction:column; gap:20px;">
-                <div class="info-box">
-                    <div class="info-title">📰 아이온2 패치 노트 요약</div>
-                    <ul class="news-list" id="patchNoteList">
-                        <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
-                    </ul>
-                </div>
-                
-                <div class="info-box">
-                    <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
-                    <ul class="news-list" id="updateNoteList">
-                        <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
-                    </ul>
-                </div>
-            </div>
-
-                <div class="info-box">
-                    <div class="info-title" style="display:flex; justify-content:space-between; color:#4fc3f7;">
-                        <span>🏆 실시간 어비스 랭킹</span>
-                    </div>
-                    <div style="display:flex; gap:10px; margin-bottom:15px;">
-                        <button id="btnRankAll" onclick="loadTotalRanking(0)" style="flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s;">🌍 전체</button>
-                        <button id="btnRankElyos" onclick="loadTotalRanking(1)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🕊️ 천족</button>
-                        <button id="btnRankAsmo" onclick="loadTotalRanking(2)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🦇 마족</button>
-                    </div>
-                    
-                    <div id="totalRankingArea" style="min-height: 165px;">
-                        <div style="text-align:center; padding:50px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
-                    </div>
-                    
-                    <div style="margin-top:15px; font-size:11px; color:#666; text-align:center; line-height:1.4;">
-                        * 전 서버 통합 랭킹은 1시간 단위로 갱신됩니다.
-                    </div>
-                </div>
-            </div>
-
-
-
-                <div class="info-box">
-                    <div class="info-title" style="display:flex; justify-content:space-between; color:#4fc3f7;">
-                        <span>🏆 실시간 어비스 랭킹</span>
-                    </div>
-                    <div style="display:flex; gap:10px; margin-bottom:15px;">
-                        <button id="btnRankAll" onclick="loadTotalRanking(0)" style="flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s;">🌍 전체</button>
-                        <button id="btnRankElyos" onclick="loadTotalRanking(1)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🕊️ 천족</button>
-                        <button id="btnRankAsmo" onclick="loadTotalRanking(2)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🦇 마족</button>
-                    </div>
-                    
-                    <div id="totalRankingArea" style="min-height: 165px;">
-                        <div style="text-align:center; padding:50px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
-                    </div>
-                    
-                    <div style="margin-top:15px; font-size:11px; color:#666; text-align:center; line-height:1.4;">
-                        * 전 서버 통합 랭킹은 1시간 단위로 갱신됩니다.
-                    </div>
-                </div>
-            </div>
-            <div class="layout-grid" id="mainDashboard">
+            home-mode #homeConte
                 <div>
                     <div class="c-window" style="padding-bottom: 10px;">
                         <div class="sec-title" style="align-items: center;">
@@ -2580,6 +2510,7 @@ window.onload = () => {
 
 </body>
 </html>
+
 
 
 
