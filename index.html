@@ -1073,7 +1073,16 @@
         selectionDiv.style.display = 'none'; 
 
         try {
-            const listRes = await fetch(`${API_BASE}/searchList?name=${encodeURIComponent(name)}&race=${race}&serverId=${serverId}`);
+            // 🚀 수정: '전체(0)'를 선택했을 때는 API에 종족 필터를 떼고 보내서 양쪽 다 검색하게 만듦!
+            let apiUrl = `${API_BASE}/searchList?name=${encodeURIComponent(name)}`;
+            if (race !== "0" && race !== 0) {
+                apiUrl += `&race=${race}`;
+            }
+            if (serverId) {
+                apiUrl += `&serverId=${serverId}`;
+            }
+
+            const listRes = await fetch(apiUrl);
             const listData = await listRes.json();
             const charList = listData.contents || listData.list || [];
 
@@ -1089,7 +1098,7 @@
                 charCard.onmouseover = () => charCard.style.borderColor = "#4fc3f7";
                 charCard.onmouseout = () => charCard.style.borderColor = "#444";
 
-                // 🚀 NC가 멋대로 붙인 <strong> 태그를 깔끔하게 벗겨내는 필터!
+                // NC가 멋대로 붙인 <strong> 태그를 깔끔하게 벗겨내는 필터!
                 let rawName = char.characterName || char.name || "이름 없음";
                 const charName = rawName.replace(/<\/?[^>]+(>|$)/g, ""); 
                 const serverName = char.serverName || "서버 미확인";
@@ -2582,6 +2591,7 @@ async function loadGoogleSheetNotices() {
 </script>
 </body>
 </html>
+
 
 
 
