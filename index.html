@@ -759,41 +759,61 @@
     const EXCLUDE_KEYWORDS = ['아르카나', '룬', '아뮬렛', '양피지', '나침반', '종', '거울', '성배', '팔찌', '외형', '명화', '날개', '돌파석', '계승석', '조율석', '강화석', '마석', '신석', '도안', '레시피', '상자', '주화'];
 
     const CATEGORY_MAP = [
-        { key: 'w_longsword', label: '장검', match: ['장검'], queries: ['장검'] },
-        { key: 'w_greatsword', label: '대검', match: ['대검'], queries: ['대검'] },
-        { key: 'w_dagger', label: '단검', match: ['단검', '비수'], queries: ['단검'] },
-        { key: 'w_bow', label: '활', match: ['활', '장궁', '궁'], queries: ['활'] },
-        { key: 'w_spellbook', label: '법서', match: ['법서'], queries: ['법서'] },
-        { key: 'w_orb', label: '보주', match: ['보주'], queries: ['보주'] },
-        { key: 'w_mace', label: '전곤', match: ['전곤', '망치'], queries: ['전곤'] },
-        { key: 'w_staff', label: '법봉', match: ['법봉', '멸곤'], queries: ['법봉'] },
-        { key: 'guarder', label: '가더', match: ['가더', '방패'], queries: ['가더'] },
-        { key: 'head', label: '투구', match: ['투구','머리','모자','관','두건','안경','장식'], queries: ['투구','머리','모자'] },
-        // 🚀 수정: '갑옷', '가죽', '판금' 등을 빼서 오작동 원천 차단
-        { key: 'top', label: '상의', match: ['상의','흉갑','튜닉','조끼'], queries: ['상의','흉갑','튜닉','조끼'] },
-        { key: 'bottom', label: '하의', match: ['하의','각반','바지','다리'], queries: ['하의','각반','바지'] },
-        { key: 'shoulder', label: '견갑', match: ['견갑','어깨','견대'], queries: ['견갑','어깨'] },
-        { key: 'glove', label: '장갑', match: ['장갑','토시'], queries: ['장갑'] },
-        { key: 'shoe', label: '신발', match: ['신발','장화','토우'], queries: ['신발','장화'] },
-        { key: 'cloak', label: '망토', match: ['망토'], queries: ['망토'] },
-        { key: 'necklace', label: '목걸이', match: ['목걸이'], queries: ['목걸이'] },
-        { key: 'earring', label: '귀걸이', match: ['귀걸이', '귀고리'], queries: ['귀걸이', '귀고리'] }, 
-        { key: 'ring', label: '반지', match: ['반지'], queries: ['반지'] }
+        // 무기류
+        { key: 'w_longsword', ncId: 'Sword', label: '장검', match: ['장검'], queries: ['장검'] },
+        { key: 'w_greatsword', ncId: 'Greatsword', label: '대검', match: ['대검'], queries: ['대검'] },
+        { key: 'w_dagger', ncId: 'Dagger', label: '단검', match: ['단검', '비수'], queries: ['단검'] },
+        { key: 'w_bow', ncId: 'Bow', label: '활', match: ['활', '장궁', '궁'], queries: ['활'] },
+        { key: 'w_spellbook', ncId: 'Magicbook', label: '법서', match: ['법서'], queries: ['법서'] },
+        { key: 'w_orb', ncId: 'Orb', label: '보주', match: ['보주'], queries: ['보주'] },
+        { key: 'w_mace', ncId: 'Mace', label: '전곤', match: ['전곤', '망치'], queries: ['전곤'] },
+        { key: 'w_staff', ncId: 'Staff', label: '법봉', match: ['법봉', '멸곤'], queries: ['법봉'] },
+        { key: 'guarder', ncId: 'Guarder', label: '가더', match: ['가더', '방패'], queries: ['가더'] },
+        
+        // 방어구류
+        { key: 'head', ncId: 'Helmet', label: '투구', match: ['투구','머리','모자','관','두건','안경','장식'], queries: ['투구','머리','모자'] },
+        { key: 'top', ncId: 'Torso', label: '상의', match: ['상의','흉갑','튜닉','조끼'], queries: ['상의','흉갑','튜닉','조끼'] },
+        { key: 'bottom', ncId: 'Pants', label: '하의', match: ['하의','각반','바지','다리'], queries: ['하의','각반','바지'] },
+        { key: 'shoulder', ncId: 'Shoulder', label: '견갑', match: ['견갑','어깨','견대'], queries: ['견갑','어깨'] },
+        { key: 'glove', ncId: 'Gloves', label: '장갑', match: ['장갑','토시'], queries: ['장갑'] },
+        { key: 'shoe', ncId: 'Boots', label: '신발', match: ['신발','장화','토우'], queries: ['신발','장화'] },
+        { key: 'cloak', ncId: 'Cape', label: '망토', match: ['망토'], queries: ['망토'] },
+        
+        // 장신구류
+        { key: 'necklace', ncId: 'Necklace', label: '목걸이', match: ['목걸이'], queries: ['목걸이'] },
+        { key: 'earring', ncId: 'Earring', label: '귀걸이', match: ['귀걸이', '귀고리'], queries: ['귀걸이', '귀고리'] }, 
+        { key: 'ring', ncId: 'Ring', label: '반지', match: ['반지'], queries: ['반지'] },
+        { key: 'bracelet', ncId: 'Bracelet', label: '팔찌', match: ['팔찌'], queries: ['팔찌'] }
     ];
 
+    function getGradeColor(grade) {
+        if (grade === "Unique") return "#ffca28"; // 유일 (노랑)
+        if (grade === "Hero" || grade === "Epic") return "#ff9800"; // 영웅 (주황)
+        if (grade === "Legend") return "#4fc3f7"; // 전승 (파랑 - 🚨공식 데이터 반영!)
+        if (grade === "Rare") return "#69f0ae"; // 희귀 (초록)
+        return "#fff";
+    }
+
+    // 🚀 NC 공식 데이터 기반 완벽한 분류 함수
     function getSmartCategory(item) {
         if (!item) return null;
         let cName = item.categoryName || "";
         let iName = item.name || "";
         
-        // 🚀 수정: '아이템 이름(천룡왕의 장갑)'을 먼저 검사해서 무조건 맞는 부위로 직행하게 변경!
+        // 🚨 핵심: NC 공식 카테고리 ID 추출 (Torso, Sword 등)
+        let catId = item.categoryId || (item.category && item.category.id) || ""; 
+
+        // 1순위: NC 공식 ID로 100% 완벽하게 매칭 (오류 절대 불가)
+        let exactMatch = CATEGORY_MAP.find(c => c.ncId === catId);
+        if (exactMatch) return exactMatch;
+
+        // 2순위: 혹시 ID가 없다면 기존처럼 텍스트로 추론
+        let combined = cName + " " + iName;
         for (let cat of CATEGORY_MAP) {
-            if (cat.match.some(m => iName.includes(m))) return cat;
-        }
-        for (let cat of CATEGORY_MAP) {
-            if (cat.match.some(m => cName.includes(m))) return cat;
+            if (cat.match.some(m => combined.includes(m))) return cat;
         }
 
+        // 3순위: 그래도 없으면 끝말잇기로 억지 매칭 (최후의 보루)
         if (iName.endsWith('검')) return CATEGORY_MAP.find(c => c.key === 'w_longsword');
         if (iName.endsWith('도')) return CATEGORY_MAP.find(c => c.key === 'w_dagger');
         if (iName.endsWith('활') || iName.endsWith('궁')) return CATEGORY_MAP.find(c => c.key === 'w_bow');
@@ -866,27 +886,7 @@
         return "#fff";
     }
 
-    function getSmartCategory(item) {
-        if (!item) return null;
-        let cName = item.categoryName || "";
-        let iName = item.name || "";
-        let combined = cName + " " + iName;
-
-        for (let cat of CATEGORY_MAP) {
-            if (cat.match.some(m => combined.includes(m))) return cat;
-        }
-
-        if (iName.endsWith('검')) return CATEGORY_MAP.find(c => c.key === 'w_longsword');
-        if (iName.endsWith('도')) return CATEGORY_MAP.find(c => c.key === 'w_dagger');
-        if (iName.endsWith('활') || iName.endsWith('궁')) return CATEGORY_MAP.find(c => c.key === 'w_bow');
-        if (iName.endsWith('곤')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
-        if (iName.endsWith('서')) return CATEGORY_MAP.find(c => c.key === 'w_spellbook');
-        if (iName.endsWith('주')) return CATEGORY_MAP.find(c => c.key === 'w_orb');
-        if (iName.endsWith('치')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
-        if (iName.endsWith('고리')) return CATEGORY_MAP.find(c => c.key === 'earring');
-        
-        return null;
-    }
+   
 
     function goToHome() {
         document.getElementById('appBody').className = 'home-mode';
@@ -1277,6 +1277,7 @@
         let gradeFiltersHtml = `
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Unique" checked onchange="searchDictItem()"> 유일</label>
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Epic" checked onchange="searchDictItem()"> 영웅</label>
+            <label class="filter-label"><input type="checkbox" class="filter-grade" value="Legend" onchange="searchDictItem()"> 전승</label>
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Rare" onchange="searchDictItem()"> 희귀</label>
         `;
 
@@ -2607,6 +2608,7 @@ async function loadGoogleSheetNotices() {
 </script>
 </body>
 </html>
+
 
 
 
