@@ -2255,18 +2255,20 @@
                 let sName = user.serverName || "서버";
                 let ap = user.point || 0; 
                 let pImg = user.profileImage || ""; 
-
-                // 🚀 종족에 따른 서버 이름 색상 적용 (천족: 하늘색, 마족: 파란색)
                 let serverColor = (user.race === 1) ? "#4fc3f7" : "#448aff";
+                
+                // 🚀 신규: 직업 이름 가져오기
+                let className = user.className || "직업 미확인"; 
 
+                // 🚀 수정: 무조건 한 줄로 나오도록 flex-shrink와 white-space 옵션 추가!
                 html += `
-                <div class="rank-row" style="${index === 4 ? 'border:none;' : ''}">
-                    <span style="color:${rankColor}; font-weight:bold; width:30px;">${index + 1}위</span>
-                    <span style="display:flex; align-items:center; flex:1; gap:8px; cursor:pointer;" onclick="loadCharacterDetail('${user.characterId}', '${user.serverId}', '${cName}')">
-                        ${pImg ? `<img src="${pImg}" style="width:24px; height:24px; border-radius:50%; border:1px solid #444;" onerror="this.style.display='none'">` : ''}
-                        <span><span style="color:${serverColor};">[${sName}]</span> ${cName}</span>
+                <div class="rank-row" style="${index === 4 ? 'border:none;' : ''} display:flex; align-items:center; flex-wrap:nowrap;">
+                    <span style="color:${rankColor}; font-weight:bold; width:35px; flex-shrink:0;">${index + 1}위</span>
+                    <span style="display:flex; align-items:center; flex:1; gap:8px; cursor:pointer; overflow:hidden; white-space:nowrap;" onclick="loadCharacterDetail('${user.characterId}', '${user.serverId}', '${cName}')">
+                        ${pImg ? `<img src="${pImg}" style="width:24px; height:24px; border-radius:50%; border:1px solid #444; flex-shrink:0;" onerror="this.style.display='none'">` : ''}
+                        <span style="overflow:hidden; text-overflow:ellipsis;"><span style="color:${serverColor};">[${sName}]</span> ${cName} <span style="font-size:11px; color:#888;">(${className})</span></span>
                     </span>
-                    <span style="color:#e0e0e0; font-weight:bold;">${Number(ap).toLocaleString()} AP</span>
+                    <span style="color:#ffca28; font-weight:bold; flex-shrink:0; font-size:12px;">${Number(ap).toLocaleString()} AP</span>
                 </div>`;
             });
             rankArea.innerHTML = html;
@@ -2470,43 +2472,55 @@
         });
     }
 
-    // 🚀 구글 스프레드시트에서 공지사항 불러오기
-    async function loadGoogleSheetNotices() {
-        // 주소에 대괄호([])가 들어가지 않도록 순수 주소만 완벽하게 넣었습니다!
-        const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS7KVEKjGV3ccGMUSWxOor2AIyNx8TQRY6xU0cvCQP7SJqZC9-Q9sDdVll-YYffrzIe3KR9hIO75LA-/pub?output=tsv'; 
-        try {
-            const response = await fetch(tsvUrl);
-            const data = await response.text();
-            const rows = data.split('\n'); 
-            let patchHtml = ''; let updateHtml = '';
-            for(let i = 1; i < rows.length; i++) {
-                if(!rows[i].trim()) continue; 
-                const cols = rows[i].split('\t'); 
-                const type = (cols[0] || '').trim(); 
-                const date = (cols[1] || '').trim(); 
-                const title = (cols[2] || '').trim(); 
-                const content = (cols[3] || '').trim(); 
-                const itemHtml = `
-                <li style="padding: 0; border-bottom: 1px solid #222;">
-                    <details class="news-details">
-                        <summary>
-                            <span style="color:#4fc3f7; min-width:75px; font-weight:bold;">${date}</span> 
-                            <span style="flex:1;">${title}</span>
-                            <span style="color:#888; font-size:10px;">▼</span>
-                        </summary>
-                        <div class="news-content">${content}</div>
-                    </details>
-                </li>`;
-                if(type === '패치') patchHtml += itemHtml;
-                else if(type === '업데이트') updateHtml += itemHtml;
+    // 🚀 구글 스프레드시트에서 공지사항 불러오기 (링크 버튼 기능 추가!)
+async function loadGoogleSheetNotices() {
+    const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS7KVEKjGV3ccGMUSWxOor2AIyNx8TQRY6xU0cvCQP7SJqZC9-Q9sDdVll-YYffrzIe3KR9hIO75LA-/pub?output=tsv'; 
+    try {
+        const response = await fetch(tsvUrl);
+        const data = await response.text();
+        const rows = data.split('\n'); 
+        let patchHtml = ''; let updateHtml = '';
+        
+        for(let i = 1; i < rows.length; i++) {
+            if(!rows[i].trim()) continue; 
+            const cols = rows[i].split('\t'); 
+            const type = (cols[0] || '').trim(); 
+            const date = (cols[1] || '').trim(); 
+            const title = (cols[2] || '').trim(); 
+            const content = (cols[3] || '').trim(); 
+            const linkUrl = (cols[4] || '').trim(); // 🚀 엑셀 E열(5번째 칸)에서 링크 주소 가져오기!
+            
+            // 링크 주소가 있으면 예쁜 버튼을 만들어줌
+            let linkButtonHtml = '';
+            if (linkUrl) {
+                linkButtonHtml = `<div style="margin-top:12px;"><a href="${linkUrl}" target="_blank" style="display:inline-block; padding:6px 12px; background:#1a1a24; border:1px solid #4fc3f7; color:#4fc3f7; text-decoration:none; border-radius:4px; font-size:11px; font-weight:bold; transition:0.2s;" onmouseover="this.style.background='#4fc3f7'; this.style.color='#000'" onmouseout="this.style.background='#1a1a24'; this.style.color='#4fc3f7'">🔗 공식 홈페이지 원문 보기</a></div>`;
             }
-            document.getElementById('patchNoteList').innerHTML = patchHtml || '<li style="padding:15px; text-align:center; color:#888;">등록된 내용이 없습니다.</li>';
-            document.getElementById('updateNoteList').innerHTML = updateHtml || '<li style="padding:15px; text-align:center; color:#888;">등록된 내용이 없습니다.</li>';
-        } catch (error) {
-            document.getElementById('patchNoteList').innerHTML = '<li style="padding:15px; text-align:center; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
-            document.getElementById('updateNoteList').innerHTML = '<li style="padding:15px; text-align:center; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
+
+            const itemHtml = `
+            <li style="padding: 0; border-bottom: 1px solid #222;">
+                <details class="news-details">
+                    <summary>
+                        <span style="color:#4fc3f7; min-width:75px; font-weight:bold;">${date}</span> 
+                        <span style="flex:1;">${title}</span>
+                        <span style="color:#888; font-size:10px;">▼</span>
+                    </summary>
+                    <div class="news-content">
+                        ${content}
+                        ${linkButtonHtml}
+                    </div>
+                </details>
+            </li>`;
+            
+            if(type === '패치') patchHtml += itemHtml;
+            else if(type === '업데이트') updateHtml += itemHtml;
         }
+        document.getElementById('patchNoteList').innerHTML = patchHtml || '<li style="padding:15px; text-align:center; color:#888;">등록된 내용이 없습니다.</li>';
+        document.getElementById('updateNoteList').innerHTML = updateHtml || '<li style="padding:15px; text-align:center; color:#888;">등록된 내용이 없습니다.</li>';
+    } catch (error) {
+        document.getElementById('patchNoteList').innerHTML = '<li style="padding:15px; text-align:center; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
+        document.getElementById('updateNoteList').innerHTML = '<li style="padding:15px; text-align:center; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
     }
+}
 
     // 🚀 마스터 스위치: 사이트 켜질 때 필요한 기능 모두 실행
     window.onload = () => { 
@@ -2536,6 +2550,7 @@
 </script>
 </body>
 </html>
+
 
 
 
