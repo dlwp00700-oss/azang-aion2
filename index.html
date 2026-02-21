@@ -1276,7 +1276,7 @@
             <label class="filter-label"><input type="checkbox" class="filter-category" value="${c.key}" ${activeCategoryInfo.key === c.key ? 'checked' : ''} onchange="searchDictItem()"> ${c.label}</label>
         `).join('');
 
-       let gradeFiltersHtml = `
+        let gradeFiltersHtml = `
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Unique" checked onchange="searchDictItem()"> 유일</label>
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Epic" checked onchange="searchDictItem()"> 영웅</label>
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Legend" onchange="searchDictItem()"> 전승</label>
@@ -1329,7 +1329,6 @@
         </div>
 
         <div id="dictResultArea" class="dict-result-area"></div>
-        `; 
 
         <div class="compare-container">
             <div class="card-box" id="wbOldCard"></div>
@@ -2661,6 +2660,7 @@ async function loadGoogleSheetNotices() {
 </script>
 </body>
 </html>
+
 
 
 
