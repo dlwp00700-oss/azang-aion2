@@ -244,7 +244,7 @@
                 .fac-btn.active { background: #1a1a24; color: #fff; border-color: #ffca28; }
             </style>
             
-            <div class="search-bar">
+            <div class="search-bar" style="max-width: 1050px;">
                 <div style="display:flex; gap:5px;">
                     <button class="fac-btn active" onclick="selectSearchFaction(0, this)">🌐 전체</button>
                     <button class="fac-btn" onclick="selectSearchFaction(1, this)">🕊️ 천족</button>
@@ -253,11 +253,11 @@
                 <input type="hidden" id="searchFaction" value="0">
                 
                 <select id="searchServer">
-                    <option value="">🌐 모든 서버</option>
+                    <option value="">🌐 전체 서버 검색</option>
                 </select>
                 <input type="text" id="charNameInput" placeholder="캐릭터명을 입력하세요." onkeypress="if(event.keyCode==13) searchCharacter()">
-                <button class="btn-search" onclick="searchCharacter()">내 캐릭터 불러오기</button>
-                <span id="statusMsg" style="color: #aaa; margin-left: 10px;">* 서버 연동 완료</span>
+                <button class="btn-search" onclick="searchCharacter()">🔍 검색</button>
+                <span id="statusMsg" style="color: #aaa; margin-left: 10px; white-space: nowrap;">* 서버 연동 완료</span>
             </div>
             
             <div id="favoritesBar" style="background: var(--panel); border: 1px solid var(--border); padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
@@ -904,7 +904,8 @@
         }
     }
 
-    // 🚀 종족 버튼 누를 때마다 서버 목록 즉시 변경
+   
+    // 🚀 종족 버튼 누를 때마다 서버 목록 즉시 변경 + 기본 문구 맞춤 변경
     function selectSearchFaction(raceId, btnEl) {
         document.getElementById('searchFaction').value = raceId;
         
@@ -921,7 +922,12 @@
         const serverSelect = document.getElementById('searchServer');
         if (serverListCache.length === 0) return; // 아직 몰래 로딩 중이면 대기
 
-        let html = `<option value="">🌐 전체 서버 검색</option>`;
+        // 🚀 선택한 종족에 따라 기본 옵션 글씨 다르게 설정
+        let defaultText = "🌐 전체 서버 검색";
+        if (raceId === 1) defaultText = "🕊️ 천족 서버 검색";
+        else if (raceId === 2) defaultText = "🦇 마족 서버 검색";
+
+        let html = `<option value="">${defaultText}</option>`;
         const filtered = raceId === 0 ? serverListCache : serverListCache.filter(s => s.raceId === raceId);
         filtered.forEach(s => { html += `<option value="${s.serverId}">${s.serverName}</option>`; });
         serverSelect.innerHTML = html;
@@ -2575,6 +2581,7 @@ async function loadGoogleSheetNotices() {
 </script>
 </body>
 </html>
+
 
 
 
