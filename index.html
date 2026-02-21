@@ -221,6 +221,17 @@
         </div>
 
         <div id="tab-equip" class="tab-content active">
+            <details class="seo-guide-box" style="max-width: 900px; margin: 0 auto 20px auto; background: #141418; border-color: #4fc3f7;">
+    <summary style="color: #4fc3f7; font-size: 15px;">💡 [필독] 장비 시뮬레이터 100% 활용 가이드 (클릭하여 열기)</summary>
+    <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
+        <ul style="line-height: 1.8;">
+            <li><b>내 캐릭터 스캔:</b> 검색창에 서버와 이름을 입력하고 검색하면 착용 중인 장비가 쫙 뜹니다. (검색이 안 되면 인게임 접속 종료 후 시도해보세요)</li>
+            <li><b>시뮬레이션 시작:</b> 화면 중앙의 장비 목록에서 <b>변경하고 싶은 부위를 클릭</b>하세요.</li>
+            <li><b>장비 교체:</b> 우측 하단 '사전'에서 새로 맞출 장비를 고르고, 강화수치와 각인 스탯을 적은 뒤 <b>[적용하기]</b>를 누르면 딜량/방어력이 즉시 계산됩니다!</li>
+            <li><b>결과 확인:</b> 하단 대시보드에서 PVE / PVP 실질 공격력과 생존 타수(몇 대 더 버티는지) 변화를 확인하세요.</li>
+        </ul>
+    </div>
+</details>
             <div class="search-bar">
                 <select id="searchFaction" onchange="updateServerList()">
                     <option value="1">🕊️ 천족</option>
@@ -259,25 +270,36 @@
             </style>
             
             <div id="homeContent">
-                <div style="display:flex; flex-direction:column; gap:20px;">
-                    <div class="info-box">
-                        <div class="info-title">📰 아이온2 최신 뉴스 요약</div>
-                        <ul class="news-list">
-                            <li><span class="news-date">2026.02.20</span> <span>[가이드] 아이온2 템셋팅 가이드: 백부장 세트와 천부장 세트의 딜량 차이 분석 및 최적화 방법</span></li>
-                            <li><span class="news-date">2026.02.15</span> <span>어비스 파밍의 정석, 주간 획득 상한선 500만 AP를 가장 빠르게 채우는 파티 구성과 요새전 팁</span></li>
-                            <li><span class="news-date">2026.02.10</span> <span>영혼 각인과 마석 효율 분석: 유일 등급 마석 셋팅 시 실질 생존력(EHP) 상승 체감 후기</span></li>
-                        </ul>
-                    </div>
-                    
-                    <div class="info-box">
-                        <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
-                        <ul class="news-list">
-                            <li><span class="news-date">v1.2.0</span> <span>어비스 파밍 계산기 탭 개편 (훈장 종류 3분할 및 다중 장비 장바구니 추가 기능 반영)</span></li>
-                            <li><span class="news-date">v1.1.5</span> <span>PVP / PVE 전투력(CP) 데미지 공식 세분화 및 특수 스탯(파괴, 죽음, 시간 등) 연동 공식 적용</span></li>
-                            <li><span class="news-date">v1.1.0</span> <span>펫 종족 이해도 종합 계산기 탭 신설 (필요 영혼결정 및 키나 계산 로직 도입)</span></li>
-                        </ul>
-                    </div>
-                </div>
+    <div style="display:flex; flex-direction:column; gap:20px;">
+        
+        <div class="info-box">
+            <div class="info-title">📰 아이온2 패치 노트 요약</div>
+            <ul class="news-list" id="patchNoteList">
+                <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
+            <ul class="news-list" id="updateNoteList">
+                <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+            </ul>
+        </div>
+        
+    </div>
+    
+    ```
+
+그리고 이 아코디언이 예쁘게 작동하도록 `<style>` 태그 안쪽(CSS 영역) 맨 밑에 아래 디자인 코드를 한 줄 추가해 주세요.
+
+**✅ 추가할 CSS 디자인:**
+```css
+/* 🚀 게시판 아코디언 디자인 */
+.news-details { cursor: pointer; outline: none; width: 100%; }
+.news-details summary { display: flex; gap: 10px; padding: 10px 0; font-size: 13px; color: #ccc; list-style: none; align-items: center; }
+.news-details summary::-webkit-details-marker { display: none; }
+.news-details[open] summary { color: #fff; font-weight: bold; border-bottom: 1px dashed #333; padding-bottom: 8px; margin-bottom: 8px; }
+.news-content { padding: 15px; background: #0a0a0c; border-radius: 6px; border: 1px solid #333; margin-bottom: 10px; font-size: 12px; color: #aaa; line-height: 1.6; }
 
                 <div class="info-box">
                     <div class="info-title" style="display:flex; justify-content:space-between; color:#4fc3f7;">
@@ -521,6 +543,17 @@
                         </div>
                     </details>
                 </div> </div> </div> <div id="tab-pet" class="tab-content">
+                    <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a20; border-color: #ce93d8;">
+    <summary style="color: #ce93d8; font-size: 15px;">🐾 [필독] 펫작 계산기 사용 방법 (클릭하여 열기)</summary>
+    <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
+        <ul style="line-height: 1.8;">
+            <li>인게임 펫 정보창을 열고 <b>[현재 레벨]</b>과 <b>[현재 경험치]</b>를 그대로 입력하세요.</li>
+            <li>목표로 하는 레벨을 설정하면, 해당 레벨까지 필요한 <b>총 터치 횟수, 영혼결정 개수, 키나</b>를 자동으로 계산해 줍니다.</li>
+            <li><b>잠금 옵션:</b> 내가 보호하고 싶은 펫 스킬이 있다면 잠금 개수를 설정하세요. (잠금이 많을수록 소모 비용 페널티가 증가합니다.)</li>
+            <li>계산된 '필요 몹 수'를 통해 영혼결정 파밍에 걸리는 시간을 대략적으로 유추할 수 있습니다.</li>
+        </ul>
+    </div>
+</details>
             <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:900px; margin:0 auto;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #2a2a35; padding-bottom:15px; margin-bottom:20px;">
                     <h2 style="margin:0; color:#ce93d8; font-size:20px;">🐾 펫 종족 이해도 종합 계산기</h2>
@@ -554,6 +587,17 @@
             </div>
         </div>
         <div id="tab-abyss" class="tab-content">
+            <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a24; border-color: #ffca28;">
+    <summary style="color: #ffca28; font-size: 15px;">🏅 [필독] 어비스 파밍 계산기 사용 방법 (클릭하여 열기)</summary>
+    <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
+        <ul style="line-height: 1.8;">
+            <li><b>1. 목표 장비 장바구니 담기:</b> 맞추고 싶은 어비스 장비(백부장, 천부장 등)의 부위를 모두 선택해서 장바구니에 넣으세요.</li>
+            <li><b>2. 내 자원 입력:</b> 현재 내가 보유한 어포와 훈장(은/금/백금) 개수를 적어줍니다.</li>
+            <li><b>3. 주간 수급량 입력:</b> 요새전과 퀘스트로 1주일에 평균적으로 먹는 어포량을 대략 적어줍니다.</li>
+            <li>입력을 마치면 모든 장비를 맞추는 데 <b>몇 주가 걸리는지</b>, 그리고 <b>부족한 훈장 개수</b>가 정확히 표시됩니다!</li>
+        </ul>
+    </div>
+</details>
     <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:1000px; margin:0 auto;">
         <div style="background:linear-gradient(90deg, #1a1a24 0%, #0a0a0c 100%); border:1px solid #4fc3f7; border-radius:10px; padding:20px; margin-bottom:25px; display:flex; justify-content:space-between; align-items:center;">
             <div>
@@ -702,6 +746,57 @@
     </div>
 
 </div>
+    // 🚀 구글 스프레드시트에서 공지사항 불러오기
+async function loadGoogleSheetNotices() {
+    // 👇 방금 발급받은 TSV 주소를 작은따옴표 안에 넣어주세요!
+    const tsvUrl = '여기에_대표님의_TSV_주소를_붙여넣으세요'; 
+    
+    if(tsvUrl === '여기에_대표님의_TSV_주소를_붙여넣으세요') return;
+    
+    try {
+        const response = await fetch(tsvUrl);
+        const data = await response.text();
+        
+        const rows = data.split('\n'); // 엔터 단위로 쪼개기
+        let patchHtml = '';
+        let updateHtml = '';
+        
+        // 엑셀 첫 번째 줄(제목란)은 빼고 2번째 줄(인덱스 1)부터 반복
+        for(let i = 1; i < rows.length; i++) {
+            if(!rows[i].trim()) continue; // 빈 줄 건너뛰기
+            
+            const cols = rows[i].split('\t'); // 탭 단위로 칸 쪼개기
+            const type = (cols[0] || '').trim(); // 구분 (패치 / 업데이트)
+            const date = (cols[1] || '').trim(); // 날짜
+            const title = (cols[2] || '').trim(); // 제목
+            const content = (cols[3] || '').trim(); // 내용
+            
+            // 촤르륵 펼쳐지는 아코디언 HTML 조립
+            const itemHtml = `
+            <li style="padding: 0; border-bottom: 1px solid #222;">
+                <details class="news-details">
+                    <summary>
+                        <span style="color:#4fc3f7; min-width:75px; font-weight:bold;">${date}</span> 
+                        <span style="flex:1;">${title}</span>
+                        <span style="color:#888; font-size:10px;">▼</span>
+                    </summary>
+                    <div class="news-content">${content}</div>
+                </details>
+            </li>`;
+            
+            if(type === '패치') patchHtml += itemHtml;
+            else if(type === '업데이트') updateHtml += itemHtml;
+        }
+        
+        // 조립된 HTML을 화면에 꽂아 넣기
+        document.getElementById('patchNoteList').innerHTML = patchHtml || '<li style="padding:10px;">등록된 내용이 없습니다.</li>';
+        document.getElementById('updateNoteList').innerHTML = updateHtml || '<li style="padding:10px;">등록된 내용이 없습니다.</li>';
+        
+    } catch (error) {
+        document.getElementById('patchNoteList').innerHTML = '<li style="padding:10px; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
+        document.getElementById('updateNoteList').innerHTML = '<li style="padding:10px; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
+    }
+}
 
 <script>
     
@@ -2448,6 +2543,56 @@ window.onload = () => {
     if(typeof initPetCalc === "function") initPetCalc(); 
     if(typeof renderFavorites === "function") renderFavorites();
     if(typeof loadTotalRanking === "function") loadTotalRanking(0); 
+    // 🚀 구글 엑셀 게시판 불러오기 실행!
+    // 🚀 구글 스프레드시트에서 공지사항 불러오기
+async function loadGoogleSheetNotices() {
+    // 👇 대표님의 실제 TSV 주소가 들어간 부분입니다!
+    const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS7KVEKjGV3ccGMUSWxOor2AIyNx8TQRY6xU0cvCQP7SJqZC9-Q9sDdVll-YYffrzIe3KR9hIO75LA-/pub?output=tsv'; 
+    
+    try {
+        const response = await fetch(tsvUrl);
+        const data = await response.text();
+        
+        const rows = data.split('\n'); // 엔터 단위로 쪼개기
+        let patchHtml = '';
+        let updateHtml = '';
+        
+        // 엑셀 첫 번째 줄(제목란)은 빼고 2번째 줄(인덱스 1)부터 반복
+        for(let i = 1; i < rows.length; i++) {
+            if(!rows[i].trim()) continue; // 빈 줄 건너뛰기
+            
+            const cols = rows[i].split('\t'); // 탭 단위로 칸 쪼개기
+            const type = (cols[0] || '').trim(); // 구분 (패치 / 업데이트)
+            const date = (cols[1] || '').trim(); // 날짜
+            const title = (cols[2] || '').trim(); // 제목
+            const content = (cols[3] || '').trim(); // 내용
+            
+            // 촤르륵 펼쳐지는 아코디언 HTML 조립
+            const itemHtml = `
+            <li style="padding: 0; border-bottom: 1px solid #222;">
+                <details class="news-details">
+                    <summary>
+                        <span style="color:#4fc3f7; min-width:75px; font-weight:bold;">${date}</span> 
+                        <span style="flex:1;">${title}</span>
+                        <span style="color:#888; font-size:10px;">▼</span>
+                    </summary>
+                    <div class="news-content">${content}</div>
+                </details>
+            </li>`;
+            
+            if(type === '패치') patchHtml += itemHtml;
+            else if(type === '업데이트') updateHtml += itemHtml;
+        }
+        
+        // 조립된 HTML을 화면에 꽂아 넣기
+        document.getElementById('patchNoteList').innerHTML = patchHtml || '<li style="padding:15px; text-align:center; color:#888;">등록된 내용이 없습니다.</li>';
+        document.getElementById('updateNoteList').innerHTML = updateHtml || '<li style="padding:15px; text-align:center; color:#888;">등록된 내용이 없습니다.</li>';
+        
+    } catch (error) {
+        document.getElementById('patchNoteList').innerHTML = '<li style="padding:15px; text-align:center; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
+        document.getElementById('updateNoteList').innerHTML = '<li style="padding:15px; text-align:center; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
+    }
+}
 
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -2476,6 +2621,7 @@ window.onload = () => {
 
 </body>
 </html>
+
 
 
 
