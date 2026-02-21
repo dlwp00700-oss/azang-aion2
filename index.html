@@ -189,6 +189,13 @@
         .btn-gsave:hover { background: #ffb300; transform: translateY(-2px); }
         .btn-gload { background: #2a2a35; color: #fff; border: 1px solid #ffca28; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         .btn-gload:hover { background: #3a3a45; transform: translateY(-2px); }
+
+        /* 🚀 게시판 아코디언 디자인 */
+        .news-details { cursor: pointer; outline: none; width: 100%; }
+        .news-details summary { display: flex; gap: 10px; padding: 10px 0; font-size: 13px; color: #ccc; list-style: none; align-items: center; }
+        .news-details summary::-webkit-details-marker { display: none; }
+        .news-details[open] summary { color: #fff; font-weight: bold; border-bottom: 1px dashed #333; padding-bottom: 8px; margin-bottom: 8px; }
+        .news-content { padding: 15px; background: #0a0a0c; border-radius: 6px; border: 1px solid #333; margin-bottom: 10px; font-size: 12px; color: #aaa; line-height: 1.6; }
     </style>
 </head>
 <body id="appBody" class="home-mode">
@@ -270,27 +277,41 @@
             </style>
             
             <div id="homeContent">
-    <div style="display:flex; flex-direction:column; gap:20px;">
-        
-        <div class="info-box">
-            <div class="info-title">📰 아이온2 패치 노트 요약</div>
-            <ul class="news-list" id="patchNoteList">
-                <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
-            </ul>
-        </div>
-        
-        <div class="info-box">
-            <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
-            <ul class="news-list" id="updateNoteList">
-                <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
-            </ul>
-        </div>
-        
-    </div>
-    
-    ```
+                <div style="display:flex; flex-direction:column; gap:20px;">
+                    <div class="info-box">
+                        <div class="info-title">📰 아이온2 패치 노트 요약</div>
+                        <ul class="news-list" id="patchNoteList">
+                            <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
+                        <ul class="news-list" id="updateNoteList">
+                            <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+                        </ul>
+                    </div>
+                </div>
 
-그리고 이 아코디언이 예쁘게 작동하도록 `<style>` 태그 안쪽(CSS 영역) 맨 밑에 아래 디자인 코드를 한 줄 추가해 주세요.
+                <div class="info-box">
+                    <div class="info-title" style="display:flex; justify-content:space-between; color:#4fc3f7;">
+                        <span>🏆 실시간 어비스 랭킹</span>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <button id="btnRankAll" onclick="loadTotalRanking(0)" style="flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s;">🌍 전체</button>
+                        <button id="btnRankElyos" onclick="loadTotalRanking(1)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🕊️ 천족</button>
+                        <button id="btnRankAsmo" onclick="loadTotalRanking(2)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🦇 마족</button>
+                    </div>
+                    
+                    <div id="totalRankingArea" style="min-height: 165px;">
+                        <div style="text-align:center; padding:50px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
+                    </div>
+                    
+                    <div style="margin-top:15px; font-size:11px; color:#666; text-align:center; line-height:1.4;">
+                        * 전 서버 통합 랭킹은 1시간 단위로 갱신됩니다.
+                    </div>
+                </div>
+            </div>
 
 **✅ 추가할 CSS 디자인:**
 ```css
@@ -746,57 +767,7 @@
     </div>
 
 </div>
-    // 🚀 구글 스프레드시트에서 공지사항 불러오기
-async function loadGoogleSheetNotices() {
-    // 👇 방금 발급받은 TSV 주소를 작은따옴표 안에 넣어주세요!
-    const tsvUrl = '여기에_대표님의_TSV_주소를_붙여넣으세요'; 
-    
-    if(tsvUrl === '여기에_대표님의_TSV_주소를_붙여넣으세요') return;
-    
-    try {
-        const response = await fetch(tsvUrl);
-        const data = await response.text();
-        
-        const rows = data.split('\n'); // 엔터 단위로 쪼개기
-        let patchHtml = '';
-        let updateHtml = '';
-        
-        // 엑셀 첫 번째 줄(제목란)은 빼고 2번째 줄(인덱스 1)부터 반복
-        for(let i = 1; i < rows.length; i++) {
-            if(!rows[i].trim()) continue; // 빈 줄 건너뛰기
-            
-            const cols = rows[i].split('\t'); // 탭 단위로 칸 쪼개기
-            const type = (cols[0] || '').trim(); // 구분 (패치 / 업데이트)
-            const date = (cols[1] || '').trim(); // 날짜
-            const title = (cols[2] || '').trim(); // 제목
-            const content = (cols[3] || '').trim(); // 내용
-            
-            // 촤르륵 펼쳐지는 아코디언 HTML 조립
-            const itemHtml = `
-            <li style="padding: 0; border-bottom: 1px solid #222;">
-                <details class="news-details">
-                    <summary>
-                        <span style="color:#4fc3f7; min-width:75px; font-weight:bold;">${date}</span> 
-                        <span style="flex:1;">${title}</span>
-                        <span style="color:#888; font-size:10px;">▼</span>
-                    </summary>
-                    <div class="news-content">${content}</div>
-                </details>
-            </li>`;
-            
-            if(type === '패치') patchHtml += itemHtml;
-            else if(type === '업데이트') updateHtml += itemHtml;
-        }
-        
-        // 조립된 HTML을 화면에 꽂아 넣기
-        document.getElementById('patchNoteList').innerHTML = patchHtml || '<li style="padding:10px;">등록된 내용이 없습니다.</li>';
-        document.getElementById('updateNoteList').innerHTML = updateHtml || '<li style="padding:10px;">등록된 내용이 없습니다.</li>';
-        
-    } catch (error) {
-        document.getElementById('patchNoteList').innerHTML = '<li style="padding:10px; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
-        document.getElementById('updateNoteList').innerHTML = '<li style="padding:10px; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
-    }
-}
+  
 
 <script>
     
@@ -2538,36 +2509,23 @@ function copyShareLink() {
 
 
 
-// 🚀 기존 window.onload 덮어쓰기 (중복 오류 방지용 통합 버전!)
-window.onload = () => { 
-    if(typeof initPetCalc === "function") initPetCalc(); 
-    if(typeof renderFavorites === "function") renderFavorites();
-    if(typeof loadTotalRanking === "function") loadTotalRanking(0); 
-    // 🚀 구글 엑셀 게시판 불러오기 실행!
-    // 🚀 구글 스프레드시트에서 공지사항 불러오기
+
+
+   // 🚀 구글 스프레드시트에서 공지사항 불러오기
 async function loadGoogleSheetNotices() {
-    // 👇 대표님의 실제 TSV 주소가 들어간 부분입니다!
     const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS7KVEKjGV3ccGMUSWxOor2AIyNx8TQRY6xU0cvCQP7SJqZC9-Q9sDdVll-YYffrzIe3KR9hIO75LA-/pub?output=tsv'; 
-    
     try {
         const response = await fetch(tsvUrl);
         const data = await response.text();
-        
-        const rows = data.split('\n'); // 엔터 단위로 쪼개기
-        let patchHtml = '';
-        let updateHtml = '';
-        
-        // 엑셀 첫 번째 줄(제목란)은 빼고 2번째 줄(인덱스 1)부터 반복
+        const rows = data.split('\n'); 
+        let patchHtml = ''; let updateHtml = '';
         for(let i = 1; i < rows.length; i++) {
-            if(!rows[i].trim()) continue; // 빈 줄 건너뛰기
-            
-            const cols = rows[i].split('\t'); // 탭 단위로 칸 쪼개기
-            const type = (cols[0] || '').trim(); // 구분 (패치 / 업데이트)
-            const date = (cols[1] || '').trim(); // 날짜
-            const title = (cols[2] || '').trim(); // 제목
-            const content = (cols[3] || '').trim(); // 내용
-            
-            // 촤르륵 펼쳐지는 아코디언 HTML 조립
+            if(!rows[i].trim()) continue; 
+            const cols = rows[i].split('\t'); 
+            const type = (cols[0] || '').trim(); 
+            const date = (cols[1] || '').trim(); 
+            const title = (cols[2] || '').trim(); 
+            const content = (cols[3] || '').trim(); 
             const itemHtml = `
             <li style="padding: 0; border-bottom: 1px solid #222;">
                 <details class="news-details">
@@ -2579,34 +2537,33 @@ async function loadGoogleSheetNotices() {
                     <div class="news-content">${content}</div>
                 </details>
             </li>`;
-            
             if(type === '패치') patchHtml += itemHtml;
             else if(type === '업데이트') updateHtml += itemHtml;
         }
-        
-        // 조립된 HTML을 화면에 꽂아 넣기
         document.getElementById('patchNoteList').innerHTML = patchHtml || '<li style="padding:15px; text-align:center; color:#888;">등록된 내용이 없습니다.</li>';
         document.getElementById('updateNoteList').innerHTML = updateHtml || '<li style="padding:15px; text-align:center; color:#888;">등록된 내용이 없습니다.</li>';
-        
     } catch (error) {
         document.getElementById('patchNoteList').innerHTML = '<li style="padding:15px; text-align:center; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
         document.getElementById('updateNoteList').innerHTML = '<li style="padding:15px; text-align:center; color:#ff5252;">데이터를 불러오지 못했습니다.</li>';
     }
 }
 
+// 🚀 기존 window.onload 덮어쓰기 (중복 오류 방지용 통합 버전!)
+window.onload = () => { 
+    if(typeof initPetCalc === "function") initPetCalc(); 
+    if(typeof renderFavorites === "function") renderFavorites();
+    if(typeof loadTotalRanking === "function") loadTotalRanking(0); 
+    
+    loadGoogleSheetNotices(); // 👈 이 녀석이 스위치를 켜주는 역할을 합니다!
+
     const urlParams = new URLSearchParams(window.location.search);
 
-    // 🚀 1. 링크로 특정 메뉴(?menu=xxx) 들어왔을 때 해당 메뉴 짠! 하고 열기
     const pMenu = urlParams.get('menu');
     if (pMenu) {
-        // 상단 네비게이션 버튼들 중에서 해당 메뉴 이름이 들어간 버튼을 몰래 클릭해줌
         const targetBtn = document.querySelector(`.nav-item[onclick*="'${pMenu}'"]`);
-        if (targetBtn) {
-            switchTab(pMenu, targetBtn);
-        }
+        if (targetBtn) { switchTab(pMenu, targetBtn); }
     }
 
-    // 🚀 2. 주소창에 캐릭터 검색 파라미터(?server=xx&name=xx)가 있으면 0.3초 뒤 자동 스캔
     const pServer = urlParams.get('server');
     const pName = urlParams.get('name');
     if (pServer && pName) {
@@ -2621,6 +2578,7 @@ async function loadGoogleSheetNotices() {
 
 </body>
 </html>
+
 
 
 
