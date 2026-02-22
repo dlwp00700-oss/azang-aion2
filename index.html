@@ -2581,7 +2581,6 @@
     const rankArea = document.getElementById('fullRankingArea');
     if (!rankArea) return;
 
-    // 필터 요소가 있는지 안전하게 체크 (에러 방지)
     const elElyos = document.getElementById('rankFilterElyos');
     const elAsmo = document.getElementById('rankFilterAsmo');
     const elJob = document.getElementById('rankFilterJob');
@@ -2594,7 +2593,7 @@
     try {
         const res = await fetch(`${API_BASE}/totalRanking?race=${raceId}&server=${serverVal}&job=${encodeURIComponent(jobVal)}`);
         const data = await res.json();
-        const rankList = data.list || []; 
+        const rankList = data.list || [];
         
         if (rankList.length === 0) {
             rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">조건에 맞는 캐릭터가 없습니다.</div>`;
@@ -2602,18 +2601,17 @@
         }
 
         let html = '';
-        rankList.forEach((user, index) => { 
-            // 🚀 핵심: 백엔드 데이터 필드명인 'point'를 사용합니다
-            const apScore = user.point ? Number(user.point).toLocaleString() : '0'; 
+        rankList.forEach((user, index) => {
+            const apScore = user.point ? Number(user.point).toLocaleString() : '0';
             const charName = user.characterName || '이름없음';
             const serverName = user.serverName || '서버';
             const className = user.className || '직업';
-            const pImg = user.profileImage || ''; 
+            const pImg = user.profileImage || '';
 
-            let rankColor = "#aaa"; 
-            if(index === 0) rankColor = "#ffca28"; // 1위 금색
-            else if(index === 1) rankColor = "#e0e0e0"; // 2위 은색
-            else if(index === 2) rankColor = "#cd7f32"; // 3위 동색
+            let rankColor = "#aaa";
+            if(index === 0) rankColor = "#ffca28";
+            else if(index === 1) rankColor = "#e0e0e0";
+            else if(index === 2) rankColor = "#cd7f32";
 
             let serverColor = (user.race === 1) ? "#4fc3f7" : "#448aff";
 
@@ -2632,8 +2630,8 @@
         });
         rankArea.innerHTML = html;
     } catch (e) {
-        console.error("랭킹 출력 오류:", e);
-        rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">데이터 표시 중 오류가 발생했습니다.</div>`;
+        console.error("랭킹 로드 오류:", e);
+        rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">데이터 표시 중 오류 발생</div>`;
     }
 }
 
@@ -2819,6 +2817,7 @@
 </script>
 </body>
 </html>
+
 
 
 
