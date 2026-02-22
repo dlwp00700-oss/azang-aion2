@@ -779,7 +779,7 @@
             /* 버튼 선택되었을 때 색상 포인트 */
             .rank-race-btn.active.race-0 { background:#2a2a35; color:#fff; border: 1px solid #ffca28; }
             .rank-race-btn.active.race-1 { background:#1a2430; color:#4fc3f7; border: 1px solid #4fc3f7; }
-            .rank-race-btn.active.race-2 { background:#1a1a24; color:#448aff; border: 1px solid #448aff; }
+            .rank-race-btn.active.race-2 { background:rgba(255, 82, 82, 0.1); color:#ff5252; border: 1px solid #ff5252; }
             
             .rank-select { background:#111; color:#fff; border:1px solid #444; border-radius:4px; outline:none; font-size:14px; cursor:pointer; padding:8px 12px; min-width:130px; transition:0.2s;}
             .rank-select:hover { border-color: #888; }
@@ -2638,7 +2638,7 @@
         } else if (raceId === 1 && btnElyos) {
             btnElyos.style.cssText = "flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #4fc3f7; border-radius:4px; font-weight:bold; cursor:pointer;";
         } else if (raceId === 2 && btnAsmo) {
-            btnAsmo.style.cssText = "flex:1; padding:8px; background:#241a1a; color:#fff; border:1px solid #448aff; border-radius:4px; font-weight:bold; cursor:pointer;";
+            btnAsmo.style.cssText = "flex:1; padding:8px; background:#2a1a1a; color:#fff; border:1px solid #ff5252; border-radius:4px; font-weight:bold; cursor:pointer;";
         }
 
         rankArea.innerHTML = `<div style="text-align:center; padding:50px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>`;
@@ -2664,7 +2664,7 @@
                 let sName = user.serverName || "서버";
                 let ap = user.point || 0; 
                 let pImg = user.profileImage || ""; 
-                let serverColor = (user.race === 1) ? "#4fc3f7" : "#448aff";
+                let serverColor = (user.race === 1) ? "#4fc3f7" : "#ff5252";
                 
                 // 🚀 신규: 직업 이름 가져오기
                 let className = user.className || "직업 미확인"; 
@@ -2829,7 +2829,7 @@ window.addEventListener('load', () => {
                 else if(index === 1) rankColor = "#e0e0e0";
                 else if(index === 2) rankColor = "#cd7f32";
 
-                let serverColor = (user.race === 1) ? "#4fc3f7" : "#448aff";
+                let serverColor = (user.race === 1) ? "#4fc3f7" : "#ff5252";
 
                 html += `
                 <div style="display:flex; align-items:center; padding:12px 15px; border-bottom:1px solid #222; background:#141418; margin-bottom:2px; border-radius:4px;">
@@ -3015,6 +3015,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
 
 
 
