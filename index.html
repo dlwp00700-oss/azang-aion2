@@ -478,6 +478,7 @@
                                     <span class="d-val" style="font-size:18px;" id="pve-dmg-taken">0 ➡ 0</span>
                                 </div>
                                 <div class="d-final-text" id="pve-final-surv" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
+                                <div id="setEffectLogPve" style="margin-top: 15px;"></div>
                             </div>
                         </div>
                         
@@ -507,6 +508,7 @@
                                     <span class="d-val" style="font-size:18px;" id="pvp-dmg-taken">0 ➡ 0</span>
                                 </div>
                               <div class="d-final-text" id="pvp-final-surv" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
+                                <div id="setEffectLogPvp" style="margin-top: 15px;"></div>
                             </div>
                         </div>
                     </div> <div class="workbench" id="workbench">
@@ -1852,7 +1854,11 @@
             enemyPvpAmp: parseFloat(document.getElementById('enemyPvpAmp').value) || 0,
             enemyAtk: parseFloat(document.getElementById('enemyAtk').value) || 8000,
             acc: 0, crit: 0, spd: 0 
+
+            
         };
+
+        
 
         let delta = {};
         STAT_KEYS.forEach(k => delta[k] = 0);
@@ -2047,6 +2053,34 @@
         if(pvpSurvHitsDiff > 0.05) pvpSurvEl.innerHTML = `<span class="pos">✅ 동일 공격에 대해 약 ${pvpSurvHitsDiff.toFixed(1)}대 더 버팀! (생존력 상승)</span>`;
         else if(pvpSurvHitsDiff < -0.05) pvpSurvEl.innerHTML = `<span class="neg">❌ 동일 공격에 대해 약 ${Math.abs(pvpSurvHitsDiff).toFixed(1)}대 덜 버팀 (생존력 하락)</span>`;
         else pvpSurvEl.innerHTML = `<span class="neu">- 종합 생존력 변화 없음 -</span>`;
+
+
+        // 🚀 여기에 방금 그 코드를 넣으셔야 합니다! (함수가 끝나기 직전)
+        let oldDesc = getSetEffectText(oSetCounts);
+        let newDesc = getSetEffectText(nSetCounts);
+
+        let logHtml = `
+        <details style="background:#141418; border:1px solid #333; border-radius:8px; padding:10px; font-size:12px; color:#ccc; margin-top:15px;">
+            <summary style="cursor:pointer; font-weight:bold; color:#4fc3f7; outline:none; display:flex; align-items:center; gap:5px;">
+                🔍 어비스 세트 효과 변경 상세 보기 <span style="font-size:10px; color:#888;">(클릭하여 펼치기)</span>
+            </summary>
+            <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #333; line-height:1.6;">
+                <div style="margin-bottom:10px; padding:8px; background:rgba(255, 82, 82, 0.1); border-left:3px solid #ff5252; border-radius:4px;">
+                    <span style="color:#ff5252; font-weight:bold; display:block; margin-bottom:4px;">[변경 전 세트]</span>
+                    ${oldDesc}
+                </div>
+                <div style="padding:8px; background:rgba(105, 240, 174, 0.1); border-left:3px solid #69f0ae; border-radius:4px;">
+                    <span style="color:#69f0ae; font-weight:bold; display:block; margin-bottom:4px;">[변경 후 세트]</span>
+                    ${newDesc}
+                </div>
+            </div>
+        </details>
+        `;
+
+        const logBoxPve = document.getElementById('setEffectLogPve');
+        const logBoxPvp = document.getElementById('setEffectLogPvp');
+        if(logBoxPve) logBoxPve.innerHTML = logHtml;
+        if(logBoxPvp) logBoxPvp.innerHTML = logHtml;
     }
 
     function saveStatPreset(slot) {
@@ -2932,6 +2966,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
 
 
 
