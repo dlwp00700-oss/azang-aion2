@@ -2807,7 +2807,7 @@
             if (targetBtn) { switchTab(pMenu, targetBtn); }
         }
 
-        const pServer = urlParams.get('server');
+       const pServer = urlParams.get('server');
         const pName = urlParams.get('name');
         if (pServer && pName) {
             document.getElementById('searchServer').innerHTML = `<option value="${pServer}">공유된 캐릭터 로딩 중...</option>`;
@@ -2815,10 +2815,11 @@
             document.getElementById('charNameInput').value = pName;
             setTimeout(() => { searchCharacter(); }, 300);
         }
-    };
+    }; // 🚀 이 중괄호와 세미콜론이 window.onload를 닫아주는 아주 중요한 역할입니다!
 </script>
 </body>
 </html>
+
 
 
 
