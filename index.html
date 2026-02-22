@@ -2571,7 +2571,7 @@
     // ==========================================
     // 🏆 전체 화면(탭) 통합 랭킹 불러오기 (필터 적용)
     // ==========================================
-    async function loadFullRanking(raceId) {
+   async function loadFullRanking(raceId) {
     if (raceId !== undefined) {
         currentFullRankRace = raceId;
     } else {
@@ -2590,6 +2590,7 @@
 
     rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>`;
 
+    // 🚀 바로 이 try { 부분이 빠져있었거나 꼬여있었을 겁니다!
     try {
         const res = await fetch(`${API_BASE}/totalRanking?race=${raceId}&server=${serverVal}&job=${encodeURIComponent(jobVal)}`);
         const data = await res.json();
@@ -2630,6 +2631,7 @@
         });
         rankArea.innerHTML = html;
     } catch (e) {
+        // 🚀 이 catch가 위의 try 블록과 완벽하게 짝을 이룹니다.
         console.error("랭킹 로드 오류:", e);
         rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">데이터 표시 중 오류 발생</div>`;
     }
@@ -2817,6 +2819,7 @@
 </script>
 </body>
 </html>
+
 
 
 
