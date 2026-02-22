@@ -2579,9 +2579,9 @@
     }
 
     const rankArea = document.getElementById('fullRankingArea');
-    if (!rankArea) return; // 영역이 없으면 중단
+    if (!rankArea) return;
 
-    // 🚀 수정 포인트: 요소가 있는지 먼저 체크 (에러 방지)
+    // 필터 요소가 있는지 안전하게 체크 (에러 방지)
     const elElyos = document.getElementById('rankFilterElyos');
     const elAsmo = document.getElementById('rankFilterAsmo');
     const elJob = document.getElementById('rankFilterJob');
@@ -2603,7 +2603,7 @@
 
         let html = '';
         rankList.forEach((user, index) => { 
-            // 🚀 수정 포인트: 실제 데이터 필드명인 'point' 사용
+            // 🚀 핵심: 백엔드 데이터 필드명인 'point'를 사용합니다
             const apScore = user.point ? Number(user.point).toLocaleString() : '0'; 
             const charName = user.characterName || '이름없음';
             const serverName = user.serverName || '서버';
@@ -2611,9 +2611,9 @@
             const pImg = user.profileImage || ''; 
 
             let rankColor = "#aaa"; 
-            if(index === 0) rankColor = "#ffca28"; 
-            else if(index === 1) rankColor = "#e0e0e0"; 
-            else if(index === 2) rankColor = "#cd7f32"; 
+            if(index === 0) rankColor = "#ffca28"; // 1위 금색
+            else if(index === 1) rankColor = "#e0e0e0"; // 2위 은색
+            else if(index === 2) rankColor = "#cd7f32"; // 3위 동색
 
             let serverColor = (user.race === 1) ? "#4fc3f7" : "#448aff";
 
@@ -2819,6 +2819,7 @@
 </script>
 </body>
 </html>
+
 
 
 
