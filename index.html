@@ -751,70 +751,73 @@
         </div>
 
 </div><div id="tab-ranking" class="tab-content">
-            <div class="c-window" style="max-width: 900px; margin: 0 auto 30px auto; padding: 30px;">
-                <div class="sec-title" style="font-size: 18px; margin-bottom: 20px;">
-                    <style>
-    .rank-filter-bar { display:flex; background:#141418; border:1px solid #333; border-radius:8px; padding:6px 12px; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
-    .rank-race-group { display:flex; border-right:1px solid #333; padding-right:15px; }
-    .rank-race-btn { background:transparent; color:#888; border:none; padding:8px 16px; font-size:14px; cursor:pointer; border-radius:4px; transition:0.2s; font-weight:bold; }
-    .rank-race-btn:hover { color:#fff; }
-    
-    /* 선택되었을 때의 디자인 (이미지 완벽 구현) */
-    .rank-race-btn.active.race-0 { background:rgba(255, 255, 255, 0.1); color:#fff; }
-    .rank-race-btn.active.race-1 { background:rgba(79, 195, 247, 0.15); color:#4fc3f7; }
-    .rank-race-btn.active.race-2 { background:rgba(68, 138, 255, 0.15); color:#448aff; }
-    
-    .rank-select { background:transparent; color:#fff; border:none; outline:none; font-size:14px; cursor:pointer; padding:8px; min-width:110px; appearance:none; -webkit-appearance:none; }
-    .rank-select option { background:#141418; color:#fff; }
-    .select-wrapper { position:relative; border-right:1px solid #333; padding-right:15px; }
-    .select-wrapper::after { content:'▼'; position:absolute; right:15px; top:50%; transform:translateY(-50%); font-size:10px; color:#888; pointer-events:none; }
-    
-    .btn-rank-reset { background:#222; color:#ccc; border:1px solid #444; padding:8px 16px; border-radius:4px; font-size:13px; cursor:pointer; transition:0.2s; margin-left:auto; }
-    .btn-rank-reset:hover { background:#333; color:#fff; }
-</style>
+    <div class="c-window" style="max-width: 900px; margin: 0 auto 30px auto; padding: 30px;">
+        <div class="sec-title" style="font-size: 18px; margin-bottom: 20px;">
+            <span style="color:#ffca28;">🏆 전 서버 어비스 종합 랭킹 (TOP 100)</span>
+        </div>
+        
+        <style>
+            .rank-filter-bar { display:flex; background:#141418; border:1px solid #333; border-radius:8px; padding:10px 15px; align-items:center; justify-content:flex-start; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+            .rank-race-group { display:flex; border-right:1px solid #333; padding-right:15px; gap: 5px; }
+            .rank-race-btn { background:transparent; color:#888; border:none; padding:8px 16px; font-size:14px; cursor:pointer; border-radius:4px; transition:0.2s; font-weight:bold; }
+            .rank-race-btn:hover { color:#fff; background: rgba(255,255,255,0.05); }
+            
+            /* 버튼 선택되었을 때 색상 포인트 */
+            .rank-race-btn.active.race-0 { background:#2a2a35; color:#fff; border: 1px solid #ffca28; }
+            .rank-race-btn.active.race-1 { background:#1a2430; color:#4fc3f7; border: 1px solid #4fc3f7; }
+            .rank-race-btn.active.race-2 { background:#1a1a24; color:#448aff; border: 1px solid #448aff; }
+            
+            .rank-select { background:#111; color:#fff; border:1px solid #444; border-radius:4px; outline:none; font-size:14px; cursor:pointer; padding:8px 12px; min-width:130px; transition:0.2s;}
+            .rank-select:hover { border-color: #888; }
+            
+            .select-wrapper { display: flex; gap: 10px; align-items: center; }
+            
+            /* 초기화 버튼을 오른쪽 끝으로 밀어주는 마법의 margin-left: auto; */
+            .btn-rank-reset { background:#222; color:#ccc; border:1px solid #444; padding:8px 16px; border-radius:4px; font-size:13px; cursor:pointer; transition:0.2s; margin-left:auto; font-weight: bold; }
+            .btn-rank-reset:hover { background:#ff5252; color:#fff; border-color:#ff5252; }
+        </style>
 
-<div class="rank-filter-bar">
-    <div class="rank-race-group">
-        <button class="rank-race-btn active race-0" onclick="changeRankRace(0)">전체</button>
-        <button class="rank-race-btn race-1" onclick="changeRankRace(1)">천족</button>
-        <button class="rank-race-btn race-2" onclick="changeRankRace(2)">마족</button>
-    </div>
+        <div class="rank-filter-bar">
+            <div class="rank-race-group">
+                <button class="rank-race-btn active race-0" onclick="changeRankRace(0)">전체</button>
+                <button class="rank-race-btn race-1" onclick="changeRankRace(1)">천족</button>
+                <button class="rank-race-btn race-2" onclick="changeRankRace(2)">마족</button>
+            </div>
 
-    <div class="select-wrapper">
-        <select id="rankFilterServer" class="rank-select" onchange="loadFullRanking()">
-            <option value="">전체 서버</option>
-        </select>
-    </div>
+            <div class="select-wrapper">
+                <select id="rankFilterServer" class="rank-select" onchange="loadFullRanking()">
+                    <option value="">전체 서버</option>
+                </select>
+                <select id="rankFilterJob" class="rank-select" onchange="loadFullRanking()">
+                    <option value="">전체 직업</option>
+                    <option value="검성">검성</option>
+                    <option value="수호성">수호성</option>
+                    <option value="궁성">궁성</option>
+                    <option value="살성">살성</option>
+                    <option value="마도성">마도성</option>
+                    <option value="정령성">정령성</option>
+                    <option value="치유성">치유성</option>
+                    <option value="호법성">호법성</option>
+                </select>
+            </div>
 
-    <div class="select-wrapper" style="border-right:none;">
-        <select id="rankFilterJob" class="rank-select" onchange="loadFullRanking()">
-            <option value="">전체 직업</option>
-            <option value="검성">검성</option>
-            <option value="수호성">수호성</option>
-            <option value="궁성">궁성</option>
-            <option value="살성">살성</option>
-            <option value="마도성">마도성</option>
-            <option value="정령성">정령성</option>
-            <option value="치유성">치유성</option>
-            <option value="호법성">호법성</option>
-        </select>
-    </div>
-
-    <button class="btn-rank-reset" onclick="resetRankFilter()">초기화</button>
-</div>
-                
-                <div style="background:#0a0a0c; border:1px solid #222; border-radius:8px; padding:10px;">
-                    <div style="display:flex; padding:10px 15px; border-bottom:1px solid #222; color:#888; font-size:12px; font-weight:bold;">
-                        <div style="width:50px; text-align:center;">순위</div>
-                        <div style="flex:1;">캐릭터 정보 <span style="font-weight:normal; font-size:10px; color:#555;">(클릭 시 장비 조회)</span></div>
-                        <div style="width:120px; text-align:right;">어비스 포인트</div>
-                    </div>
-                    <div id="realRankingBox" style="min-height: 400px;">
-                        <div style="text-align:center; padding:100px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
-                    </div>
-                </div>
+            <button class="btn-rank-reset" onclick="resetRankFilter()">초기화 ↺</button>
+        </div>
+        
+        <div style="background:#0a0a0c; border:1px solid #222; border-radius:8px; padding:10px;">
+            <div style="display:flex; padding:10px 15px; border-bottom:1px solid #222; color:#888; font-size:12px; font-weight:bold;">
+                <div style="width:50px; text-align:center;">순위</div>
+                <div style="flex:1;">캐릭터 정보 <span style="font-weight:normal; font-size:10px; color:#555;">(클릭 시 장비 조회)</span></div>
+                <div style="width:120px; text-align:right;">어비스 포인트</div>
+            </div>
+            
+            <div id="realRankingBox" style="min-height: 400px;">
+                <div style="text-align:center; padding:100px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
             </div>
         </div>
+
+    </div>
+</div>
     
     <div class="ad-banner ad-bottom">
             [배너] 하단 배너 영역 (728x90)
@@ -2914,6 +2917,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
 
 
 
