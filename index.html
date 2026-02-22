@@ -792,7 +792,7 @@
                         <div style="flex:1;">캐릭터 정보 <span style="font-weight:normal; font-size:10px; color:#555;">(클릭 시 장비 조회)</span></div>
                         <div style="width:120px; text-align:right;">어비스 포인트</div>
                     </div>
-                    <div id="fullRankingArea" style="min-height: 400px;">
+                    <div id="realRankingBox" style="min-height: 400px;">
                         <div style="text-align:center; padding:100px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
                     </div>
                 </div>
@@ -2578,7 +2578,7 @@
         raceId = currentFullRankRace;
     }
 
-    const rankArea = document.getElementById('fullRankingArea');
+    const rankArea = document.getElementById('realRankingBox');
     if (!rankArea) return;
 
     const elElyos = document.getElementById('rankFilterElyos');
@@ -2819,6 +2819,7 @@
 </script>
 </body>
 </html>
+
 
 
 
