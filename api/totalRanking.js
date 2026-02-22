@@ -39,43 +39,44 @@ export default async function handler(req, res) {
     };
 
     try {
-        let allPlayers = [];
-        const fetchPromises = [];
+    let allPlayers = [];
+    const fetchPromises = [];
 
-        for (const [serverId, info] of Object.entries(SERVER_LIST)) {
-            if (serverReq && serverId !== serverReq) continue;
-
-            if (raceReq === '0' || parseInt(raceReq) === info.race) {
-                // 넉넉하게 200명어치 데이터를 요구합니다
-                let url = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=${serverId}&size=200`;
-                
-                // 🚀 선택된 직업 번호를 파라미터로 추가!
-                if (jobReq && CLASS_MAP[jobReq]) {
-                    url += `&classId=${CLASS_MAP[jobReq]}`;
-                }
-
-                const p = fetch(url, {
-                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data && data.rankingList) {
-                        const listWithServer = data.rankingList.map(user => ({
-                            ...user,
-                            serverId: serverId,
-                            serverName: info.name,
-                            race: info.race
-                        }));
-                        allPlayers.push(...listWithServer);
-                    }
-                }).catch(e => {});
-                
-                fetchPromises.push(p);
+    for (const [serverId, info] of Object.entries(SERVER_LIST)) {
+        if (serverReq && serverId !== serverReq) continue;
+        if (raceReq === '0' || parseInt(raceReq) === info.race) {
+            
+            let url = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=${serverId}&size=200`;
+            if (jobReq && CLASS_MAP[jobReq]) {
+                url += `&classId=${CLASS_MAP[jobReq]}`;
             }
+
+            const p = fetch(url, {
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+            })
+            .then(async r => {
+                if (!r.ok) {
+                    console.error(`${info.name} 서버 호출 실패: ${r.status}`); // 실패 시 로그 확인
+                    return;
+                }
+                const data = await r.json();
+                if (data && data.rankingList) {
+                    const listWithServer = data.rankingList.map(user => ({
+                        ...user,
+                        serverId: serverId,
+                        serverName: info.name,
+                        race: info.race
+                    }));
+                    allPlayers.push(...listWithServer);
+                }
+            }).catch(e => console.error(`네트워크 에러 (${info.name}):`, e));
+            
+            fetchPromises.push(p);
         }
+    }
 
-        await Promise.all(fetchPromises);
-
+    await Promise.all(fetchPromises);
+    console.log("수집된 총 인원:", allPlayers.length);
         if (jobReq) {
             allPlayers = allPlayers.filter(user => user.className === jobReq);
         }
