@@ -2157,15 +2157,35 @@
     // ==========================================
     // 🗂️ 카테고리 탭 전환 로직
     // ==========================================
-    function switchTab(tabId, element) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        document.getElementById('tab-' + tabId).classList.add('active');
-        element.classList.add('active');
-        if (tabId === 'ranking') {
-        loadFullRanking(0); // 전체 랭킹 로드
-    }
-    }
+   function switchTab(tabId, element) {
+  const tabEl = document.getElementById('tab-' + tabId);
+  if (!tabEl) {
+    console.error('[switchTab] tab element not found:', 'tab-' + tabId);
+    return; // ✅ 아무 것도 건드리지 말고 종료 (빈 화면 방지)
+  }
+
+  // ✅ element가 없으면 nav-item을 스스로 찾기
+  if (!element) {
+    element =
+      document.querySelector(`.nav-item[data-tab="${tabId}"]`)
+      || document.querySelector(`.nav-item[onclick*="'${tabId}'"]`);
+  }
+
+  // 1) 탭/네비 active 초기화
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+  // 2) 목표 탭 활성화
+  tabEl.classList.add('active');
+
+  // 3) 네비 버튼도 있으면 활성화 (없어도 탭은 보여야 함)
+  if (element) element.classList.add('active');
+
+  // 4) 랭킹 탭이면 로딩
+  if (tabId === 'ranking' && typeof loadFullRanking === 'function') {
+    loadFullRanking(0);
+  }
+}
 
     // ==========================================
     // 🐾 펫 계산기 데이터 및 로직
@@ -2848,6 +2868,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
 
 
 
