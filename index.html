@@ -753,38 +753,55 @@
 </div><div id="tab-ranking" class="tab-content">
             <div class="c-window" style="max-width: 900px; margin: 0 auto 30px auto; padding: 30px;">
                 <div class="sec-title" style="font-size: 18px; margin-bottom: 20px;">
-                    <span style="color:#ffca28;">🏆 전 서버 어비스 종합 랭킹 (TOP 50)</span>
-                </div>
-                
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <button id="btnFullRankAll" onclick="loadFullRanking(0)" style="flex:1; padding:12px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:6px; font-weight:bold; cursor:pointer; transition:0.2s;">🌍 통합 랭킹</button>
-                    <button id="btnFullRankElyos" onclick="loadFullRanking(1)" style="flex:1; padding:12px; background:#111; color:#888; border:1px solid #333; border-radius:6px; cursor:pointer; transition:0.2s;">🕊️ 천족 랭킹</button>
-                    <button id="btnFullRankAsmo" onclick="loadFullRanking(2)" style="flex:1; padding:12px; background:#111; color:#888; border:1px solid #333; border-radius:6px; cursor:pointer; transition:0.2s;">🦇 마족 랭킹</button>
-                </div>
+                    <style>
+    .rank-filter-bar { display:flex; background:#141418; border:1px solid #333; border-radius:8px; padding:6px 12px; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+    .rank-race-group { display:flex; border-right:1px solid #333; padding-right:15px; }
+    .rank-race-btn { background:transparent; color:#888; border:none; padding:8px 16px; font-size:14px; cursor:pointer; border-radius:4px; transition:0.2s; font-weight:bold; }
+    .rank-race-btn:hover { color:#fff; }
+    
+    /* 선택되었을 때의 디자인 (이미지 완벽 구현) */
+    .rank-race-btn.active.race-0 { background:rgba(255, 255, 255, 0.1); color:#fff; }
+    .rank-race-btn.active.race-1 { background:rgba(79, 195, 247, 0.15); color:#4fc3f7; }
+    .rank-race-btn.active.race-2 { background:rgba(68, 138, 255, 0.15); color:#448aff; }
+    
+    .rank-select { background:transparent; color:#fff; border:none; outline:none; font-size:14px; cursor:pointer; padding:8px; min-width:110px; appearance:none; -webkit-appearance:none; }
+    .rank-select option { background:#141418; color:#fff; }
+    .select-wrapper { position:relative; border-right:1px solid #333; padding-right:15px; }
+    .select-wrapper::after { content:'▼'; position:absolute; right:15px; top:50%; transform:translateY(-50%); font-size:10px; color:#888; pointer-events:none; }
+    
+    .btn-rank-reset { background:#222; color:#ccc; border:1px solid #444; padding:8px 16px; border-radius:4px; font-size:13px; cursor:pointer; transition:0.2s; margin-left:auto; }
+    .btn-rank-reset:hover { background:#333; color:#fff; }
+</style>
 
-                <div style="display:flex; gap:10px; margin-bottom:20px;">
-                    <select id="rankFilterElyos" style="flex:1; padding:10px; background:#111; color:#4fc3f7; border:1px solid #444; border-radius:6px; font-size:14px; cursor:pointer;" onchange="document.getElementById('rankFilterAsmo').value=''; loadFullRanking();">
-                        <option value="" style="color:#fff;">🕊️ 천족 서버 (전체)</option>
-                        <option value="1001">시엘</option><option value="1002">네자칸</option><option value="1003">바이젤</option><option value="1004">카이시넬</option><option value="1005">유스티엘</option><option value="1006">아리엘</option><option value="1007">프레기온</option><option value="1008">메스람타에다</option><option value="1009">히타니에</option><option value="1010">나니아</option><option value="1011">타하바타</option><option value="1012">루터스</option><option value="1013">페르노스</option><option value="1014">다미누</option><option value="1015">카사카</option><option value="1016">바카르마</option><option value="1017">챈가룽</option><option value="1018">코치룽</option><option value="1019">이슈타르</option><option value="1020">티아마트</option><option value="1021">포에타</option>
-                    </select>
+<div class="rank-filter-bar">
+    <div class="rank-race-group">
+        <button class="rank-race-btn active race-0" onclick="changeRankRace(0)">전체</button>
+        <button class="rank-race-btn race-1" onclick="changeRankRace(1)">천족</button>
+        <button class="rank-race-btn race-2" onclick="changeRankRace(2)">마족</button>
+    </div>
 
-                    <select id="rankFilterAsmo" style="flex:1; padding:10px; background:#111; color:#448aff; border:1px solid #444; border-radius:6px; font-size:14px; cursor:pointer;" onchange="document.getElementById('rankFilterElyos').value=''; loadFullRanking();">
-                        <option value="" style="color:#fff;">🦇 마족 서버 (전체)</option>
-                        <option value="2001">이스라펠</option><option value="2002">지켈</option><option value="2003">트리니엘</option><option value="2004">루미엘</option><option value="2005">마르쿠탄</option><option value="2006">아스펠</option><option value="2007">에레슈키갈</option><option value="2008">브리트라</option><option value="2009">네몬</option><option value="2010">하달</option><option value="2011">루드라</option><option value="2012">울고른</option><option value="2013">무닌</option><option value="2014">오다르</option><option value="2015">젠카카</option><option value="2016">크로메데</option><option value="2017">콰이링</option><option value="2018">바바룽</option><option value="2019">파프니르</option><option value="2020">인드나흐</option><option value="2021">이스할겐</option>
-                    </select>
+    <div class="select-wrapper">
+        <select id="rankFilterServer" class="rank-select" onchange="loadFullRanking()">
+            <option value="">전체 서버</option>
+        </select>
+    </div>
 
-                    <select id="rankFilterJob" style="flex:1; padding:10px; background:#111; color:#fff; border:1px solid #444; border-radius:6px; font-size:14px; cursor:pointer;" onchange="loadFullRanking()">
-                        <option value="">⚔️ 전 직업 보기</option>
-                        <option value="검성">검성</option>
-                        <option value="수호성">수호성</option>
-                        <option value="궁성">궁성</option>
-                        <option value="살성">살성</option>
-                        <option value="마도성">마도성</option>
-                        <option value="정령성">정령성</option>
-                        <option value="치유성">치유성</option>
-                        <option value="호법성">호법성</option>
-                    </select>
-                </div>
+    <div class="select-wrapper" style="border-right:none;">
+        <select id="rankFilterJob" class="rank-select" onchange="loadFullRanking()">
+            <option value="">전체 직업</option>
+            <option value="검성">검성</option>
+            <option value="수호성">수호성</option>
+            <option value="궁성">궁성</option>
+            <option value="살성">살성</option>
+            <option value="마도성">마도성</option>
+            <option value="정령성">정령성</option>
+            <option value="치유성">치유성</option>
+            <option value="호법성">호법성</option>
+        </select>
+    </div>
+
+    <button class="btn-rank-reset" onclick="resetRankFilter()">초기화</button>
+</div>
                 
                 <div style="background:#0a0a0c; border:1px solid #222; border-radius:8px; padding:10px;">
                     <div style="display:flex; padding:10px 15px; border-bottom:1px solid #222; color:#888; font-size:12px; font-weight:bold;">
@@ -2627,89 +2644,118 @@ window.addEventListener('load', () => {
 
     
    // 🚀 현재 선택된 종족 탭을 기억하기 위한 전역 변수
+    const elyosServers = [{id:1001,n:'시엘'},{id:1002,n:'네자칸'},{id:1003,n:'바이젤'},{id:1004,n:'카이시넬'},{id:1005,n:'유스티엘'},{id:1006,n:'아리엘'},{id:1007,n:'프레기온'},{id:1008,n:'메스람타에다'},{id:1009,n:'히타니에'},{id:1010,n:'나니아'},{id:1011,n:'타하바타'},{id:1012,n:'루터스'},{id:1013,n:'페르노스'},{id:1014,n:'다미누'},{id:1015,n:'카사카'},{id:1016,n:'바카르마'},{id:1017,n:'챈가룽'},{id:1018,n:'코치룽'},{id:1019,n:'이슈타르'},{id:1020,n:'티아마트'},{id:1021,n:'포에타'}];
+    const asmoServers = [{id:2001,n:'이스라펠'},{id:2002,n:'지켈'},{id:2003,n:'트리니엘'},{id:2004,n:'루미엘'},{id:2005,n:'마르쿠탄'},{id:2006,n:'아스펠'},{id:2007,n:'에레슈키갈'},{id:2008,n:'브리트라'},{id:2009,n:'네몬'},{id:2010,n:'하달'},{id:2011,n:'루드라'},{id:2012,n:'울고른'},{id:2013,n:'무닌'},{id:2014,n:'오다르'},{id:2015,n:'젠카카'},{id:2016,n:'크로메데'},{id:2017,n:'콰이링'},{id:2018,n:'바바룽'},{id:2019,n:'파프니르'},{id:2020,n:'인드나흐'},{id:2021,n:'이스할겐'}];
+
     let currentFullRankRace = 0;
 
-    // ==========================================
-    // 🏆 전체 화면(탭) 통합 랭킹 불러오기 (필터 적용)
-    // ==========================================
-   async function loadFullRanking(raceId) {
-    const rankArea = document.getElementById('realRankingBox');
-    if (!rankArea) return;
-
-    if (raceId !== undefined) {
+    // 🚀 신규: 버튼 상태 업데이트 및 서버 목록 동적 생성
+    function changeRankRace(raceId, preventLoad = false) {
         currentFullRankRace = raceId;
-    } else {
-        raceId = currentFullRankRace;
+        
+        // 1. 눌린 버튼 시각적 효과 (색상 변경)
+        const btns = document.querySelectorAll('.rank-race-btn');
+        btns.forEach((btn, i) => {
+            btn.classList.remove('active');
+            if (i === raceId) btn.classList.add('active');
+        });
+
+        // 2. 종족에 맞춰 서버 드롭다운 옵션 바꾸기
+        const serverSel = document.getElementById('rankFilterServer');
+        let html = '<option value="">전체 서버</option>';
+        if (raceId === 0 || raceId === 1) elyosServers.forEach(s => html += `<option value="${s.id}">[천] ${s.n}</option>`);
+        if (raceId === 0 || raceId === 2) asmoServers.forEach(s => html += `<option value="${s.id}">[마] ${s.n}</option>`);
+        
+        serverSel.innerHTML = html;
+        serverSel.value = ""; // 종족을 바꾸면 서버 선택 초기화
+
+        // 3. 랭킹 데이터 다시 불러오기
+        if (!preventLoad) loadFullRanking(raceId);
     }
 
-    const elElyos = document.getElementById('rankFilterElyos');
-    const elAsmo = document.getElementById('rankFilterAsmo');
-    const elJob = document.getElementById('rankFilterJob');
+    // 🚀 신규: 완전 초기화 버튼 로직
+    function resetRankFilter() {
+        document.getElementById('rankFilterJob').value = '';
+        changeRankRace(0); // 전체, 전체 서버, 전체 직업으로 리셋
+    }
 
-    const serverVal = (elElyos ? elElyos.value : '') || (elAsmo ? elAsmo.value : '') || '';
-    const jobVal = elJob ? elJob.value : '';
+    // ==========================================
+    // 🏆 랭킹 불러오기 (통합 서버 드롭다운 적용)
+    // ==========================================
+    async function loadFullRanking(raceId) {
+        const rankArea = document.getElementById('realRankingBox');
+        if (!rankArea) return;
 
-    // 🚀 시각적 로딩 UI (캐시가 뚫렸는지 확인하는 용도)
-    rankArea.innerHTML = `
-        <div style="text-align:center; padding:80px 0; background:#111; border:1px solid #ffca28; border-radius:8px;">
-            <span style="color:#ffca28; font-size:16px; font-weight:bold;">서버에서 랭킹 데이터를 가져오고 있습니다... ⏳</span><br>
-            <span style="color:#aaa; font-size:12px; margin-top:10px; display:inline-block;">(요청 정보 - 종족:${raceId}, 서버:${serverVal}, 직업:${jobVal})</span>
-        </div>
-    `;
-
-    try {
-        const res = await fetch(`${API_BASE}/totalRanking?race=${raceId}&server=${serverVal}&job=${encodeURIComponent(jobVal)}`);
-        
-        if (!res.ok) throw new Error(`서버 응답 오류 (상태 코드: ${res.status})`);
-        
-        const data = await res.json();
-        const rankList = data.list || [];
-        
-        if (rankList.length === 0) {
-            rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; background:#111; border:1px solid #ff5252; color:#ff5252; font-weight:bold; border-radius:8px;">조건에 맞는 캐릭터가 없습니다.</div>`;
-            return;
+        if (raceId !== undefined) {
+            currentFullRankRace = raceId;
+        } else {
+            raceId = currentFullRankRace;
         }
 
-        let html = '';
-        rankList.forEach((user, index) => {
-            const apScore = user.point ? Number(user.point).toLocaleString() : '0';
-            const charName = user.characterName || '이름없음';
-            const serverName = user.serverName || '서버';
-            const className = user.className || '직업';
-            const pImg = user.profileImage || '';
+        // 🚀 하나로 합쳐진 서버 드롭다운과 직업 값 가져오기
+        const serverVal = document.getElementById('rankFilterServer') ? document.getElementById('rankFilterServer').value : '';
+        const jobVal = document.getElementById('rankFilterJob') ? document.getElementById('rankFilterJob').value : '';
 
-            let rankColor = "#aaa";
-            if(index === 0) rankColor = "#ffca28";
-            else if(index === 1) rankColor = "#e0e0e0";
-            else if(index === 2) rankColor = "#cd7f32";
-
-            let serverColor = (user.race === 1) ? "#4fc3f7" : "#448aff";
-
-            html += `
-            <div style="display:flex; align-items:center; padding:12px 15px; border-bottom:1px solid #222; background:#141418; margin-bottom:2px; border-radius:4px;">
-                <div style="width:50px; text-align:center; color:${rankColor}; font-weight:bold; font-size:16px;">${index + 1}</div>
-                <div style="flex:1; display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="switchTab('equip', document.querySelector('.nav-item')); loadCharacterDetail('${user.characterId}', '${user.serverId}', '${charName}')">
-                    <img src="${pImg}" style="width:36px; height:36px; border-radius:50%; border:2px solid ${serverColor};" onerror="this.src='https://aion2zang.info/flogo.png'">
-                    <div>
-                        <div style="font-weight:bold; font-size:14px; color:#fff;">${charName}</div>
-                        <div style="font-size:11px; color:#888;"><span style="color:${serverColor};">[${serverName}]</span> ${className}</div>
-                    </div>
-                </div>
-                <div style="width:120px; text-align:right; color:#ffca28; font-weight:bold; font-size:14px;">${apScore} AP</div>
-            </div>`;
-        });
-        rankArea.innerHTML = html;
-        
-    } catch (e) {
-        console.error("랭킹 로드 오류:", e);
         rankArea.innerHTML = `
-            <div style="text-align:center; padding:80px 0; background:#111; border:1px solid #ff5252; color:#ff5252; border-radius:8px;">
-                <span style="font-weight:bold; font-size:15px;">데이터 표시 중 오류 발생 ❌</span><br>
-                <span style="font-size:12px; color:#aaa; margin-top:8px; display:inline-block;">에러 내용: ${e.message}</span>
+            <div style="text-align:center; padding:80px 0; background:#111; border:1px solid #ffca28; border-radius:8px;">
+                <span style="color:#ffca28; font-size:16px; font-weight:bold;">서버에서 랭킹 데이터를 가져오고 있습니다... ⏳</span><br>
+                <span style="color:#aaa; font-size:12px; margin-top:10px; display:inline-block;">(요청 정보 - 종족:${raceId}, 서버:${serverVal}, 직업:${jobVal})</span>
             </div>
         `;
+
+        try {
+            const res = await fetch(`${API_BASE}/totalRanking?race=${raceId}&server=${serverVal}&job=${encodeURIComponent(jobVal)}`);
+            if (!res.ok) throw new Error(`서버 응답 오류 (상태 코드: ${res.status})`);
+            
+            const data = await res.json();
+            const rankList = data.list || [];
+            
+            if (rankList.length === 0) {
+                rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; background:#111; border:1px solid #ff5252; color:#ff5252; font-weight:bold; border-radius:8px;">조건에 맞는 캐릭터가 없습니다.</div>`;
+                return;
+            }
+
+            let html = '';
+            rankList.forEach((user, index) => {
+                const apScore = user.point ? Number(user.point).toLocaleString() : '0';
+                const charName = user.characterName || '이름없음';
+                const serverName = user.serverName || '서버';
+                const className = user.className || '직업';
+                const pImg = user.profileImage || '';
+
+                let rankColor = "#aaa";
+                if(index === 0) rankColor = "#ffca28";
+                else if(index === 1) rankColor = "#e0e0e0";
+                else if(index === 2) rankColor = "#cd7f32";
+
+                let serverColor = (user.race === 1) ? "#4fc3f7" : "#448aff";
+
+                html += `
+                <div style="display:flex; align-items:center; padding:12px 15px; border-bottom:1px solid #222; background:#141418; margin-bottom:2px; border-radius:4px;">
+                    <div style="width:50px; text-align:center; color:${rankColor}; font-weight:bold; font-size:16px;">${index + 1}</div>
+                    <div style="flex:1; display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="switchTab('equip', document.querySelector('.nav-item')); loadCharacterDetail('${user.characterId}', '${user.serverId}', '${charName}')">
+                        <img src="${pImg}" style="width:36px; height:36px; border-radius:50%; border:2px solid ${serverColor};" onerror="this.src='https://aion2zang.info/flogo.png'">
+                        <div>
+                            <div style="font-weight:bold; font-size:14px; color:#fff;">${charName}</div>
+                            <div style="font-size:11px; color:#888;"><span style="color:${serverColor};">[${serverName}]</span> ${className}</div>
+                        </div>
+                    </div>
+                    <div style="width:120px; text-align:right; color:#ffca28; font-weight:bold; font-size:14px;">${apScore} AP</div>
+                </div>`;
+            });
+            rankArea.innerHTML = html;
+            
+        } catch (e) {
+            rankArea.innerHTML = `
+                <div style="text-align:center; padding:80px 0; background:#111; border:1px solid #ff5252; color:#ff5252; border-radius:8px;">
+                    <span style="font-weight:bold; font-size:15px;">데이터 표시 중 오류 발생 ❌</span><br>
+                </div>
+            `;
+        }
     }
-}
+
+    // 🚀 맨 처음 접속했을 때 드롭다운에 모든 서버를 미리 채워두는 트리거
+    changeRankRace(0, true);
 
    // ==========================================
     // 💾 전체 데이터 원버튼 통합 저장/불러오기 (체크박스 완벽 보존)
@@ -2868,6 +2914,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
 
 
 
