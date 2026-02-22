@@ -2605,9 +2605,7 @@ window.addEventListener('load', () => {
 });
 
 
-    // ==========================================
-    // 🏆 전체 화면(탭) 통합 랭킹 불러오기 (TOP 50)
-    // ==========================================
+    
    // 🚀 현재 선택된 종족 탭을 기억하기 위한 전역 변수
     let currentFullRankRace = 0;
 
@@ -2615,14 +2613,14 @@ window.addEventListener('load', () => {
     // 🏆 전체 화면(탭) 통합 랭킹 불러오기 (필터 적용)
     // ==========================================
    async function loadFullRanking(raceId) {
+    const rankArea = document.getElementById('realRankingBox');
+    if (!rankArea) return;
+
     if (raceId !== undefined) {
         currentFullRankRace = raceId;
     } else {
         raceId = currentFullRankRace;
     }
-
-    const rankArea = document.getElementById('realRankingBox');
-    if (!rankArea) return;
 
     const elElyos = document.getElementById('rankFilterElyos');
     const elAsmo = document.getElementById('rankFilterAsmo');
@@ -2631,16 +2629,24 @@ window.addEventListener('load', () => {
     const serverVal = (elElyos ? elElyos.value : '') || (elAsmo ? elAsmo.value : '') || '';
     const jobVal = elJob ? elJob.value : '';
 
-    rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>`;
+    // 🚀 시각적 로딩 UI (캐시가 뚫렸는지 확인하는 용도)
+    rankArea.innerHTML = `
+        <div style="text-align:center; padding:80px 0; background:#111; border:1px solid #ffca28; border-radius:8px;">
+            <span style="color:#ffca28; font-size:16px; font-weight:bold;">서버에서 랭킹 데이터를 가져오고 있습니다... ⏳</span><br>
+            <span style="color:#aaa; font-size:12px; margin-top:10px; display:inline-block;">(요청 정보 - 종족:${raceId}, 서버:${serverVal}, 직업:${jobVal})</span>
+        </div>
+    `;
 
-    // 🚀 바로 이 try { 부분이 빠져있었거나 꼬여있었을 겁니다!
     try {
         const res = await fetch(`${API_BASE}/totalRanking?race=${raceId}&server=${serverVal}&job=${encodeURIComponent(jobVal)}`);
+        
+        if (!res.ok) throw new Error(`서버 응답 오류 (상태 코드: ${res.status})`);
+        
         const data = await res.json();
         const rankList = data.list || [];
         
         if (rankList.length === 0) {
-            rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">조건에 맞는 캐릭터가 없습니다.</div>`;
+            rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; background:#111; border:1px solid #ff5252; color:#ff5252; font-weight:bold; border-radius:8px;">조건에 맞는 캐릭터가 없습니다.</div>`;
             return;
         }
 
@@ -2660,8 +2666,8 @@ window.addEventListener('load', () => {
             let serverColor = (user.race === 1) ? "#4fc3f7" : "#448aff";
 
             html += `
-            <div style="display:flex; align-items:center; padding:12px 15px; border-bottom:1px solid #222;">
-                <div style="width:50px; text-align:center; color:${rankColor}; font-weight:bold;">${index + 1}</div>
+            <div style="display:flex; align-items:center; padding:12px 15px; border-bottom:1px solid #222; background:#141418; margin-bottom:2px; border-radius:4px;">
+                <div style="width:50px; text-align:center; color:${rankColor}; font-weight:bold; font-size:16px;">${index + 1}</div>
                 <div style="flex:1; display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="switchTab('equip', document.querySelector('.nav-item')); loadCharacterDetail('${user.characterId}', '${user.serverId}', '${charName}')">
                     <img src="${pImg}" style="width:36px; height:36px; border-radius:50%; border:2px solid ${serverColor};" onerror="this.src='https://aion2zang.info/flogo.png'">
                     <div>
@@ -2669,14 +2675,19 @@ window.addEventListener('load', () => {
                         <div style="font-size:11px; color:#888;"><span style="color:${serverColor};">[${serverName}]</span> ${className}</div>
                     </div>
                 </div>
-                <div style="width:120px; text-align:right; color:#ffca28; font-weight:bold;">${apScore} AP</div>
+                <div style="width:120px; text-align:right; color:#ffca28; font-weight:bold; font-size:14px;">${apScore} AP</div>
             </div>`;
         });
         rankArea.innerHTML = html;
+        
     } catch (e) {
-        // 🚀 이 catch가 위의 try 블록과 완벽하게 짝을 이룹니다.
         console.error("랭킹 로드 오류:", e);
-        rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">데이터 표시 중 오류 발생</div>`;
+        rankArea.innerHTML = `
+            <div style="text-align:center; padding:80px 0; background:#111; border:1px solid #ff5252; color:#ff5252; border-radius:8px;">
+                <span style="font-weight:bold; font-size:15px;">데이터 표시 중 오류 발생 ❌</span><br>
+                <span style="font-size:12px; color:#aaa; margin-top:8px; display:inline-block;">에러 내용: ${e.message}</span>
+            </div>
+        `;
     }
 }
 
@@ -2837,6 +2848,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
 
 
 
