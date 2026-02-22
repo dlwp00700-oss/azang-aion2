@@ -2162,6 +2162,9 @@
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + tabId).classList.add('active');
         element.classList.add('active');
+        if (tabId === 'ranking') {
+        loadFullRanking(0); // 전체 랭킹 로드
+    }
     }
 
     // ==========================================
@@ -2828,6 +2831,7 @@
 </script>
 </body>
 </html>
+
 
 
 
