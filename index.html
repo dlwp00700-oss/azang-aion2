@@ -2572,84 +2572,70 @@
     // 🏆 전체 화면(탭) 통합 랭킹 불러오기 (필터 적용)
     // ==========================================
     async function loadFullRanking(raceId) {
-        if (raceId !== undefined) {
-            currentFullRankRace = raceId;
-        } else {
-            raceId = currentFullRankRace;
-        }
-
-        const rankArea = document.getElementById('fullRankingArea');
-        const btnAll = document.getElementById('btnFullRankAll');
-        const btnElyos = document.getElementById('btnFullRankElyos');
-        const btnAsmo = document.getElementById('btnFullRankAsmo');
-        const elElyos = document.getElementById('rankFilterElyos');
-    const elAsmo = document.getElementById('rankFilterAsmo');
-        
-        // 🚀 신규: 천족과 마족 드롭다운 중 값이 있는 것을 서버에 전송
-        const elyosVal = document.getElementById('rankFilterElyos').value;
-        const asmoVal = document.getElementById('rankFilterAsmo').value;
-        const serverVal = (elElyos ? elElyos.value : '') || (elAsmo ? elAsmo.value : '') || '';
-        const jobVal = document.getElementById('rankFilterJob').value;
-
-        [btnAll, btnElyos, btnAsmo].forEach(btn => {
-            if(btn) btn.style.cssText = "flex:1; padding:12px; background:#111; color:#888; border:1px solid #333; border-radius:6px; cursor:pointer; transition:0.2s;";
-        });
-
-        if (raceId === 0 && btnAll) {
-            btnAll.style.cssText = "flex:1; padding:12px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:6px; font-weight:bold; cursor:pointer;";
-        } else if (raceId === 1 && btnElyos) {
-            btnElyos.style.cssText = "flex:1; padding:12px; background:#1a1a24; color:#fff; border:1px solid #4fc3f7; border-radius:6px; font-weight:bold; cursor:pointer;";
-        } else if (raceId === 2 && btnAsmo) {
-            btnAsmo.style.cssText = "flex:1; padding:12px; background:#241a1a; color:#fff; border:1px solid #448aff; border-radius:6px; font-weight:bold; cursor:pointer;";
-        }
-
-        rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>`;
-
-        try {
-            const res = await fetch(`${API_BASE}/totalRanking?race=${raceId}&server=${serverVal}&job=${encodeURIComponent(jobVal)}`);
-            const data = await res.json();
-            const rankList = data.list || [];
-            
-            if (rankList.length === 0) {
-                rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">조건에 맞는 캐릭터가 없습니다.</div>`;
-                return;
-            }
-
-            let html = '';
-            rankList.forEach((user, index) => { 
-                let rankColor = "#aaa"; 
-                if(index === 0) rankColor = "#ffca28"; 
-                else if(index === 1) rankColor = "#e0e0e0"; 
-                else if(index === 2) rankColor = "#cd7f32"; 
-
-                let rankSize = (index < 3) ? "18px" : "14px";
-                let cName = user.characterName || "이름없음";
-                let sName = user.serverName || "서버";
-                let ap = user.point || 0; 
-                let pImg = user.profileImage || ""; 
-
-                let serverColor = (user.race === 1) ? "#4fc3f7" : "#448aff";
-
-                html += `
-                <div style="display:flex; align-items:center; padding:12px 15px; border-bottom:1px solid #222; transition:0.2s;" onmouseover="this.style.background='#1a1a24'" onmouseout="this.style.background='transparent'">
-                    <div style="width:50px; text-align:center; color:${rankColor}; font-weight:bold; font-size:${rankSize};">${index + 1}</div>
-                    
-                    <div style="flex:1; display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="switchTab('equip', document.querySelector('.nav-item')); loadCharacterDetail('${user.characterId}', '${user.serverId}', '${cName}')">
-                        ${pImg ? `<img src="${pImg}" style="width:36px; height:36px; border-radius:50%; border:2px solid ${serverColor};" onerror="this.style.display='none'">` : '<div style="width:36px; height:36px; border-radius:50%; border:2px solid #555; background:#111;"></div>'}
-                        <div>
-                            <div style="font-weight:bold; font-size:14px; color:#fff;">${cName}</div>
-                            <div style="font-size:11px; color:#888; margin-top:2px;"><span style="color:${serverColor};">[${sName}]</span> ${user.className || '직업 미확인'}</div>
-                        </div>
-                    </div>
-                    
-                    <div style="width:120px; text-align:right; color:#ffca28; font-weight:bold; font-size:14px;">${Number(ap).toLocaleString()}</div>
-                </div>`;
-            });
-            rankArea.innerHTML = html;
-        } catch (e) {
-            rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">서버 응답 오류 (나중에 다시 시도해주세요)</div>`;
-        }
+    if (raceId !== undefined) {
+        currentFullRankRace = raceId;
+    } else {
+        raceId = currentFullRankRace;
     }
+
+    const rankArea = document.getElementById('fullRankingArea');
+    if (!rankArea) return; // 영역이 없으면 중단
+
+    // 🚀 수정 포인트: 요소가 있는지 먼저 체크 (에러 방지)
+    const elElyos = document.getElementById('rankFilterElyos');
+    const elAsmo = document.getElementById('rankFilterAsmo');
+    const elJob = document.getElementById('rankFilterJob');
+
+    const serverVal = (elElyos ? elElyos.value : '') || (elAsmo ? elAsmo.value : '') || '';
+    const jobVal = elJob ? elJob.value : '';
+
+    rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>`;
+
+    try {
+        const res = await fetch(`${API_BASE}/totalRanking?race=${raceId}&server=${serverVal}&job=${encodeURIComponent(jobVal)}`);
+        const data = await res.json();
+        const rankList = data.list || []; 
+        
+        if (rankList.length === 0) {
+            rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">조건에 맞는 캐릭터가 없습니다.</div>`;
+            return;
+        }
+
+        let html = '';
+        rankList.forEach((user, index) => { 
+            // 🚀 수정 포인트: 실제 데이터 필드명인 'point' 사용
+            const apScore = user.point ? Number(user.point).toLocaleString() : '0'; 
+            const charName = user.characterName || '이름없음';
+            const serverName = user.serverName || '서버';
+            const className = user.className || '직업';
+            const pImg = user.profileImage || ''; 
+
+            let rankColor = "#aaa"; 
+            if(index === 0) rankColor = "#ffca28"; 
+            else if(index === 1) rankColor = "#e0e0e0"; 
+            else if(index === 2) rankColor = "#cd7f32"; 
+
+            let serverColor = (user.race === 1) ? "#4fc3f7" : "#448aff";
+
+            html += `
+            <div style="display:flex; align-items:center; padding:12px 15px; border-bottom:1px solid #222;">
+                <div style="width:50px; text-align:center; color:${rankColor}; font-weight:bold;">${index + 1}</div>
+                <div style="flex:1; display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="switchTab('equip', document.querySelector('.nav-item')); loadCharacterDetail('${user.characterId}', '${user.serverId}', '${charName}')">
+                    <img src="${pImg}" style="width:36px; height:36px; border-radius:50%; border:2px solid ${serverColor};" onerror="this.src='https://aion2zang.info/flogo.png'">
+                    <div>
+                        <div style="font-weight:bold; font-size:14px; color:#fff;">${charName}</div>
+                        <div style="font-size:11px; color:#888;"><span style="color:${serverColor};">[${serverName}]</span> ${className}</div>
+                    </div>
+                </div>
+                <div style="width:120px; text-align:right; color:#ffca28; font-weight:bold;">${apScore} AP</div>
+            </div>`;
+        });
+        rankArea.innerHTML = html;
+    } catch (e) {
+        console.error("랭킹 출력 오류:", e);
+        rankArea.innerHTML = `<div style="text-align:center; padding:80px 0; color:#ff5252;">데이터 표시 중 오류가 발생했습니다.</div>`;
+    }
+}
 
    // ==========================================
     // 💾 전체 데이터 원버튼 통합 저장/불러오기 (체크박스 완벽 보존)
@@ -2833,6 +2819,7 @@
 </script>
 </body>
 </html>
+
 
 
 
