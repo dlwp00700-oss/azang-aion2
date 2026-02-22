@@ -5,6 +5,10 @@
       "destination": "/api/userPage" 
     },
     { 
+      "source": "/api/totalRanking", 
+      "destination": "/api/totalRanking" 
+    },
+    { 
       "source": "/api/(.*)", 
       "destination": "/api/index.js" 
     }
