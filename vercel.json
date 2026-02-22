@@ -1,16 +1,7 @@
 {
   "rewrites": [
-    { 
-      "source": "/user/:server/:name", 
-      "destination": "/api/userPage" 
-    },
-    { 
-      "source": "/api/totalRanking", 
-      "destination": "/api/totalRanking" 
-    },
-    { 
-      "source": "/api/(.*)", 
-      "destination": "/api/index.js" 
-    }
+    { "source": "/user/:server/:name", "destination": "/api/userPage" },
+    { "source": "/api/totalRanking", "destination": "/api/totalRanking" }, // 이 줄을 추가
+    { "source": "/api/(.*)", "destination": "/api/index.js" }
   ]
 }
