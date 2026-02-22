@@ -1087,6 +1087,55 @@
         return eff;
     }
 
+    // 🚀 신규 추가: 어비스 세트 효과 텍스트 생성기 (이게 빠져있었습니다!)
+    function getSetEffectText(counts) {
+        const rules = {
+            "십부장": { 2: { ab: 10, pve: -5 }, 5: { ab: 10, pve: -5 }, 8: { ab: 10, pve: -5 }, 12: { ab: 10, pve: -5 } },
+            "백부장": { 2: { ab: 10, pvp: 5, pve: -5 }, 5: { ab: 10, pvpR: 5, pve: -5 }, 8: { ab: 10, pve: -5 }, 12: { ab: 10, pve: -5 } },
+            "천부장": { 2: { ab: 10, pvp: 5, pve: -5 }, 5: { ab: 10, pvpR: 5, pve: -5 }, 8: { ab: 10, pvp: 5, pve: -5 }, 12: { ab: 10, pvpR: 5, pve: -5 } },
+            "군단장": { 2: { ab: 10, pvp: 6, pve: -5 }, 5: { ab: 10, pvpR: 6, pve: -5 }, 8: { ab: 10, pvp: 6, pve: -5 }, 12: { ab: 10, pvpR: 6, pve: -5 } }
+        };
+
+        let activeSets = [];
+
+        for(let set in counts) {
+            let count = counts[set];
+            let setName = "";
+            if(set.includes("십부장")) setName = "십부장";
+            else if(set.includes("백부장")) setName = "백부장";
+            else if(set.includes("천부장")) setName = "천부장";
+            else if(set.includes("군단장")) setName = "군단장";
+
+            if(setName && rules[setName]) {
+                let pve = 0, pvp = 0, pvpR = 0, ab = 0;
+                let maxTier = 0;
+                
+                // 적용되는 모든 단계의 스탯을 누적 합산
+                for(let req in rules[setName]) {
+                    if(count >= parseInt(req)) {
+                        pve += rules[setName][req].pve || 0;
+                        pvp += rules[setName][req].pvp || 0;
+                        pvpR += rules[setName][req].pvpR || 0;
+                        ab += rules[setName][req].ab || 0;
+                        maxTier = req;
+                    }
+                }
+
+                if(maxTier > 0) {
+                    let stats = [];
+                    if(pve !== 0) stats.push(`PVE ${pve}%`);
+                    if(pvp !== 0) stats.push(`PVP +${pvp}%`);
+                    if(pvpR !== 0) stats.push(`PVP내성 +${pvpR}%`);
+                    if(ab !== 0) stats.push(`어비스PVE +${ab}%`);
+                    
+                    activeSets.push(`<span style="color:#ffca28;">[${setName} ${count}피스]</span> (${stats.join(', ')})`);
+                }
+            }
+        }
+        
+        return activeSets.length > 0 ? activeSets.join(' <br>➕ ') : '<span style="color:#888;">발동 중인 어비스 세트 효과 없음</span>';
+    }
+
     function extractBaseStats(eq, overrideBrk) {
         let stats = {}; 
         let displayLines = []; 
@@ -2966,6 +3015,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
 
 
 
