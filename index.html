@@ -2833,35 +2833,11 @@ window.addEventListener('load', () => {
         }
     }
 
-    // 🚀 마스터 스위치: 사이트 켜질 때 필요한 기능 모두 실행
-    window.onload = () => { 
-        if(typeof initPetCalc === "function") initPetCalc(); 
-        if(typeof renderFavorites === "function") renderFavorites();
-        if(typeof loadTotalRanking === "function") loadTotalRanking(0); 
-        
-        initServerList();
-        loadGoogleSheetNotices(); 
-
-        const urlParams = new URLSearchParams(window.location.search);
-
-        const pMenu = urlParams.get('menu');
-        if (pMenu) {
-            const targetBtn = document.querySelector(`.nav-item[onclick*="'${pMenu}'"]`);
-            if (targetBtn) { switchTab(pMenu, targetBtn); }
-        }
-
-       const pServer = urlParams.get('server');
-        const pName = urlParams.get('name');
-        if (pServer && pName) {
-            document.getElementById('searchServer').innerHTML = `<option value="${pServer}">공유된 캐릭터 로딩 중...</option>`;
-            document.getElementById('searchServer').value = pServer;
-            document.getElementById('charNameInput').value = pName;
-            setTimeout(() => { searchCharacter(); }, 300);
-        }
-    }; // 🚀 이 중괄호와 세미콜론이 window.onload를 닫아주는 아주 중요한 역할입니다!
+    
 </script>
 </body>
 </html>
+
 
 
 
