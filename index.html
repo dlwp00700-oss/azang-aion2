@@ -2211,9 +2211,7 @@
         document.getElementById('res_kinah').innerText = tK.toLocaleString();
         document.getElementById('res_mobs').innerText = tCry.toLocaleString() + '마리';
     }
-    // 기존 window.onload에 추가
-    const oldLoad = window.onload;
-    window.onload = () => { if(oldLoad) oldLoad(); initPetCalc(); };
+    
 
     // 🏅 어비스 데이터 및 다중 계산 로직
     const ABY_DATA = {
@@ -2554,12 +2552,57 @@
 
     
 
-    // 🚀 사이트 켜질 때 통합 랭킹(0) 자동 실행되도록 기존 onload 덮어쓰기
-    window.onload = () => { 
-        if(typeof initPetCalc === "function") initPetCalc(); 
-        if(typeof renderFavorites === "function") renderFavorites();
-        loadTotalRanking(0); 
-    };
+   // ✅ 단 하나의 로드 초기화만 유지 (중복 onload 금지)
+window.addEventListener('load', () => {
+  // 1) 공통 초기화
+  if (typeof initPetCalc === "function") initPetCalc();
+  if (typeof renderFavorites === "function") renderFavorites();
+
+  // (있으면) 메인 요약 랭킹 등
+  if (typeof loadTotalRanking === "function") loadTotalRanking(0);
+
+  // 서버 목록/공지
+  if (typeof initServerList === "function") initServerList();
+  if (typeof loadGoogleSheetNotices === "function") loadGoogleSheetNotices();
+
+  // 2) URL 파라미터 처리
+  const urlParams = new URLSearchParams(window.location.search);
+
+  const pMenu = urlParams.get('menu');
+  if (pMenu) {
+    // onclick 문자열 검색은 깨지기 쉬워서, 일단 기존 방식 유지하되 안전하게 처리
+    const targetBtn = document.querySelector(`.nav-item[onclick*="'${pMenu}'"]`);
+    if (targetBtn && typeof switchTab === "function") {
+      switchTab(pMenu, targetBtn);
+    } else if (typeof switchTab === "function") {
+      // 버튼 못 찾으면 탭만이라도 열기 (switchTab이 문자열만 받아도 동작하는 구조면 유효)
+      try { switchTab(pMenu); } catch (_) {}
+    }
+
+    // ✅ ranking으로 직접 진입한 경우: 탭 데이터도 즉시 로딩
+    if (pMenu === 'ranking' && typeof loadFullRanking === "function") {
+      loadFullRanking(0);
+    }
+  }
+
+  // 3) 공유 링크 캐릭터 로딩
+  const pServer = urlParams.get('server');
+  const pName = urlParams.get('name');
+  if (pServer && pName) {
+    const serverSel = document.getElementById('searchServer');
+    const nameInput = document.getElementById('charNameInput');
+
+    if (serverSel) {
+      serverSel.innerHTML = `<option value="${pServer}">공유된 캐릭터 로딩 중.</option>`;
+      serverSel.value = pServer;
+    }
+    if (nameInput) nameInput.value = pName;
+
+    if (typeof searchCharacter === "function") {
+      setTimeout(() => { searchCharacter(); }, 300);
+    }
+  }
+});
 
 
     // ==========================================
@@ -2819,6 +2862,7 @@
 </script>
 </body>
 </html>
+
 
 
 
