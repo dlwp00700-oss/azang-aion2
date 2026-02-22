@@ -2582,11 +2582,13 @@
         const btnAll = document.getElementById('btnFullRankAll');
         const btnElyos = document.getElementById('btnFullRankElyos');
         const btnAsmo = document.getElementById('btnFullRankAsmo');
+        const elElyos = document.getElementById('rankFilterElyos');
+    const elAsmo = document.getElementById('rankFilterAsmo');
         
         // 🚀 신규: 천족과 마족 드롭다운 중 값이 있는 것을 서버에 전송
         const elyosVal = document.getElementById('rankFilterElyos').value;
         const asmoVal = document.getElementById('rankFilterAsmo').value;
-        const serverVal = elyosVal || asmoVal || '';
+        const serverVal = (elElyos ? elElyos.value : '') || (elAsmo ? elAsmo.value : '') || '';
         const jobVal = document.getElementById('rankFilterJob').value;
 
         [btnAll, btnElyos, btnAsmo].forEach(btn => {
@@ -2831,6 +2833,7 @@
 </script>
 </body>
 </html>
+
 
 
 
