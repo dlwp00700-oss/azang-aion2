@@ -1287,18 +1287,34 @@
                 charCard.onmouseout = () => charCard.style.borderColor = "#444";
 
                 
-               // NC가 멋대로 붙인 <strong> 태그를 깔끔하게 벗겨내는 필터!
+               
                 // NC가 멋대로 붙인 <strong> 태그를 깔끔하게 벗겨내는 필터!
                 let rawName = char.characterName || char.name || "이름 없음";
                 const charName = String(rawName).replace(/<\/?[^>]+(>|$)/g, ""); 
                 const serverName = char.serverName || "서버 미확인";
                 const level = char.level || "-";
                 
-                // 🚀 전투력(CP) 추출: API가 주는 전투력 데이터 찾기
-                const cpRaw = char.itemLevel || char.cp || char.combatPower || char.point || 0;
-                const cpText = cpRaw > 0 ? Number(cpRaw).toLocaleString() : "미확인";
+                // 🚀 공식 홈페이지의 비밀: 직업을 글자가 아닌 'pcId'라는 숫자로 줍니다!
+                // 아래에 실제 게임의 직업 번호에 맞게 이름을 적어주시면 완벽하게 번역됩니다.
+                const PC_CLASS_MAP = {
+                    6: "검성",
+                    9: "수호성",
+                    13: "궁성",
+                    18: "살성",
+                    26: "마도성",
+                    22: "정령성",
+                    30: "치유성",
+                    34: "호법성"
+                };
 
-                // 🚀 마족 색상 패치 및 불필요한 직업/종족 텍스트 삭제
+                let className = char.jobName || char.className || char.class;
+                if (!className && char.pcId) {
+                    className = PC_CLASS_MAP[char.pcId] || `미확인(번호:${char.pcId})`;
+                } else if (!className) {
+                    className = "미확인";
+                }
+                
+                // 🚀 마족 색상 패치 (숫자로 2가 들어올 때도 마족으로 인식)
                 const raceName = String(char.raceName || char.race || "");
                 let nameColor = "#4fc3f7"; // 천족 기본 색상 (파랑)
                 if (char.raceId == 2 || char.race == 2 || raceName === "2" || raceName.includes('마족')) {
@@ -1308,16 +1324,16 @@
                 const infoDiv = document.createElement('div');
                 infoDiv.style.cssText = "cursor: pointer; flex: 1;";
                 
-                // 🚀 요청하신 디자인으로 변경: [서버] | Lv | 캐릭터명 | 전투력(CP)
+                // 🚀 요청하신 디자인으로 변경: [서버] | Lv | 캐릭터명 | 직업
                 infoDiv.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                         <span style="color:#aaa; font-size:12px;">[${serverName}]</span>
                         <span style="color:#555; font-size:10px;">|</span>
-                        <span style="color:#ccc; font-size:12px;">Lv.${level}</span>
+                        <span style="color:#ccc; font-size:12px; font-weight:bold;">Lv.${level}</span>
                         <span style="color:#555; font-size:10px;">|</span>
                         <span style="font-weight:bold; font-size:14px; color:${nameColor};">${charName}</span>
                         <span style="color:#555; font-size:10px;">|</span>
-                        <span style="color:#ffca28; font-size:12px; font-weight:bold;">CP ${cpText}</span>
+                        <span style="color:#ffca28; font-size:12px; font-weight:bold;">${className}</span>
                     </div>
                 `;
                 infoDiv.onclick = () => {
@@ -3071,6 +3087,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
 
 
 
