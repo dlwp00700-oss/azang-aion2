@@ -1288,18 +1288,18 @@
 
                 
                // NC가 멋대로 붙인 <strong> 태그를 깔끔하게 벗겨내는 필터!
+                // NC가 멋대로 붙인 <strong> 태그를 깔끔하게 벗겨내는 필터!
                 let rawName = char.characterName || char.name || "이름 없음";
                 const charName = String(rawName).replace(/<\/?[^>]+(>|$)/g, ""); 
                 const serverName = char.serverName || "서버 미확인";
                 const level = char.level || "-";
                 
-                // 🚀 직업 미확인 패치: NC API가 jobName으로 주는 경우 처리
-                const className = char.jobName || char.className || char.class || "직업 미확인";
-                
-                // 🚀 에러 원인 완벽 차단: 숫자가 들어와도 무조건 문자열(String)로 감싸서 에러 방지!
+                // 🚀 전투력(CP) 추출: API가 주는 전투력 데이터 찾기
+                const cpRaw = char.itemLevel || char.cp || char.combatPower || char.point || 0;
+                const cpText = cpRaw > 0 ? Number(cpRaw).toLocaleString() : "미확인";
+
+                // 🚀 마족 색상 패치 및 불필요한 직업/종족 텍스트 삭제
                 const raceName = String(char.raceName || char.race || "");
-                
-                // 🚀 마족 색상 직관성 패치 (숫자로 2가 들어올 때도 마족으로 인식)
                 let nameColor = "#4fc3f7"; // 천족 기본 색상 (파랑)
                 if (char.raceId == 2 || char.race == 2 || raceName === "2" || raceName.includes('마족')) {
                     nameColor = "#ff5252"; // 마족 (빨강)
@@ -1307,9 +1307,18 @@
 
                 const infoDiv = document.createElement('div');
                 infoDiv.style.cssText = "cursor: pointer; flex: 1;";
+                
+                // 🚀 요청하신 디자인으로 변경: [서버] | Lv | 캐릭터명 | 전투력(CP)
                 infoDiv.innerHTML = `
-                    <div style="font-weight:bold; color:${nameColor};">[${serverName}] ${charName}</div>
-                    <div style="font-size:11px; color:#aaa; margin-top:4px;">Lv.${level} | ${className} ${raceName ? '| ' + raceName : ''}</div>
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span style="color:#aaa; font-size:12px;">[${serverName}]</span>
+                        <span style="color:#555; font-size:10px;">|</span>
+                        <span style="color:#ccc; font-size:12px;">Lv.${level}</span>
+                        <span style="color:#555; font-size:10px;">|</span>
+                        <span style="font-weight:bold; font-size:14px; color:${nameColor};">${charName}</span>
+                        <span style="color:#555; font-size:10px;">|</span>
+                        <span style="color:#ffca28; font-size:12px; font-weight:bold;">CP ${cpText}</span>
+                    </div>
                 `;
                 infoDiv.onclick = () => {
                     selectionDiv.style.display = 'none';
@@ -3062,6 +3071,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
 
 
 
