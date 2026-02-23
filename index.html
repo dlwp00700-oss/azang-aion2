@@ -638,7 +638,11 @@
     // 🎲 펫 옵션 기댓값 시뮬레이터 로직
     // ==========================================
     
-    // 🚨 여기에 가지고 계신 DATA.csv 파일 내용 전체를 메모장에서 복사하여 그대로 덮어씌워 주세요! 🚨
+    // ==========================================
+    // 🎲 펫 옵션 기댓값 시뮬레이터 로직
+    // ==========================================
+    
+    // 🚨 [매우 중요] 데이터를 수정할 때 양쪽 끝에 있는 백틱( ` ) 기호를 절대 지우지 마세요!
     const RAW_PET_DATA = `Category,Level,Slot,Grade,Option,MinValue,MaxValue,Unit,ProbabilityPercent
 지성/야성/자연/변형,9,1,영웅,추가 방어력,80,160,flat,0.0714
 지성/야성/자연/변형,9,1,영웅,치명타 방어력,100,200,flat,0.0714
@@ -694,7 +698,6 @@
         container.innerHTML = '';
 
         for(let s=1; s<=9; s++) {
-            // 만약 해당 슬롯 데이터가 없으면 1번 슬롯 데이터를 복사해서 사용 (일반 종족 범용 처리)
             let slotData = parsedPetDict[cat][s] || parsedPetDict[cat][1] || [];
             
             let optionsHtml = `<option value="none">옵션 선택 안 함</option>`;
@@ -718,7 +721,6 @@
         }
     }
 
-    // 옵션을 선택하면 목표치 입력창 띄우기
     function updateSimTargetUI(slotId) {
         const optVal = document.getElementById(`simOpt_${slotId}`).value;
         const wrap = document.getElementById(`simValWrap_${slotId}`);
@@ -727,17 +729,17 @@
             wrap.style.display = 'none';
         } else {
             const data = JSON.parse(optVal.replace(/&quot;/g, '"'));
-            input.value = data.min; // 기본값으로 최소치 세팅
+            input.value = data.min; 
             wrap.style.display = 'flex';
         }
     }
 
-    // 🚀 핵심: 몬테카를로 시뮬레이션 엔진 (10,000회 실행)
+    // 🚀 핵심: 몬테카를로 시뮬레이션 엔진
     function runSimulatedReroll() {
         const category = document.getElementById('simPetCategory').value;
         const level = (category === "특수") ? 10 : 9;
         
-        let targets = []; // 각 슬롯별 최종 성공 확률을 담는 배열
+        let targets = []; 
         let hasTarget = false;
 
         for(let s=1; s<=9; s++) {
@@ -749,7 +751,6 @@
                 const targetVal = parseFloat(valInp.value) || 0;
 
                 let valProb = 1.0;
-                // 수치가 범위 내 균등 분포라는 가정
                 if(optData.min !== optData.max) {
                     if(targetVal >= optData.max) valProb = 0.0;
                     else if(targetVal > optData.min) {
@@ -759,7 +760,7 @@
                     if(targetVal > optData.max) valProb = 0.0;
                 }
 
-                let finalP = (optData.prob / 100) * valProb; // 최종 확률 = 등장 확률 * 수치 확률
+                let finalP = (optData.prob / 100) * valProb; 
                 if(finalP <= 0) {
                     alert(`${s}번 슬롯의 목표치가 시스템상 뽑을 수 없는 수치입니다!`);
                     return;
@@ -767,7 +768,7 @@
                 targets.push({ slot: s, p: finalP });
                 hasTarget = true;
             } else {
-                targets.push(null); // 세팅 안 한 슬롯은 무시
+                targets.push(null);
             }
         }
 
@@ -775,7 +776,6 @@
 
         document.getElementById('simResText').innerHTML = "⏳ 수만 가지의 경우의 수를 시뮬레이션 중...";
 
-        // 딜레이를 주어 UI가 멈추지 않게 함
         setTimeout(() => {
             const iterations = 10000;
             let totalRolls = 0, totalCrystals = 0, totalKinah = 0;
@@ -792,7 +792,6 @@
                     totalCrystals += (level * 5) + penalty.c;
                     totalKinah += (level * 1000) + penalty.k;
 
-                    // 잠기지 않은 목표 슬롯들만 굴린다
                     for(let s=0; s<9; s++) {
                         if(targets[s] !== null && !locked[s]) {
                             if(Math.random() < targets[s].p) {
@@ -815,7 +814,6 @@
         }, 50);
     }
 
-    // 페이지 로드 시 펫 데이터 파싱 초기화 실행
     window.addEventListener('load', () => {
         initPetData();
     });
@@ -3323,6 +3321,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
 
 
 
