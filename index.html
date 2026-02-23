@@ -590,6 +590,20 @@
 
            <div class="pet-calc-container" style="background:#141418; border:1px solid #ffca28; border-radius:12px; padding:30px; max-width:900px; margin:40px auto 20px auto; position:relative; overflow:hidden;">
                 
+                <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a20; border-color: #ffca28;">
+                <summary style="color: #ffca28; font-size: 15px;">🎲 [필독] 펫 옵션 기댓값 시뮬레이터 사용 방법 (클릭하여 열기)</summary>
+                <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
+                    <ul style="line-height: 1.8;">
+                        <li><b>레벨 및 종족 선택:</b> 목표로 하는 펫의 레벨(9/10)과 종족(지성/야성/자연/변형/특수)을 먼저 선택하세요.</li>
+                        <li><b>목표 옵션 및 수치 설정:</b> 원하는 슬롯에 <b>'타협할 최소 수치'</b>를 입력합니다. (선택하지 않은 슬롯은 돌리지 않는 것으로 간주합니다.)</li>
+                        <li><b>🔒 잠금(체크) 기능:</b> 이미 좋은 옵션이 떠서 <b>'돌리지 않고 고정할 슬롯'</b>에 체크하세요. 시뮬레이션 시, 1회 리롤당 잠금 개수에 따른 <b>막대한 페널티 비용이 정확하게 계산에 반영</b>됩니다.</li>
+                        <li>계산하기를 누르면 내부적으로 <b>10,000번의 가상 리롤(뽑기)</b>을 실행하여 <b>목표 달성에 평균적으로 소모되는 기댓값(영혼결정 및 키나)</b>을 알려줍니다.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <div class="pet-calc-container" style="background:#141418; border:1px solid #ffca28; border-radius:12px; padding:30px; max-width:900px; margin:0 auto 20px auto; position:relative; overflow:hidden;">
+                
                 <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #332a00; padding-bottom:15px; margin-bottom:20px;">
                     <h2 style="margin:0; color:#ffca28; font-size:20px;">🎲 펫 옵션 기댓값 시뮬레이터 (목표 세팅)</h2>
                     <select id="simPetLevel" style="background:#111; color:#fff; border:1px solid #ffca28; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer;" onchange="changeSimLvl()">
@@ -604,11 +618,6 @@
                     <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('자연', this)">자연</button>
                     <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('변형', this)">변형</button>
                     <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('특수', this)">특수</button>
-                </div>
-                
-                <div style="font-size:12px; color:#aaa; margin-bottom:15px; line-height:1.6;">
-                    * <b>잠금(🔒) 기능:</b> 이미 좋은 옵션이 떠서 <b>돌리지 않을 슬롯</b>은 체크하세요. (초기 잠금이 많을수록 1회 리롤 비용이 급증합니다.)<br>
-                    * 최소 목표치에는 해당 슬롯에서 타협할 <b>최소 수치</b>를 적으시면 됩니다.
                 </div>
 
                 <table style="width:100%; border-collapse:collapse; text-align:left; font-size:12px; margin-bottom:20px;">
@@ -643,9 +652,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        
-         </div><div id="tab-abyss" class="tab-content">
+            </div> </div> <div id="tab-abyss" class="tab-content">
             <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a24; border-color: #ffca28;">
             <summary style="color: #ffca28; font-size: 15px;">🏅 [필독] 어비스 파밍 계산기 사용 방법 (클릭하여 열기)</summary>
             <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
@@ -4281,6 +4288,7 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
 </script>
 </body>
 </html>
+
 
 
 
