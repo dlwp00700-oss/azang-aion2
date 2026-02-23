@@ -1286,20 +1286,22 @@
                 charCard.onmouseover = () => charCard.style.borderColor = "#4fc3f7";
                 charCard.onmouseout = () => charCard.style.borderColor = "#444";
 
-                // NC가 멋대로 붙인 <strong> 태그를 깔끔하게 벗겨내는 필터!
-                // NC가 멋대로 붙인 <strong> 태그를 깔끔하게 벗겨내는 필터!
+                
+               // NC가 멋대로 붙인 <strong> 태그를 깔끔하게 벗겨내는 필터!
                 let rawName = char.characterName || char.name || "이름 없음";
-                const charName = rawName.replace(/<\/?[^>]+(>|$)/g, ""); 
+                const charName = String(rawName).replace(/<\/?[^>]+(>|$)/g, ""); 
                 const serverName = char.serverName || "서버 미확인";
                 const level = char.level || "-";
                 
                 // 🚀 직업 미확인 패치: NC API가 jobName으로 주는 경우 처리
                 const className = char.jobName || char.className || char.class || "직업 미확인";
-                const raceName = char.raceName || char.race || "";
                 
-                // 🚀 마족 색상 직관성 패치
+                // 🚀 에러 원인 완벽 차단: 숫자가 들어와도 무조건 문자열(String)로 감싸서 에러 방지!
+                const raceName = String(char.raceName || char.race || "");
+                
+                // 🚀 마족 색상 직관성 패치 (숫자로 2가 들어올 때도 마족으로 인식)
                 let nameColor = "#4fc3f7"; // 천족 기본 색상 (파랑)
-                if (char.raceId === 2 || raceName === '마족' || raceName.includes('마족')) {
+                if (char.raceId == 2 || char.race == 2 || raceName === "2" || raceName.includes('마족')) {
                     nameColor = "#ff5252"; // 마족 (빨강)
                 }
 
@@ -3060,6 +3062,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
 
 
 
