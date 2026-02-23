@@ -588,42 +588,53 @@
                 </div>
             </div>
 
-            <div class="pet-calc-container" style="background:#141418; border:1px solid #ffca28; border-radius:12px; padding:30px; max-width:900px; margin:40px auto 20px auto; position:relative; overflow:hidden;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #332a00; padding-bottom:15px; margin-bottom:20px;">
-                    <h2 style="margin:0; color:#ffca28; font-size:20px;">🎲 펫 옵션 기댓값 시뮬레이터 (목표 세팅)</h2>
-                    <select id="simPetCategory" style="background:#111; color:#fff; border:1px solid #ffca28; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer;" onchange="buildSimSlots()">
-                        <option value="지성">지성 (9레벨)</option>
-                        <option value="야성">야성 (9레벨)</option>
-                        <option value="자연">자연 (9레벨)</option>
-                        <option value="변형">변형 (9레벨)</option>
-                        <option value="특수">특수 (10레벨)</option>
-                    </select>
+           <div class="pet-calc-container" style="background:#141418; border:1px solid #ffca28; border-radius:12px; padding:30px; max-width:900px; margin:40px auto 20px auto; position:relative; overflow:hidden;">
+            
+            <div style="border-bottom:2px solid #332a00; padding-bottom:15px; margin-bottom:20px;">
+                <h2 style="margin:0 0 15px 0; color:#ffca28; font-size:20px;">🎲 펫 옵션 기댓값 시뮬레이터 (목표 세팅)</h2>
+                <div style="display:flex; gap:10px;">
+                    <button class="sim-cat-btn" style="flex:1; padding:10px; background:#ffca28; color:#000; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('지성', this)">지성 (9Lv)</button>
+                    <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('야성', this)">야성 (9Lv)</button>
+                    <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('자연', this)">자연 (9Lv)</button>
+                    <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('변형', this)">변형 (9Lv)</button>
+                    <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('특수', this)">특수 (10Lv)</button>
                 </div>
-                
-                <div style="font-size:12px; color:#aaa; margin-bottom:15px; line-height:1.6;">
-                    * 9개의 슬롯 중 <b>원하는 슬롯에만 목표 옵션과 수치</b>를 설정하세요. (설정하지 않은 슬롯은 무시됩니다.)<br>
-                    * 계산 버튼을 누르면 내부적으로 <b>10,000번의 시뮬레이션</b>을 돌려 목표 옵션이 모두 뜰 때까지 필요한 평균 비용을 산출합니다.
-                </div>
+            </div>
+            
+            <div style="font-size:12px; color:#aaa; margin-bottom:15px; line-height:1.6;">
+                * <b>잠금(🔒) 기능:</b> 이미 좋은 옵션이 떠서 <b>돌리지 않을 슬롯</b>은 체크하세요. (초기 잠금이 많을수록 1회 리롤 비용이 급증합니다.)<br>
+                * 최소 목표치에는 해당 슬롯에서 타협할 <b>최소 수치</b>를 적으시면 됩니다.
+            </div>
 
-                <div id="simSlotsContainer" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:15px; margin-bottom:20px;"></div>
+            <table style="width:100%; border-collapse:collapse; text-align:left; font-size:12px; margin-bottom:20px;">
+                <thead>
+                    <tr style="border-bottom:1px solid #333; color:#888; background:#0a0a0c;">
+                        <th style="padding:10px; width:50px; text-align:center;">슬롯</th>
+                        <th style="padding:10px; width:70px; text-align:center;">🔒 잠금</th>
+                        <th style="padding:10px;">목표 옵션 선택</th>
+                        <th style="padding:10px; width:100px;">최소 목표치</th>
+                    </tr>
+                </thead>
+                <tbody id="simSlotsContainer">
+                    </tbody>
+            </table>
 
-                <button onclick="runSimulatedReroll()" style="width:100%; padding:15px; background:#ffca28; color:#000; border:none; border-radius:8px; font-weight:bold; font-size:16px; cursor:pointer; transition:0.2s;">계산하기 (10,000회 시뮬레이션)</button>
+            <button onclick="runSimulatedReroll()" style="width:100%; padding:15px; background:#ffca28; color:#000; border:none; border-radius:8px; font-weight:bold; font-size:16px; cursor:pointer; transition:0.2s; box-shadow:0 4px 10px rgba(255,202,40,0.2);">🚀 계산하기 (10,000회 시뮬레이션)</button>
 
-                <div style="margin-top:20px; background:#0a0a0c; border:1px solid #333; border-radius:8px; padding:20px;">
-                    <div id="simResText" style="text-align:center; color:#4fc3f7; font-weight:bold; font-size:14px; margin-bottom:15px;">옵션을 세팅하고 계산하기를 눌러주세요.</div>
-                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:15px;">
-                        <div style="text-align:center;">
-                            <div style="font-size:11px; color:#888; margin-bottom:5px;">기대 리롤 횟수</div>
-                            <div id="simResRolls" style="font-size:22px; font-weight:bold; color:#fff;">0회</div>
-                        </div>
-                        <div style="text-align:center; border-left:1px solid #222; border-right:1px solid #222;">
-                            <div style="font-size:11px; color:#888; margin-bottom:5px;">예상 소모 영혼결정</div>
-                            <div id="simResCrys" style="font-size:22px; font-weight:bold; color:#ce93d8;">0개</div>
-                        </div>
-                        <div style="text-align:center;">
-                            <div style="font-size:11px; color:#888; margin-bottom:5px;">예상 소모 키나</div>
-                            <div id="simResKinah" style="font-size:22px; font-weight:bold; color:#ffca28;">0</div>
-                        </div>
+            <div style="margin-top:20px; background:#0a0a0c; border:1px solid #333; border-radius:8px; padding:20px;">
+                <div id="simResText" style="text-align:center; color:#4fc3f7; font-weight:bold; font-size:14px; margin-bottom:15px;">옵션과 잠금을 세팅하고 계산하기를 눌러주세요.</div>
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:15px;">
+                    <div style="text-align:center;">
+                        <div style="font-size:11px; color:#888; margin-bottom:5px;">기대 리롤 횟수</div>
+                        <div id="simResRolls" style="font-size:22px; font-weight:bold; color:#fff;">0회</div>
+                    </div>
+                    <div style="text-align:center; border-left:1px solid #222; border-right:1px solid #222;">
+                        <div style="font-size:11px; color:#888; margin-bottom:5px;">예상 소모 영혼결정</div>
+                        <div id="simResCrys" style="font-size:22px; font-weight:bold; color:#ce93d8;">0개</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:11px; color:#888; margin-bottom:5px;">예상 소모 키나</div>
+                        <div id="simResKinah" style="font-size:22px; font-weight:bold; color:#ffca28;">0</div>
                     </div>
                 </div>
             </div>
@@ -3128,7 +3139,7 @@ window.addEventListener('load', () => {
     }
 
 // ==========================================
-    // 🎲 펫 옵션 기댓값 시뮬레이터 로직 (분리형 안전버전)
+    // 🎲 펫 옵션 기댓값 시뮬레이터 로직 (UI 개선 & 수동 잠금 완벽 적용)
     // ==========================================
     
     const RAW_PET_DATA = `Category,Level,Slot,Grade,Option,MinValue,MaxValue,Unit,ProbabilityPercent
@@ -3156,6 +3167,23 @@ window.addEventListener('load', () => {
 특수,10,3,유일,무기 피해 증폭,0.9,1.8,%,1.5`;
 
     let parsedPetDict = {};
+    let currentSimCategory = '지성'; // 🚀 초기 탭 설정
+
+    // 종족 버튼 눌렀을 때 UI 색상 바꾸고 슬롯 리셋하는 기능
+    function changeSimCat(catName, btnEl) {
+        currentSimCategory = catName;
+        const btns = document.querySelectorAll('.sim-cat-btn');
+        btns.forEach(btn => {
+            btn.style.background = '#111';
+            btn.style.color = '#888';
+            btn.style.border = '1px solid #333';
+        });
+        btnEl.style.background = '#ffca28';
+        btnEl.style.color = '#000';
+        btnEl.style.border = 'none';
+
+        buildSimSlots();
+    }
 
     function initPetData() {
         try {
@@ -3171,9 +3199,7 @@ window.addEventListener('load', () => {
                 const unit = cols[7].trim();
                 const prob = parseFloat(cols[8].trim());
 
-                // 🚀 "지성/야성/자연/변형"을 슬래시(/) 단위로 쪼개서 각각 넣어주는 마법의 코드!
                 const categories = catRaw.includes('/') ? catRaw.split('/') : [catRaw];
-                
                 categories.forEach(cat => {
                     if(!parsedPetDict[cat]) parsedPetDict[cat] = {};
                     if(!parsedPetDict[cat][slot]) parsedPetDict[cat][slot] = [];
@@ -3185,7 +3211,7 @@ window.addEventListener('load', () => {
     }
 
     function buildSimSlots() {
-        const cat = document.getElementById('simPetCategory').value;
+        const cat = currentSimCategory;
         const container = document.getElementById('simSlotsContainer');
         if(!container) return;
         container.innerHTML = '';
@@ -3200,20 +3226,44 @@ window.addEventListener('load', () => {
             slotData.forEach(opt => {
                 let jStr = JSON.stringify(opt).replace(/"/g, '&quot;');
                 let u = opt.unit === 'flat' ? '' : '%';
-                optionsHtml += `<option value="${jStr}">${opt.name} (${opt.min}${u}~${opt.max}${u})</option>`;
+                optionsHtml += `<option value="${jStr}">${opt.name} (${opt.min}${u} ~ ${opt.max}${u})</option>`;
             });
 
+            // 🚀 테이블 행(tr) 형태로 깔끔하게 출력
             container.innerHTML += `
-            <div style="background:#141418; border:1px solid #333; padding:12px; border-radius:8px;">
-                <div style="color:#ffca28; font-weight:bold; font-size:13px; margin-bottom:8px; border-bottom:1px solid #333; padding-bottom:4px;">슬롯 ${s}</div>
-                <select id="simOpt_${s}" style="width:100%; padding:6px; background:#0a0a0c; color:#fff; border:1px solid #444; border-radius:4px; margin-bottom:8px; font-size:11px;" onchange="updateSimTargetUI(${s})">
-                    ${optionsHtml}
-                </select>
-                <div id="simValWrap_${s}" style="display:none; align-items:center; gap:5px;">
-                    <span style="font-size:11px; color:#aaa; white-space:nowrap;">최소치:</span>
-                    <input type="number" id="simVal_${s}" value="0" step="0.1" style="width:100%; padding:4px; background:#0a0a0c; color:#fff; border:1px solid #444; border-radius:4px; font-size:12px;">
-                </div>
-            </div>`;
+            <tr style="border-bottom:1px solid #222; background:#0f0f11;">
+                <td style="padding:12px 10px; text-align:center; font-weight:bold; color:#ffca28; font-size:14px;">${s}</td>
+                <td style="padding:12px 10px; text-align:center;">
+                    <input type="checkbox" id="simLock_${s}" style="cursor:pointer; transform:scale(1.3);" onchange="toggleSimLock(${s})">
+                </td>
+                <td style="padding:12px 10px;">
+                    <select id="simOpt_${s}" style="width:100%; padding:8px; background:#1a1a24; color:#fff; border:1px solid #333; border-radius:4px;" onchange="updateSimTargetUI(${s})">
+                        ${optionsHtml}
+                    </select>
+                </td>
+                <td style="padding:12px 10px;">
+                    <div id="simValWrap_${s}" style="display:none; align-items:center;">
+                        <input type="number" id="simVal_${s}" value="0" step="0.1" style="width:80px; padding:8px; background:#1a1a24; color:#fff; border:1px solid #333; border-radius:4px; text-align:center;">
+                    </div>
+                </td>
+            </tr>`;
+        }
+    }
+
+    // 🚀 잠금 체크 시 옵션 선택창 끄기
+    function toggleSimLock(slotId) {
+        const isLocked = document.getElementById(`simLock_${slotId}`).checked;
+        const optSel = document.getElementById(`simOpt_${slotId}`);
+        const wrap = document.getElementById(`simValWrap_${slotId}`);
+        
+        if(isLocked) {
+            optSel.value = "none";
+            optSel.disabled = true;
+            optSel.style.opacity = "0.4";
+            wrap.style.display = 'none';
+        } else {
+            optSel.disabled = false;
+            optSel.style.opacity = "1";
         }
     }
 
@@ -3230,18 +3280,28 @@ window.addEventListener('load', () => {
         }
     }
 
+    // 🚀 수동 잠금을 반영한 최종 시뮬레이션 엔진
     function runSimulatedReroll() {
-        const category = document.getElementById('simPetCategory').value;
+        const category = currentSimCategory;
         const level = (category === "특수") ? 10 : 9;
         
         let targets = []; 
         let hasTarget = false;
+        let manualLocks = 0; // 유저가 수동으로 체크한 잠금 갯수
 
         for(let s=1; s<=9; s++) {
+            // 잠금 체크 여부 확인
+            const isLocked = document.getElementById(`simLock_${s}`).checked;
+            if(isLocked) {
+                manualLocks++;
+                targets.push(null); // 잠긴 슬롯은 돌리지 않음
+                continue;
+            }
+
             const optSel = document.getElementById(`simOpt_${s}`);
             const valInp = document.getElementById(`simVal_${s}`);
 
-            if(optSel && optSel.value !== "none") {
+            if(optSel && optSel.value !== "none" && !optSel.disabled) {
                 const optData = JSON.parse(optSel.value.replace(/&quot;/g, '"'));
                 const targetVal = parseFloat(valInp.value) || 0;
 
@@ -3267,21 +3327,22 @@ window.addEventListener('load', () => {
             }
         }
 
-        if(!hasTarget) return alert("최소 1개 이상의 슬롯에 목표 옵션을 설정해주세요.");
+        if(!hasTarget) return alert("최소 1개 이상의 슬롯에 목표 옵션을 설정해주세요.\n(잠금(🔒)만 설정하고 돌릴 수는 없습니다.)");
 
         document.getElementById('simResText').innerHTML = "⏳ 수만 가지의 경우의 수를 시뮬레이션 중... (잠시만 대기)";
 
         setTimeout(() => {
             const iterations = 10000;
             let totalRolls = 0, totalCrystals = 0, totalKinah = 0;
-            const PENALTY = [{c:0,k:0},{c:5,k:1000},{c:5,k:1000},{c:20,k:4000},{c:45,k:9000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000}];
+            const PENALTY = [{c:0,k:0},{c:5,k:1000},{c:5,k:1000},{c:20,k:4000},{c:45,k:9000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000}];
             let targetCount = targets.filter(t => t !== null).length;
 
             for(let i=0; i<iterations; i++) {
                 let locked = [false, false, false, false, false, false, false, false, false];
-                let currentLocks = 0;
+                let currentLocks = manualLocks; // 시작부터 수동 잠금 갯수 페널티를 안고 시작
+                let rollingLocks = 0; // 이번에 굴려서 목표를 띄운 개수
 
-                while(currentLocks < targetCount) {
+                while(rollingLocks < targetCount) {
                     let penalty = PENALTY[currentLocks] || {c:95, k:19000};
                     totalRolls++;
                     totalCrystals += (level * 5) + penalty.c;
@@ -3291,7 +3352,8 @@ window.addEventListener('load', () => {
                         if(targets[s] !== null && !locked[s]) {
                             if(Math.random() < targets[s].p) {
                                 locked[s] = true;
-                                currentLocks++;
+                                rollingLocks++;
+                                currentLocks++; // 성공할 때마다 잠금 페널티 추가
                             }
                         }
                     }
@@ -3305,16 +3367,16 @@ window.addEventListener('load', () => {
             document.getElementById('simResRolls').innerText = avgRolls.toLocaleString() + "회";
             document.getElementById('simResCrys').innerText = avgCrys.toLocaleString() + "개";
             document.getElementById('simResKinah').innerText = avgKinah.toLocaleString();
-            document.getElementById('simResText').innerHTML = "✅ 시뮬레이션 완료 (10,000회 평균 기댓값)";
+            document.getElementById('simResText').innerHTML = "✅ 시뮬레이션 완료 (수동 잠금 비용 반영 완료)";
         }, 100);
     }
 
-    setTimeout(initPetData, 500);   
-
+    setTimeout(initPetData, 500);
 
 </script>
 </body>
 </html>
+
 
 
 
