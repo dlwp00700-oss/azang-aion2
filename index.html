@@ -4080,21 +4080,28 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
         buildSimSlots();
     }
 
-    // CSV 데이터를 파싱하여 [종족][레벨][슬롯번호] 구조로 완벽하게 정리
+    // CSV 및 엑셀(탭) 데이터를 파싱하여 [종족][레벨][슬롯번호] 구조로 완벽하게 정리
     function initPetData() {
         try {
             const rows = RAW_PET_DATA.trim().split('\n');
             for(let i=1; i<rows.length; i++) {
                 if(!rows[i].trim()) continue;
-                const cols = rows[i].split(',');
+                
+                // 🚀 엑셀에서 바로 복붙했을 때 생기는 탭(\t)과 콤마(,)를 모두 완벽하게 인식!
+                const isTab = rows[i].includes('\t');
+                const cols = isTab ? rows[i].split('\t') : rows[i].split(',');
+                
+                // 만약 제목 줄(Category...)이 또 복사되었다면 건너뜁니다
+                if(cols[0].trim().toLowerCase() === 'category') continue;
+
                 const catRaw = cols[0].trim();
                 const level = parseInt(cols[1].trim());
                 const slot = parseInt(cols[2].trim()) || 1;
-                const grade = cols[3].trim(); // 영웅 또는 유일
+                const grade = cols[3].trim(); 
                 const optName = cols[4].trim();
                 const min = parseFloat(cols[5].trim());
                 const max = parseFloat(cols[6].trim());
-                const unit = cols[7].trim();
+                const unit = cols[7] ? cols[7].trim() : '';
                 const prob = parseFloat(cols[8].trim());
 
                 const categories = catRaw.includes('/') ? catRaw.split('/') : [catRaw];
@@ -4102,7 +4109,7 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
                     if(!parsedPetDict[cat]) parsedPetDict[cat] = {};
                     if(!parsedPetDict[cat][level]) parsedPetDict[cat][level] = {};
                     if(!parsedPetDict[cat][level][slot]) parsedPetDict[cat][level][slot] = [];
-                    // 🚀 등급(유일/영웅) 정보도 함께 저장합니다!
+                    
                     parsedPetDict[cat][level][slot].push({ name: optName, min: min, max: max, unit: unit, prob: prob, grade: grade });
                 });
             }
@@ -4274,6 +4281,7 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
 </script>
 </body>
 </html>
+
 
 
 
