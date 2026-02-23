@@ -585,6 +585,44 @@
                 </div>
             </div>
         </div>
+
+        <div class="pet-calc-container" style="background:#141418; border:1px solid #ffca28; border-radius:12px; padding:30px; max-width:900px; margin:40px auto 20px auto; position:relative; overflow:hidden;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #332a00; padding-bottom:15px; margin-bottom:20px;">
+                        <h2 style="margin:0; color:#ffca28; font-size:20px;">🎲 펫 옵션 기댓값 시뮬레이터 (목표 세팅)</h2>
+                        <select id="simPetCategory" style="background:#111; color:#fff; border:1px solid #ffca28; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer;" onchange="buildSimSlots()">
+                            <option value="지성/야성/자연/변형">지성/야성/자연/변형 (9레벨)</option>
+                            <option value="특수">특수 (10레벨)</option>
+                        </select>
+                    </div>
+                    
+                    <div style="font-size:12px; color:#aaa; margin-bottom:15px; line-height:1.6;">
+                        * 9개의 슬롯 중 <b>원하는 슬롯에만 목표 옵션과 수치</b>를 설정하세요. (설정하지 않은 슬롯은 무시됩니다.)<br>
+                        * 계산 버튼을 누르면 내부적으로 <b>10,000번의 시뮬레이션</b>을 돌려 목표 옵션이 모두 뜰 때까지 필요한 평균 비용을 산출합니다.
+                    </div>
+
+                    <div id="simSlotsContainer" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:15px; margin-bottom:20px;"></div>
+
+                    <button onclick="runSimulatedReroll()" style="width:100%; padding:15px; background:#ffca28; color:#000; border:none; border-radius:8px; font-weight:bold; font-size:16px; cursor:pointer; transition:0.2s;">계산하기 (10,000회 시뮬레이션)</button>
+
+                    <div style="margin-top:20px; background:#0a0a0c; border:1px solid #333; border-radius:8px; padding:20px;">
+                        <div id="simResText" style="text-align:center; color:#4fc3f7; font-weight:bold; font-size:14px; margin-bottom:15px;">옵션을 세팅하고 계산하기를 눌러주세요.</div>
+                        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:15px;">
+                            <div style="text-align:center;">
+                                <div style="font-size:11px; color:#888; margin-bottom:5px;">기대 리롤 횟수</div>
+                                <div id="simResRolls" style="font-size:22px; font-weight:bold; color:#fff;">0회</div>
+                            </div>
+                            <div style="text-align:center; border-left:1px solid #222; border-right:1px solid #222;">
+                                <div style="font-size:11px; color:#888; margin-bottom:5px;">예상 소모 영혼결정</div>
+                                <div id="simResCrys" style="font-size:22px; font-weight:bold; color:#ce93d8;">0개</div>
+                            </div>
+                            <div style="text-align:center;">
+                                <div style="font-size:11px; color:#888; margin-bottom:5px;">예상 소모 키나</div>
+                                <div id="simResKinah" style="font-size:22px; font-weight:bold; color:#ffca28;">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
         <div id="tab-abyss" class="tab-content">
             <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a24; border-color: #ffca28;">
             <summary style="color: #ffca28; font-size: 15px;">🏅 [필독] 어비스 파밍 계산기 사용 방법 (클릭하여 열기)</summary>
@@ -3083,10 +3121,197 @@ window.addEventListener('load', () => {
         }
     }
 
+// ==========================================
+    // 🎲 펫 옵션 기댓값 시뮬레이터 로직 (안전버전)
+    // ==========================================
     
+    // 유저님이 제공해주신 전체 확률 데이터 완벽 적용
+    const RAW_PET_DATA = `Category,Level,Slot,Grade,Option,MinValue,MaxValue,Unit,ProbabilityPercent
+지성/야성/자연/변형,9,1,영웅,추가 방어력,80,160,flat,0.0714
+지성/야성/자연/변형,9,1,영웅,치명타 방어력,100,200,flat,0.0714
+지성/야성/자연/변형,9,1,영웅,후방 방어력,100,200,flat,0.0714
+지성/야성/자연/변형,9,1,영웅,PVE 방어력,100,200,flat,0.0714
+지성/야성/자연/변형,9,1,영웅,추가 명중,20,40,flat,0.0714
+지성/야성/자연/변형,9,1,영웅,치명타,15,30,flat,0.0714
+지성/야성/자연/변형,9,1,영웅,보스 공격력,10,20,flat,0.0714
+지성/야성/자연/변형,9,1,영웅,추가 회피,20,40,flat,0.0714
+지성/야성/자연/변형,9,1,영웅,치명타 저항,15,30,flat,0.0714
+특수,10,9,영웅,강타,1.2,2.4,%,0.5
+특수,10,9,영웅,완벽,1.2,2.4,%,0.5
+특수,10,9,영웅,무기 피해 증폭,1.2,2.4,%,0.5
+특수,10,9,영웅,치명타 피해 증폭,1.5,3,%,0.5
+특수,10,9,영웅,후방 피해 증폭,1.5,3,%,0.5
+특수,10,9,영웅,PVE 피해 증폭,1.5,3,%,0.5
+특수,10,9,영웅,생명력,100,200,flat,0.5
+특수,10,9,영웅,정신력,50,100,flat,0.5
+특수,10,3,유일,관통,60,120,flat,1.5
+특수,10,3,유일,피해 증폭,0.9,1.8,%,1.5
+특수,10,3,유일,강타,0.9,1.8,%,1.5
+특수,10,3,유일,완벽,0.9,1.8,%,1.5
+특수,10,3,유일,무기 피해 증폭,0.9,1.8,%,1.5`;
+
+    let parsedPetDict = { "지성/야성/자연/변형": {}, "특수": {} };
+
+    function initPetData() {
+        try {
+            const rows = RAW_PET_DATA.trim().split('\n');
+            for(let i=1; i<rows.length; i++) {
+                if(!rows[i].trim()) continue;
+                const cols = rows[i].split(',');
+                const cat = cols[0].trim();
+                const slot = parseInt(cols[2].trim()) || 1;
+                const optName = cols[4].trim();
+                const min = parseFloat(cols[5].trim());
+                const max = parseFloat(cols[6].trim());
+                const unit = cols[7].trim();
+                const prob = parseFloat(cols[8].trim());
+
+                if(parsedPetDict[cat]) {
+                    if(!parsedPetDict[cat][slot]) parsedPetDict[cat][slot] = [];
+                    parsedPetDict[cat][slot].push({ name: optName, min: min, max: max, unit: unit, prob: prob });
+                }
+            }
+            buildSimSlots();
+        } catch(e) { console.error("펫 데이터 로드 에러:", e); }
+    }
+
+    function buildSimSlots() {
+        const cat = document.getElementById('simPetCategory').value;
+        const container = document.getElementById('simSlotsContainer');
+        if(!container) return;
+        container.innerHTML = '';
+
+        for(let s=1; s<=9; s++) {
+            // 지성 카테고리는 전 슬롯 공통, 특수 카테고리는 3(유일), 9(영웅) 등 슬롯마다 다를 수 있으니 유연하게 처리
+            let slotData = parsedPetDict[cat][s];
+            if(!slotData || slotData.length === 0) {
+                // 특정 슬롯 데이터가 비어있으면 1번 슬롯(기본) 데이터나 9번 슬롯 데이터를 빌려옵니다
+                slotData = parsedPetDict[cat][1] || parsedPetDict[cat][9] || []; 
+            }
+            
+            let optionsHtml = `<option value="none">옵션 선택 안 함</option>`;
+            slotData.forEach(opt => {
+                let jStr = JSON.stringify(opt).replace(/"/g, '&quot;');
+                let u = opt.unit === 'flat' ? '' : '%';
+                optionsHtml += `<option value="${jStr}">${opt.name} (${opt.min}${u}~${opt.max}${u})</option>`;
+            });
+
+            container.innerHTML += `
+            <div style="background:#141418; border:1px solid #333; padding:12px; border-radius:8px;">
+                <div style="color:#ffca28; font-weight:bold; font-size:13px; margin-bottom:8px; border-bottom:1px solid #333; padding-bottom:4px;">슬롯 ${s}</div>
+                <select id="simOpt_${s}" style="width:100%; padding:6px; background:#0a0a0c; color:#fff; border:1px solid #444; border-radius:4px; margin-bottom:8px; font-size:11px;" onchange="updateSimTargetUI(${s})">
+                    ${optionsHtml}
+                </select>
+                <div id="simValWrap_${s}" style="display:none; align-items:center; gap:5px;">
+                    <span style="font-size:11px; color:#aaa; white-space:nowrap;">최소치:</span>
+                    <input type="number" id="simVal_${s}" value="0" step="0.1" style="width:100%; padding:4px; background:#0a0a0c; color:#fff; border:1px solid #444; border-radius:4px; font-size:12px;">
+                </div>
+            </div>`;
+        }
+    }
+
+    function updateSimTargetUI(slotId) {
+        const optVal = document.getElementById(`simOpt_${slotId}`).value;
+        const wrap = document.getElementById(`simValWrap_${slotId}`);
+        const input = document.getElementById(`simVal_${slotId}`);
+        if(optVal === "none") {
+            wrap.style.display = 'none';
+        } else {
+            const data = JSON.parse(optVal.replace(/&quot;/g, '"'));
+            input.value = data.min; // 기본값으로 최소치 자동 세팅
+            wrap.style.display = 'flex';
+        }
+    }
+
+    function runSimulatedReroll() {
+        const category = document.getElementById('simPetCategory').value;
+        const level = (category === "특수") ? 10 : 9;
+        
+        let targets = []; 
+        let hasTarget = false;
+
+        for(let s=1; s<=9; s++) {
+            const optSel = document.getElementById(`simOpt_${s}`);
+            const valInp = document.getElementById(`simVal_${s}`);
+
+            if(optSel && optSel.value !== "none") {
+                const optData = JSON.parse(optSel.value.replace(/&quot;/g, '"'));
+                const targetVal = parseFloat(valInp.value) || 0;
+
+                let valProb = 1.0;
+                if(optData.min !== optData.max) {
+                    if(targetVal >= optData.max) valProb = 0.0;
+                    else if(targetVal > optData.min) {
+                        valProb = (optData.max - targetVal) / (optData.max - optData.min);
+                    }
+                } else {
+                    if(targetVal > optData.max) valProb = 0.0;
+                }
+
+                let finalP = (optData.prob / 100) * valProb; 
+                if(finalP <= 0) {
+                    alert(`${s}번 슬롯의 목표치가 시스템상 뽑을 수 없는 수치입니다!`);
+                    return;
+                }
+                targets.push({ slot: s, p: finalP });
+                hasTarget = true;
+            } else {
+                targets.push(null);
+            }
+        }
+
+        if(!hasTarget) return alert("최소 1개 이상의 슬롯에 목표 옵션을 설정해주세요.");
+
+        document.getElementById('simResText').innerHTML = "⏳ 수만 가지의 경우의 수를 시뮬레이션 중... (잠시만 대기)";
+
+        // 사이트가 멈추지 않도록 백그라운드로 실행
+        setTimeout(() => {
+            const iterations = 10000;
+            let totalRolls = 0, totalCrystals = 0, totalKinah = 0;
+            // 잠금 개수별 페널티 (유저 제공 데이터 기반)
+            const PENALTY = [{c:0,k:0},{c:5,k:1000},{c:5,k:1000},{c:20,k:4000},{c:45,k:9000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000},{c:95,k:19000}];
+            let targetCount = targets.filter(t => t !== null).length;
+
+            for(let i=0; i<iterations; i++) {
+                let locked = [false, false, false, false, false, false, false, false, false];
+                let currentLocks = 0;
+
+                while(currentLocks < targetCount) {
+                    let penalty = PENALTY[currentLocks] || {c:95, k:19000};
+                    totalRolls++;
+                    totalCrystals += (level * 5) + penalty.c;
+                    totalKinah += (level * 1000) + penalty.k;
+
+                    for(let s=0; s<9; s++) {
+                        if(targets[s] !== null && !locked[s]) {
+                            if(Math.random() < targets[s].p) {
+                                locked[s] = true;
+                                currentLocks++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            const avgRolls = Math.ceil(totalRolls / iterations);
+            const avgCrys = Math.ceil(totalCrystals / iterations);
+            const avgKinah = Math.ceil(totalKinah / iterations);
+
+            document.getElementById('simResRolls').innerText = avgRolls.toLocaleString() + "회";
+            document.getElementById('simResCrys').innerText = avgCrys.toLocaleString() + "개";
+            document.getElementById('simResKinah').innerText = avgKinah.toLocaleString();
+            document.getElementById('simResText').innerHTML = "✅ 시뮬레이션 완료 (10,000회 평균 기댓값)";
+        }, 100);
+    }
+
+    // 화면이 켜지면 펫 데이터를 작동시킵니다.
+    setTimeout(initPetData, 500);    
+
+
 </script>
 </body>
 </html>
+
 
 
 
