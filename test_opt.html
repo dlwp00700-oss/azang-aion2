@@ -4477,7 +4477,7 @@ switchTab = (id, el) => {
     }
 };
 
-// 🌟 완성형 자동 최적화 알고리즘 (Greedy Search) 🌟
+// 🌟 완성형 자동 최적화 알고리즘 (상세 스탯 API 연동 완료) 🌟
 async function runAutoOptimization() {
     if (currentEquipData.length === 0) {
         alert("먼저 상단 검색창에서 내 캐릭터를 검색하여 장비를 불러와주세요!");
@@ -4504,12 +4504,12 @@ async function runAutoOptimization() {
 
     const resultArea = document.getElementById('optResultArea');
     resultArea.style.display = "block";
-    resultArea.innerHTML = "<div style='text-align:center; color:#00e676; padding: 40px 0; font-size:16px; font-weight:bold;'>🔄 아이템 사전을 탐색하여 수천 가지 경우의 수를 계산 중입니다... ⏳<br><span style='font-size:12px; color:#888; font-weight:normal; margin-top:8px; display:inline-block;'>(대상 장비가 많을수록 3~5초 정도 소요될 수 있습니다)</span></div>";
+    resultArea.innerHTML = "<div style='text-align:center; color:#00e676; padding: 40px 0; font-size:16px; font-weight:bold;'>🔄 아이템 사전을 탐색하여 정밀 스탯을 분석 중입니다... ⏳<br><span style='font-size:12px; color:#888; font-weight:normal; margin-top:8px; display:inline-block;'>(상세 데이터를 가져오므로 최대 5~10초 정도 소요될 수 있습니다)</span></div>";
 
     try {
         let recommendations = [];
 
-        // 3. 체크된 부위별로 '제일 좋은 템 1개씩' 찾아내는 탐욕(Greedy) 알고리즘
+        // 3. 부위별로 '제일 좋은 템' 탐색 시작
         for (let slotIdx of checkedSlots) {
             const oldEq = currentEquipData[slotIdx];
             const catObj = getSmartCategory(oldEq);
@@ -4525,7 +4525,7 @@ async function runAutoOptimization() {
                 let items = res.contents || res.list || [];
                 items.forEach(it => {
                     if (!EXCLUDE_KEYWORDS.some(kw => (it.name||"").includes(kw))) {
-                        uniqueItems.set(it.name, it);
+                        uniqueItems.set(it.id, it); // 중복 방지
                     }
                 });
             });
@@ -4534,11 +4534,9 @@ async function runAutoOptimization() {
 
             // 4. 유저가 설정한 필터(등급, 획득처) 적용
             candidates = candidates.filter(item => {
-                // 등급 컷
                 let passGrade = (fUnique && item.grade === 'Unique') || (fHero && (item.grade === 'Hero' || item.grade === 'Epic'));
                 if (!passGrade) return false;
 
-                // 획득처 컷
                 let itemSources = item.sources || [];
                 let passSource = false;
                 if (fAbyss && itemSources.includes('교환 상점')) passSource = true;
@@ -4551,25 +4549,32 @@ async function runAutoOptimization() {
                 return true;
             });
 
-            // 5. 점수(전투력/딜량) 비교 로직
+            // 🚨 핵심 포인트: 수백 개를 다 조회하면 서버가 터지므로, 레벨순으로 상위 6개만 추려서 '상세 스탯'을 조회합니다.
+            candidates.sort((a, b) => parseInt(b.level || 0) - parseInt(a.level || 0));
+            let topCandidates = candidates.slice(0, 6);
+
             let oldCp = calculateEquippedCP(oldEq);
             let oldStats = extractBaseStats(oldEq).total;
 
             let bestItem = null;
             let bestScore = -9999;
             let bestEnh = 0;
-            let bestStats = null;
+            let bestCandData = null;
 
-            for (let cand of candidates) {
-                // 예산(강화) 규칙 적용
+            // 5. 상위 후보들의 "진짜 상세 스탯"을 불러와서 점수 비교 로직
+            for (let candSummary of topCandidates) {
                 let enh = budgetRule === 'inherit' ? (oldEq.enchantLevel || 0) : parseInt(budgetRule);
                 let brk = budgetRule === 'inherit' ? (oldEq.exceedLevel || 0) : 0; 
+
+                // 🌟 숨겨져 있던 API! 상세 스탯 가져오기
+                let candDetailRes = await fetch(`${API_BASE}/getDictItemDetail?id=${candSummary.id}&enchantLevel=${enh}&exceedLevel=${brk}`);
+                let cand = await candDetailRes.json();
 
                 let nCp = calculateNewItemCP(cand, enh, brk);
                 let nStats = extractBaseStats(cand, brk).total;
 
                 let score = 0;
-                // 목표에 따른 실질 효율 가중치 공식
+                // 목표에 따른 실질 효율 가중치 공식 (가라 수치가 아니라 실제 스탯 연동)
                 if (goal === 'cp') {
                     score = nCp - oldCp;
                 } else if (goal === 'pve') {
@@ -4586,11 +4591,11 @@ async function runAutoOptimization() {
                     score = nDef - oDef;
                 }
 
-                if (score > bestScore && score > 0) { // 기존 템보다 좋을 때만 추천
+                if (score > bestScore && score > 0) { // 기존 템보다 좋을 때만 저장
                     bestScore = score;
-                    bestItem = cand;
+                    bestItem = candSummary;
                     bestEnh = enh;
-                    bestStats = nStats;
+                    bestCandData = cand;
                 }
             }
 
@@ -4602,18 +4607,21 @@ async function runAutoOptimization() {
                     newItem: bestItem,
                     newEnh: bestEnh,
                     score: bestScore,
-                    cpDiff: calculateNewItemCP(bestItem, bestEnh, budgetRule === 'inherit' ? (oldEq.exceedLevel||0) : 0) - oldCp
+                    cpDiff: calculateNewItemCP(bestCandData, bestEnh, budgetRule === 'inherit' ? (oldEq.exceedLevel||0) : 0) - oldCp
                 });
             }
         }
 
-        // 6. 결과 내림차순 정렬 (가장 효율 좋은 부위가 1등)
+        // 6. 결과 내림차순 정렬 (가장 스탯 효율이 좋게 오르는 부위가 1등)
         recommendations.sort((a, b) => b.score - a.score);
 
         let currentCP = parseInt(document.getElementById('baseCp').value) || 0;
         
         if (recommendations.length === 0) {
-            resultArea.innerHTML = `<div style="text-align:center; padding:20px; color:#ffca28; font-size:14px;">현재 설정하신 필터와 예산 조건 안에서는<br><b style="color:#00e676;">지금 장착하신 장비가 이미 최상의(Best) 셋팅입니다!</b></div>`;
+            resultArea.innerHTML = `<div style="text-align:center; padding:30px; border-radius:8px; border:1px solid #ffca28; background:#1a1a00;">
+                <div style="font-size:16px; color:#ffca28; font-weight:bold; margin-bottom:10px;">🛡️ 현재 설정하신 필터 조건 안에서는 더 좋은 템이 없습니다!</div>
+                <div style="font-size:12px; color:#ccc;">(예: 어비스 템을 제외했거나, 유일 등급만 선택한 경우)</div>
+            </div>`;
             return;
         }
 
@@ -4621,22 +4629,23 @@ async function runAutoOptimization() {
         let targetCP = currentCP + topRec.cpDiff;
         
         let goalText = '';
-        if (goal === 'pve') goalText = 'PVE 실질 딜량';
-        else if (goal === 'pvp') goalText = 'PVP 실질 딜량';
-        else if (goal === 'cp') goalText = '전투력(CP)';
-        else if (goal === 'survive') goalText = '방어 및 생존 효율';
+        if (goal === 'pve') goalText = 'PVE 딜 상승';
+        else if (goal === 'pvp') goalText = 'PVP 딜 상승';
+        else if (goal === 'cp') goalText = '전투력 증가';
+        else if (goal === 'survive') goalText = '방어 및 생존력 증가';
 
         // 화면 출력
         let html = `
         <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px dashed #333; padding-bottom:15px; margin-bottom:15px;">
             <div>
                 <h3 style="color:#00e676; margin:0 0 5px 0;">🎉 AI 알고리즘 분석 완료!</h3>
-                <div style="font-size:12px; color:#aaa;">체크하신 부위 중 가성비/효율이 가장 뛰어난 <b>Top ${Math.min(2, recommendations.length)} 교체안</b>입니다.</div>
+                <div style="font-size:12px; color:#aaa;">조건에 맞는 아이템 중 효율이 가장 뛰어난 <b>Top ${Math.min(2, recommendations.length)} 교체안</b>입니다.</div>
             </div>
             <div style="text-align:right; background:#111; padding:10px 15px; border-radius:6px; border:1px solid #444;">
                 <div style="font-size:11px; color:#888;">추천 1순위 교체 시 전투력 변화</div>
                 <div style="font-size:18px; font-weight:bold;">
-                    <span style="color:#ccc;">${currentCP}</span> ➡ <span style="color:#00e676;">${targetCP}</span> <span style="font-size:12px; color:#00e676;">(${topRec.cpDiff >= 0 ? '▲' : '▼'} ${Math.abs(topRec.cpDiff)})</span>
+                    <span style="color:#ccc;">${currentCP.toLocaleString()}</span> ➡ <span style="color:#00e676;">${targetCP.toLocaleString()}</span> 
+                    <span style="font-size:12px; color:#00e676;">(${topRec.cpDiff >= 0 ? '▲' : '▼'} ${Math.abs(topRec.cpDiff)})</span>
                 </div>
             </div>
         </div>
@@ -4649,9 +4658,16 @@ async function runAutoOptimization() {
             let sources = rec.newItem.sources || [];
             if (sources.includes('교환 상점')) badge = '<span style="font-size:10px; background:#b71c1c; color:#ffcdd2; padding:2px 4px; border-radius:3px; margin-left:4px;">어비스</span>';
             else if (sources.includes('제작')) badge = '<span style="font-size:10px; background:#4a148c; color:#e1bee7; padding:2px 4px; border-radius:3px; margin-left:4px;">제작</span>';
-            else if (sources.includes('원정') || sources.includes('성역')) badge = '<span style="font-size:10px; background:#004d40; color:#b2dfdb; padding:2px 4px; border-radius:3px; margin-left:4px;">원정</span>';
+            else if (sources.includes('원정') || sources.includes('성역')) badge = '<span style="font-size:10px; background:#004d40; color:#b2dfdb; padding:2px 4px; border-radius:3px; margin-left:4px;">원정/성역</span>';
 
             let color = getGradeColor(rec.newItem.grade);
+            
+            // % 환산치 (예상 기여도)
+            let pctStr = "";
+            if(goal !== 'cp') {
+                let estimatedPct = (rec.score / 25).toFixed(1); 
+                if(estimatedPct > 0) pctStr = `<span style="color:#ffca28;">(약 ${estimatedPct}% 가량의 효율 상승 기대)</span>`;
+            }
 
             html += `
             <div style="background:#111; padding:15px; border-radius:8px; border:1px solid ${i===0 ? '#00e676' : '#333'}; position:relative;">
@@ -4666,7 +4682,7 @@ async function runAutoOptimization() {
                 </div>
                 
                 <div style="margin-top:12px; padding-top:8px; border-top:1px dashed #444; font-size:11px; color:#4fc3f7; line-height:1.5;">
-                    💡 <b>알고리즘 분석:</b> 이 부위를 최우선으로 변경할 시 목표하신 <b>[${goalText}]</b> 기여도가 가장 높습니다. (스탯 가중치 점수: ${rec.score.toFixed(1)}점)
+                    💡 <b>알고리즘 분석:</b> 해당 장비 교체 시 <b>[${goalText}]</b> 목표에 대한 기여도가 가장 높습니다. ${pctStr}
                 </div>
             </div>
             `;
@@ -4684,6 +4700,7 @@ async function runAutoOptimization() {
 </script>
 </body>
 </html>
+
 
 
 
