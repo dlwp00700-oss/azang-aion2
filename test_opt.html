@@ -4629,10 +4629,58 @@ renderEquipGrid = function() {
         toggleOptGoalInput(); // 내 현재 전투력 수치도 최신화!
     }
 };
+
+	// 🌟 [절대 고장 나지 않는 완벽 동기화 마법 패치] 🌟
+(function applyUltimateSyncPatch() {
+    // 1. 혹시라도 꼬였을 검색창 전역(Global) 이동 강제 재실행
+    const nav = document.querySelector('.top-nav');
+    let searchArea = document.getElementById('globalSearchUI');
+    if (!searchArea) {
+        searchArea = document.createElement('div');
+        searchArea.id = 'globalSearchUI';
+        nav.parentNode.insertBefore(searchArea, nav.nextSibling);
+    }
+    const searchBar = document.querySelector('.search-bar');
+    const favBar = document.getElementById('favoritesBar');
+    const charSel = document.getElementById('characterSelection');
+    if(searchBar) searchArea.appendChild(searchBar);
+    if(favBar) searchArea.appendChild(favBar);
+    if(charSel) searchArea.appendChild(charSel);
+
+    // 2. 탭을 오갈 때 화면 새로고침 묶어주기
+    if (!window.isOptSwitchPatched) {
+        const autoOptSwitch = switchTab;
+        window.switchTab = (id, el) => {
+            autoOptSwitch(id, el); 
+            if (searchArea) {
+                searchArea.style.display = (id === 'equip' || id === 'autoOpt') ? 'block' : 'none';
+            }
+            if (id === 'autoOpt' && typeof renderOptEquipList === 'function') {
+                renderOptEquipList();
+                toggleOptGoalInput();
+            }
+        };
+        window.isOptSwitchPatched = true;
+    }
+
+    // 3. 심장부 해킹: 캐릭터 검색 완료 시 무조건 '자동 최적화' 리스트도 강제로 뿌려주기!
+    if (!window.isLoadCharPatched) {
+        const originalLoadChar = loadCharacterDetail;
+        window.loadCharacterDetail = async function(charId, serverId, charName) {
+            await originalLoadChar(charId, serverId, charName); // 기존 엔진 일 먼저 시키기
+            
+            // 기존 일이 끝나자마자, 자동 최적화 화면도 알아서 렌더링하라고 강제 명령!
+            if (typeof renderOptEquipList === 'function') renderOptEquipList();
+            if (typeof toggleOptGoalInput === 'function') toggleOptGoalInput();
+        };
+        window.isLoadCharPatched = true;
+    }
+})();
 	
 </script>
 </body>
 </html>
+
 
 
 
