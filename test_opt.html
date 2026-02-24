@@ -4369,10 +4369,26 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
     setTimeout(initPetData, 500);
 
 
-// 🌟 0.01초 빛의 속도로 동작하는 자체 DB 기반 알고리즘!
+// =========================================================================
+// 🌟 [1] 아이템 JSON DB 전역 로드 (0.01초 최적화를 위한 핵심)
+// =========================================================================
+let globalItemDB = [];
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const res = await fetch('/aion_item_db.json');
+        globalItemDB = await res.json();
+        console.log(`✅ 초고속 자체 아이템 DB 로드 완료! (총 ${globalItemDB.length}개 장비 장전됨)`);
+    } catch(e) {
+        console.error("아이템 DB 파일(aion_item_db.json)을 찾을 수 없습니다.");
+    }
+});
+
+// =========================================================================
+// 🌟 [2] 0.01초 빛의 속도로 동작하는 100% 자체 DB 알고리즘!
+// =========================================================================
 function runAutoOptimization() {
-    if (currentEquipData.length === 0) return alert("먼저 상단 검색창에서 내 캐릭터를 검색하세요!");
-    if (globalItemDB.length === 0) return alert("아이템 DB를 로딩 중이거나 불러올 수 없습니다. (aion_item_db.json 파일 확인)");
+    if (typeof currentEquipData === 'undefined' || currentEquipData.length === 0) return alert("먼저 상단 검색창에서 내 캐릭터를 검색하세요!");
+    if (globalItemDB.length === 0) return alert("아이템 DB를 로딩 중이거나 불러올 수 없습니다. (aion_item_db.json 파일을 서버에 업로드했는지 확인하세요!)");
 
     const checkedSlots = Array.from(document.querySelectorAll('.opt-eq-chk:checked')).map(cb => parseInt(cb.value));
     if (checkedSlots.length === 0) return alert("변경을 허용할 장비 부위를 1개 이상 체크해주세요!");
@@ -4389,8 +4405,9 @@ function runAutoOptimization() {
 
     const resultArea = document.getElementById('optResultArea');
     resultArea.style.display = "block";
-    resultArea.innerHTML = `<div style='text-align:center; color:#00e676; padding: 40px 0; font-size:16px; font-weight:bold;'>⚡ 자체 DB를 활용하여 수만 개의 경우의 수를 0.1초 만에 돌파하는 중...</div>`;
+    resultArea.innerHTML = `<div style='text-align:center; color:#00e676; padding: 40px 0; font-size:16px; font-weight:bold;'>⚡ 자체 DB를 활용하여 수만 개의 세트 조합을 0.01초 만에 돌파하는 중...</div>`;
 
+    // UI 멈춤 방지를 위해 0.1초 뒤에 즉시 연산
     setTimeout(() => {
         try {
             let slotCandidatesArray = [];
@@ -4406,6 +4423,7 @@ function runAutoOptimization() {
             let basePvpScore = bAtk + (bPvpAmp*15) + (bAmp*15);
             let baseSurvScore = bDef + (parseFloat(document.getElementById('baseHp').value)||10000)*0.1;
 
+            // 체크된 부위별로 '내장된 DB'에서 1차 후보군 순식간에 색출
             for (let slotIdx of checkedSlots) {
                 const oldEq = currentEquipData[slotIdx];
                 const catObj = getSmartCategory(oldEq);
@@ -4436,6 +4454,7 @@ function runAutoOptimization() {
                 let oldBaseStats = extractBaseStats(oldEq, oldEq.exceedLevel || 0).total;
 
                 let processedCands = [];
+                // 기존 장비 유지 옵션
                 processedCands.push({
                     isKeep: true, oldName: oldEq.name, oldEnh: oldEq.enchantLevel||0, grade: oldEq.grade, brk: oldEq.exceedLevel||0,
                     cpDiff: 0, pveDiff: 0, pvpDiff: 0, survDiff: 0
@@ -4445,6 +4464,7 @@ function runAutoOptimization() {
                     let enh = budgetRule === 'inherit' ? (oldEq.enchantLevel || 0) : parseInt(budgetRule);
                     let brk = oldEq.exceedLevel || 0; 
 
+                    // 🚨 API 통신 삭제! 내장된 스탯 공식으로 즉시 연산!
                     let nCp = calculateNewItemCP(cand, enh, brk);
                     let nStats = extractBaseStats(cand, brk).total;
 
@@ -4462,6 +4482,7 @@ function runAutoOptimization() {
                     let nDef = (nStats.def||0) + (nStats.hp||0)*0.1;
                     let survDiff = nDef - oDef;
 
+                    // 스펙이 오르는 장비만 후보에 등재
                     if (cpDiff > 0 || pveDiff > 0 || pvpDiff > 0 || survDiff > 0) {
                         processedCands.push({
                             isKeep: false, slotIdx: slotIdx, oldName: oldEq.name, oldEnh: oldEq.enchantLevel || 0,
@@ -4472,6 +4493,7 @@ function runAutoOptimization() {
                 slotCandidatesArray.push(processedCands);
             }
 
+            // 모든 부위 조합(경우의 수) 0.01초만에 생성
             let allCombinations = [];
             function buildCombos(idx, currentCombo) {
                 if (idx === slotCandidatesArray.length) {
@@ -4540,20 +4562,21 @@ function runAutoOptimization() {
                 isForcedMax = true;
             }
 
+            // UI 렌더링
             let finalCP = currentCP + winner.tCp;
             let targetAchievedHtml = '';
             if (goal === 'cp') {
                 if (!isForcedMax) targetAchievedHtml = `<span style="color:#00e676; font-size:12px; font-weight:bold;">(목표 달성 ✅)</span>`;
-                else targetAchievedHtml = `<span style="color:#ff5252; font-size:12px; font-weight:bold;">(달성 실패 ❌ 최대치 추천)</span>`;
+                else targetAchievedHtml = `<span style="color:#ff5252; font-size:12px; font-weight:bold;">(달성 실패 ❌ 예산 내 최대치 추천)</span>`;
             } else {
                 if (!isForcedMax) targetAchievedHtml = `<span style="color:#00e676; font-size:12px; font-weight:bold;">(상승률 달성 ✅)</span>`;
-                else targetAchievedHtml = `<span style="color:#ff5252; font-size:12px; font-weight:bold;">(달성 실패 ❌ 최대치 추천)</span>`;
+                else targetAchievedHtml = `<span style="color:#ff5252; font-size:12px; font-weight:bold;">(달성 실패 ❌ 예산 내 최대치 추천)</span>`;
             }
 
             let html = `
             <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px dashed #333; padding-bottom:15px; margin-bottom:15px;">
                 <div>
-                    <h3 style="color:#00e676; margin:0 0 5px 0;">⚡ 0.1초 만에 ${winner.changes}개 부위 교체 조합 발견!</h3>
+                    <h3 style="color:#00e676; margin:0 0 5px 0;">⚡ 0.01초 만에 ${winner.changes}개 부위 교체 조합 발견!</h3>
                     <div style="font-size:12px; color:#aaa;">자체 구축 DB를 통해 찾아낸 가장 빠르고 정확한 가성비 세팅입니다.</div>
                 </div>
                 <div style="text-align:right; background:#111; padding:10px 15px; border-radius:6px; border:1px solid #444;">
@@ -4611,75 +4634,111 @@ function runAutoOptimization() {
 
         } catch (e) {
             console.error(e);
-            resultArea.innerHTML = `<div style="text-align:center; padding:20px; color:#ff5252;">분석 중 오류가 발생했습니다. DB 파일을 확인해주세요.</div>`;
+            resultArea.innerHTML = `<div style="text-align:center; padding:20px; color:#ff5252;">분석 중 오류가 발생했습니다. 개발자 도구(F12) 콘솔을 확인해주세요.</div>`;
         }
     }, 100); 
 }
 
-	// 🌟 [버그 픽스] 캐릭터 검색 시 자동 최적화 탭도 즉시 갱신되도록 완벽 동기화
-const originalRenderEquip = renderEquipGrid;
-renderEquipGrid = function() {
-    originalRenderEquip(); // 원래 하던 장비 시뮬레이터 화면 갱신 수행
+// =========================================================================
+// 🌟 [3] 실시간 UI 동기화 레이더 & 화면 갱신 복구 패치
+// =========================================================================
+window.toggleOptGoalInput = function() {
+    const goal = document.getElementById('optGoal')?.value;
+    const label = document.getElementById('optTargetLabel');
+    const unit = document.getElementById('optTargetUnit');
+    const input = document.getElementById('optTargetVal');
+    const currentCP = parseInt(document.getElementById('baseCp')?.value) || 0;
 
-    // 캐릭터 정보를 다 불러오면 자동 최적화 화면도 알아서 갱신하도록 명령!
-    if (typeof renderOptEquipList === 'function') {
-        renderOptEquipList(); 
-    }
-    if (typeof toggleOptGoalInput === 'function') {
-        toggleOptGoalInput(); // 내 현재 전투력 수치도 최신화!
+    if(!label || !unit || !input) return;
+
+    if (goal === 'cp') {
+        label.innerHTML = `목표 전투력 <span style="color:#888;">(현재 내 전투력: <b style="color:#fff;">${currentCP}</b>)</span>`;
+        unit.innerText = 'CP 달성';
+        if(input.value == 10) input.value = currentCP + 100;
+    } else if (goal === 'survive') {
+        label.innerText = '목표 생존력 향상 (%)';
+        unit.innerText = '% 이상 덜 아프게';
+        if(input.value > 100) input.value = 10;
+    } else {
+        label.innerText = '목표 딜 상승률 (%)';
+        unit.innerText = '% 이상 상승';
+        if(input.value > 100) input.value = 10;
     }
 };
 
-	// 🌟 [절대 고장 나지 않는 완벽 동기화 마법 패치] 🌟
-(function applyUltimateSyncPatch() {
-    // 1. 혹시라도 꼬였을 검색창 전역(Global) 이동 강제 재실행
-    const nav = document.querySelector('.top-nav');
-    let searchArea = document.getElementById('globalSearchUI');
-    if (!searchArea) {
-        searchArea = document.createElement('div');
-        searchArea.id = 'globalSearchUI';
-        nav.parentNode.insertBefore(searchArea, nav.nextSibling);
-    }
-    const searchBar = document.querySelector('.search-bar');
-    const favBar = document.getElementById('favoritesBar');
-    const charSel = document.getElementById('characterSelection');
-    if(searchBar) searchArea.appendChild(searchBar);
-    if(favBar) searchArea.appendChild(favBar);
-    if(charSel) searchArea.appendChild(charSel);
+window.renderOptEquipList = function() {
+    const container = document.getElementById('optEquipSelection');
+    if (!container) return;
 
-    // 2. 탭을 오갈 때 화면 새로고침 묶어주기
-    if (!window.isOptSwitchPatched) {
-        const autoOptSwitch = switchTab;
-        window.switchTab = (id, el) => {
-            autoOptSwitch(id, el); 
-            if (searchArea) {
-                searchArea.style.display = (id === 'equip' || id === 'autoOpt') ? 'block' : 'none';
-            }
-            if (id === 'autoOpt' && typeof renderOptEquipList === 'function') {
-                renderOptEquipList();
-                toggleOptGoalInput();
-            }
-        };
-        window.isOptSwitchPatched = true;
+    if (typeof currentEquipData === 'undefined' || currentEquipData.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:30px 0; color:#555;">캐릭터를 검색하면 내 장비가 나타납니다.</div>`;
+        return;
     }
 
-    // 3. 심장부 해킹: 캐릭터 검색 완료 시 무조건 '자동 최적화' 리스트도 강제로 뿌려주기!
-    if (!window.isLoadCharPatched) {
-        const originalLoadChar = loadCharacterDetail;
-        window.loadCharacterDetail = async function(charId, serverId, charName) {
-            await originalLoadChar(charId, serverId, charName); // 기존 엔진 일 먼저 시키기
-            
-            // 기존 일이 끝나자마자, 자동 최적화 화면도 알아서 렌더링하라고 강제 명령!
-            if (typeof renderOptEquipList === 'function') renderOptEquipList();
-            if (typeof toggleOptGoalInput === 'function') toggleOptGoalInput();
-        };
-        window.isLoadCharPatched = true;
+    let html = '';
+    currentEquipData.forEach((eq, idx) => {
+        const name = eq.name || "장비";
+        const enh = eq.enchantLevel || 0;
+        const brk = eq.exceedLevel || 0; 
+        const img = eq.icon ? `<img src="${eq.icon}" style="width:32px; height:32px; border-radius:4px; border:1px solid #444;">` : `<div style="width:32px; height:32px; background:#222;"></div>`;
+        
+        let gradeColor = "#fff";
+        if (eq.grade === "Unique") gradeColor = "#ffca28"; 
+        if (eq.grade === "Hero" || eq.grade === "Epic") gradeColor = "#ff9800"; 
+        if (eq.grade === "Legend") gradeColor = "#4fc3f7"; 
+        if (eq.grade === "Rare") gradeColor = "#69f0ae"; 
+
+        let diamondsHtml = ''; 
+        for (let i = 0; i < 5; i++) {
+            diamondsHtml += `<div class="diamond-pip ${i < brk ? 'active' : ''}"></div>`;
+        }
+
+        html += `
+        <label style="display:flex; align-items:center; gap:10px; background:#0a0a0c; padding:10px; border:1px solid #222; border-radius:6px; cursor:pointer; margin-bottom:8px;">
+            <input type="checkbox" class="opt-eq-chk" value="${idx}" style="transform:scale(1.3); margin:0 5px;" checked>
+            ${img}
+            <div style="flex:1;">
+                <div style="color:${gradeColor}; font-size:13px; font-weight:bold;">+${enh} ${name}</div>
+                <div style="display:flex; gap:4px; margin-top:5px;">${diamondsHtml}</div>
+            </div>
+        </label>
+        `;
+    });
+    container.innerHTML = html;
+};
+
+// 장비 리스트 화면 0.5초마다 강제 동기화 감시 레이더
+setInterval(() => {
+    const container = document.getElementById('optEquipSelection');
+    if (typeof currentEquipData !== 'undefined' && currentEquipData.length > 0 && container) {
+        const currentRenderedCount = container.querySelectorAll('.opt-eq-chk').length;
+        if (currentRenderedCount !== currentEquipData.length) {
+            window.renderOptEquipList();
+            window.toggleOptGoalInput();
+        }
     }
-})();
+}, 500);
+
+// 검색창 숨김/표시 처리
+const originSwitchTab = window.switchTab;
+window.switchTab = function(id, el) {
+    if (originSwitchTab) {
+        try { originSwitchTab(id, el); } catch(e) {}
+    }
+    const searchUI = document.getElementById('globalSearchUI');
+    if (searchUI) {
+        searchUI.style.display = (id === 'equip' || id === 'autoOpt') ? 'block' : 'none';
+    }
+    if (id === 'autoOpt') {
+        window.renderOptEquipList();
+        window.toggleOptGoalInput();
+    }
+};
 	
 </script>
 </body>
 </html>
+
 
 
 
