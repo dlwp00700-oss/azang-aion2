@@ -1555,6 +1555,11 @@
             document.getElementById('appBody').className = 'dash-mode';
             
             renderEquipGrid();
+
+            // 🌟 [추가된 부분] 캐릭터 로드 시 자동 최적화 탭에도 내 장비 즉시 뿌려주기!
+            if (typeof renderOptEquipList === 'function') renderOptEquipList();
+            if (typeof toggleOptGoalInput === 'function') toggleOptGoalInput();
+
             document.getElementById('workbench').innerHTML = `<div class="empty-wb"><div style="font-size:40px; margin-bottom:15px;">🛠️</div>왼쪽 목록에서 <b>변경하고 싶은 장비</b>를 클릭하세요.</div>`;
             updateDeltaDashboard();
         } catch (e) { 
@@ -4628,6 +4633,7 @@ renderEquipGrid = function() {
 </script>
 </body>
 </html>
+
 
 
 
