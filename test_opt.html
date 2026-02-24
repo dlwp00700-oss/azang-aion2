@@ -4485,7 +4485,7 @@ switchTab = (id, el) => {
     }
 };
 
-// 🌟 3. 완벽하게 고쳐진 조합 탐색 알고리즘
+// 🌟 진(眞) 완성형: 세트 조합 탐색 및 순수 스탯 비교 알고리즘 🌟
 async function runAutoOptimization() {
     if (currentEquipData.length === 0) {
         alert("먼저 상단 검색창에서 내 캐릭터를 검색하여 장비를 불러와주세요!");
@@ -4510,20 +4510,32 @@ async function runAutoOptimization() {
 
     const resultArea = document.getElementById('optResultArea');
     resultArea.style.display = "block";
-    resultArea.innerHTML = `<div style='text-align:center; color:#00e676; padding: 40px 0; font-size:16px; font-weight:bold;'>🔄 체크하신 ${checkedSlots.length}개 부위의 최적 조합을 찾고 있습니다... ⏳<br><span style='font-size:12px; color:#888; font-weight:normal; margin-top:8px; display:inline-block;'>(API 연동 중입니다. 잠시만 기다려주세요)</span></div>`;
+    resultArea.innerHTML = `<div style='text-align:center; color:#00e676; padding: 40px 0; font-size:16px; font-weight:bold;'>🔄 [${checkedSlots.length}개 부위] 목표 달성을 위한 최적의 가성비 조합을 계산 중입니다... ⏳<br><span style='font-size:12px; color:#888; font-weight:normal; margin-top:8px; display:inline-block;'>(API 정밀 스탯 스캔 중... 최대 5~8초 소요)</span></div>`;
 
     try {
-        let finalRecs = [];
-        let totalCpDiff = 0;
+        let slotCandidatesArray = [];
+        let currentCP = parseInt(document.getElementById('baseCp').value) || 0;
 
-        // 체크된 '모든 부위'에 대해 가장 좋은 템을 각각 찾아서 묶습니다.
+        // 기준 스탯 (퍼센트 계산용 베이스라인)
+        let bAtk = parseFloat(document.getElementById('baseAtk').value)||1600;
+        let bAmp = parseFloat(document.getElementById('baseAmp').value)||0;
+        let bPveAmp = parseFloat(document.getElementById('basePveAmp').value)||0;
+        let bPvpAmp = parseFloat(document.getElementById('basePvpAmp').value)||0;
+        let bDef = parseFloat(document.getElementById('baseDef').value)||2000;
+        
+        let basePveScore = bAtk + (bPveAmp*15) + (bAmp*15);
+        let basePvpScore = bAtk + (bPvpAmp*15) + (bAmp*15);
+        let baseSurvScore = bDef + (parseFloat(document.getElementById('baseHp').value)||10000)*0.1;
+
+        // 1. 체크된 부위별로 '후보 아이템 리스트' 생성
         for (let slotIdx of checkedSlots) {
             const oldEq = currentEquipData[slotIdx];
             const catObj = getSmartCategory(oldEq);
             if (!catObj) continue;
 
-            const queries = catObj.queries || [catObj.label];
-            let fetchPromises = queries.map(q => fetch(`${API_BASE}/searchDictItem?keyword=${encodeURIComponent(q)}`).then(r => r.json()).catch(e => ({list:[]})));
+            // 🚨 버그 픽스: 50개 제한에 걸리지 않도록 고급 키워드 강제 주입!
+            let qList = [catObj.label, "군단장의 " + catObj.label, "천부장의 " + catObj.label, "백부장의 " + catObj.label, "명룡왕의 " + catObj.label, "가디언 " + catObj.label];
+            let fetchPromises = qList.map(q => fetch(`${API_BASE}/searchDictItem?keyword=${encodeURIComponent(q)}`).then(r => r.json()).catch(e => ({list:[]})));
             let results = await Promise.all(fetchPromises);
             
             let uniqueItems = new Map();
@@ -4547,90 +4559,157 @@ async function runAutoOptimization() {
                 return true;
             });
 
-            candidates.sort((a, b) => parseInt(b.level || 0) - parseInt(a.level || 0));
-            let topCandidates = candidates.slice(0, 6);
+            let getLv = x => parseInt(x.level || x.itemLevel || x.equipLevel || 0);
+            candidates.sort((a, b) => getLv(b) - getLv(a));
+            let topCands = candidates.slice(0, 5); // 5개 씩만 추려서 정밀 분석
 
-            // 🚨 버그 픽스: 마석 효과를 빼고 "순수 아이템+돌파+강화" 끼리만 비교합니다 (애플 투 애플 비교)
+            // 🚨 핵심 버그 픽스: '마석'을 뺀 순수 장비 스탯으로만 비교 (애플 투 애플)
             let oldBaseCp = calculateNewItemCP(oldEq, oldEq.enchantLevel || 0, oldEq.exceedLevel || 0);
             let oldBaseStats = extractBaseStats(oldEq, oldEq.exceedLevel || 0).total;
 
-            let bestItem = null;
-            let bestScore = -9999;
-            let bestEnh = 0;
-            let bestBrk = oldEq.exceedLevel || 0; // 🚨 무조건 기존 장비의 돌파 수치를 새 장비에 계승!
-            let bestCandData = null;
+            let processedCands = [];
+            
+            // "이 부위는 안 바꾸고 그대로 둔다"는 선택지도 경우의 수에 포함
+            processedCands.push({
+                isKeep: true, oldName: oldEq.name, oldEnh: oldEq.enchantLevel||0, grade: oldEq.grade,
+                cpDiff: 0, pveDiff: 0, pvpDiff: 0, survDiff: 0
+            });
 
-            for (let candSummary of topCandidates) {
+            for (let candSum of topCands) {
                 let enh = budgetRule === 'inherit' ? (oldEq.enchantLevel || 0) : parseInt(budgetRule);
-                let candDetailRes = await fetch(`${API_BASE}/getDictItemDetail?id=${candSummary.id}&enchantLevel=${enh}&exceedLevel=${bestBrk}`);
+                let brk = oldEq.exceedLevel || 0; // 돌파는 무조건 기존 장비에서 계승!
+                
+                let candDetailRes = await fetch(`${API_BASE}/getDictItemDetail?id=${candSum.id}&enchantLevel=${enh}&exceedLevel=${brk}`);
                 let cand = await candDetailRes.json();
 
-                let nCp = calculateNewItemCP(cand, enh, bestBrk);
-                let nStats = extractBaseStats(cand, bestBrk).total;
+                let nCp = calculateNewItemCP(cand, enh, brk);
+                let nStats = extractBaseStats(cand, brk).total;
 
-                let score = 0;
-                if (goal === 'cp') {
-                    score = nCp - oldBaseCp;
-                } else if (goal === 'pve') {
-                    let oAtk = (oldBaseStats.atk||0) + (oldBaseStats.pveAmp||0)*15 + (oldBaseStats.amp||0)*15 + (oldBaseStats.wAmp||0)*10;
-                    let nAtk = (nStats.atk||0) + (nStats.pveAmp||0)*15 + (nStats.amp||0)*15 + (nStats.wAmp||0)*10;
-                    score = nAtk - oAtk;
-                } else if (goal === 'pvp') {
-                    let oAtk = (oldBaseStats.atk||0) + (oldBaseStats.pvpAmp||0)*15 + (oldBaseStats.amp||0)*15 + (oldBaseStats.wAmp||0)*10;
-                    let nAtk = (nStats.atk||0) + (nStats.pvpAmp||0)*15 + (nStats.amp||0)*15 + (nStats.wAmp||0)*10;
-                    score = nAtk - oAtk;
-                } else if (goal === 'survive') {
-                    let oDef = (oldBaseStats.def||0) + (oldBaseStats.hp||0)*0.1 + (oldBaseStats.pvpRes||0)*50 + (oldBaseStats.genRes||0)*50;
-                    let nDef = (nStats.def||0) + (nStats.hp||0)*0.1 + (nStats.pvpRes||0)*50 + (nStats.genRes||0)*50;
-                    score = nDef - oDef;
-                }
+                let cpDiff = nCp - oldBaseCp; // 순수하게 장비 스펙업으로 오르는 찐 전투력
+                
+                let oPveAtk = (oldBaseStats.atk||0) + (oldBaseStats.pveAmp||0)*15 + (oldBaseStats.amp||0)*15;
+                let nPveAtk = (nStats.atk||0) + (nStats.pveAmp||0)*15 + (nStats.amp||0)*15;
+                let pveDiff = nPveAtk - oPveAtk;
 
-                if (score > bestScore && score > 0) { 
-                    bestScore = score; bestItem = candSummary; bestEnh = enh; bestCandData = cand;
+                let oPvpAtk = (oldBaseStats.atk||0) + (oldBaseStats.pvpAmp||0)*15 + (oldBaseStats.amp||0)*15;
+                let nPvpAtk = (nStats.atk||0) + (nStats.pvpAmp||0)*15 + (nStats.amp||0)*15;
+                let pvpDiff = nPvpAtk - oPvpAtk;
+
+                let oDef = (oldBaseStats.def||0) + (oldBaseStats.hp||0)*0.1;
+                let nDef = (nStats.def||0) + (nStats.hp||0)*0.1;
+                let survDiff = nDef - oDef;
+
+                // 스펙이 조금이라도 오르는 장비만 후보에 추가
+                if (cpDiff > 0 || pveDiff > 0 || pvpDiff > 0 || survDiff > 0) {
+                    processedCands.push({
+                        isKeep: false, slotIdx: slotIdx, oldName: oldEq.name, oldEnh: oldEq.enchantLevel || 0,
+                        newItem: candSum, newEnh: enh, brk: brk, cpDiff, pveDiff, pvpDiff, survDiff
+                    });
                 }
             }
+            slotCandidatesArray.push(processedCands);
+        }
 
-            if (bestItem) {
-                let cpDiff = calculateNewItemCP(bestCandData, bestEnh, bestBrk) - oldBaseCp;
-                finalRecs.push({ isNew: true, oldName: oldEq.name, oldEnh: oldEq.enchantLevel||0, newItem: bestItem, newEnh: bestEnh, cpDiff: cpDiff, brk: bestBrk });
-                totalCpDiff += cpDiff;
-            } else {
-                finalRecs.push({ isNew: false, oldName: oldEq.name, oldEnh: oldEq.enchantLevel||0, grade: oldEq.grade }); // 바꿀 필요가 없는 부위
+        // 2. 모든 부위의 조합(경우의 수) 생성 
+        let allCombinations = [];
+        function buildCombos(idx, currentCombo) {
+            if (idx === slotCandidatesArray.length) {
+                allCombinations.push([...currentCombo]);
+                return;
+            }
+            for (let c of slotCandidatesArray[idx]) {
+                currentCombo.push(c);
+                buildCombos(idx+1, currentCombo);
+                currentCombo.pop();
+            }
+        }
+        buildCombos(0, []);
+
+        // 3. 목표치 달성 검사 (최소 변경 조합 찾기)
+        let validCombos = [];
+        let bestMaxCombo = null;
+        let bestMaxScore = -999999;
+
+        for (let combo of allCombinations) {
+            let tCp = 0, tPve = 0, tPvp = 0, tSurv = 0, changes = 0;
+            for (let c of combo) {
+                if (!c.isKeep) changes++;
+                tCp += c.cpDiff; tPve += c.pveDiff; tPvp += c.pvpDiff; tSurv += c.survDiff;
+            }
+
+            let isPass = false;
+            let score = 0;
+
+            if (goal === 'cp') {
+                score = currentCP + tCp;
+                if (score >= targetVal) isPass = true;
+            } else if (goal === 'pve') {
+                score = tPve;
+                let reqDelta = basePveScore * (targetVal / 100); 
+                if (tPve >= reqDelta) isPass = true;
+            } else if (goal === 'pvp') {
+                score = tPvp;
+                let reqDelta = basePvpScore * (targetVal / 100);
+                if (tPvp >= reqDelta) isPass = true;
+            } else if (goal === 'survive') {
+                score = tSurv;
+                let reqDelta = baseSurvScore * (targetVal / 100);
+                if (tSurv >= reqDelta) isPass = true;
+            }
+
+            let comboData = { combo, changes, score, tCp, tPve, tPvp, tSurv };
+            if (isPass) validCombos.push(comboData);
+            
+            if (score > bestMaxScore) {
+                bestMaxScore = score;
+                bestMaxCombo = comboData;
             }
         }
 
-        let currentCP = parseInt(document.getElementById('baseCp').value) || 0;
-        let finalCP = currentCP + totalCpDiff;
-        
+        // 4. 승자 결정! (1원칙: 목표 달성시 최소 변경, 2원칙: 달성 실패시 최대 영끌)
+        let winner = null;
+        if (validCombos.length > 0) {
+            validCombos.sort((a, b) => {
+                if (a.changes !== b.changes) return a.changes - b.changes; // 가장 적은 장비를 바꾸는 가성비 조합!
+                return a.score - b.score; // 목표를 넘겼다면 초과분이 가장 적은(딱 맞춘) 세팅!
+            });
+            winner = validCombos[0];
+        } else {
+            winner = bestMaxCombo; // 목표엔 못 미쳐도 영끌한 최선책
+        }
+
+        // 5. 화면 출력부
+        let finalCP = currentCP + winner.tCp;
         let targetAchievedHtml = '';
         if (goal === 'cp') {
             if (finalCP >= targetVal) targetAchievedHtml = `<span style="color:#00e676; font-size:12px; font-weight:bold;">(목표 달성 ✅)</span>`;
-            else targetAchievedHtml = `<span style="color:#ff5252; font-size:12px; font-weight:bold;">(목표 미달 ❌ 더 높은 강화/돌파 필요)</span>`;
+            else targetAchievedHtml = `<span style="color:#ff5252; font-size:12px; font-weight:bold;">(목표 미달 ❌ 더 상위 장비 필요)</span>`;
         }
 
         let html = `
         <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px dashed #333; padding-bottom:15px; margin-bottom:15px;">
             <div>
-                <h3 style="color:#00e676; margin:0 0 5px 0;">🎉 선택하신 ${checkedSlots.length}개 부위 조합 결과</h3>
+                <h3 style="color:#00e676; margin:0 0 5px 0;">🎉 ${winner.changes}개 부위 교체 가성비 조합 발견!</h3>
+                <div style="font-size:12px; color:#aaa;">조건에 맞게 영혼의 덧셈/뺄셈을 마친 최적화 결과입니다.</div>
             </div>
             <div style="text-align:right; background:#111; padding:10px 15px; border-radius:6px; border:1px solid #444;">
                 <div style="font-size:11px; color:#888;">총 전투력 변화 ${targetAchievedHtml}</div>
                 <div style="font-size:18px; font-weight:bold;">
                     <span style="color:#ccc;">${currentCP.toLocaleString()}</span> ➡ <span style="color:#00e676;">${finalCP.toLocaleString()}</span> 
-                    <span style="font-size:12px; color:#00e676;">(${totalCpDiff >= 0 ? '▲' : '▼'} ${Math.abs(totalCpDiff)})</span>
+                    <span style="font-size:12px; color:#00e676;">(${winner.tCp >= 0 ? '▲' : '▼'} ${Math.abs(winner.tCp)})</span>
                 </div>
             </div>
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
         `;
 
-        finalRecs.forEach((rec) => {
-            if (!rec.isNew) {
+        winner.combo.forEach((rec) => {
+            if (rec.isKeep) {
                 html += `
                 <div style="background:#111; padding:15px; border-radius:8px; border:1px solid #333; opacity: 0.8;">
                     <div style="color:#888; font-size:12px; margin-bottom:5px;">기존 착용 장비</div>
                     <div style="color:${getGradeColor(rec.grade)}; font-size:14px; font-weight:bold;">+${rec.oldEnh} ${rec.oldName}</div>
-                    <div style="margin-top:10px; font-size:11px; color:#666;">✔️ 필터 내에서 이보다 좋은 장비가 없습니다. (유지)</div>
+                    <div style="margin-top:10px; font-size:11px; color:#666;">✔️ 목표 달성을 위해 이 부위는 교체하지 않아도 충분합니다.</div>
                 </div>`;
             } else {
                 let badge = '';
@@ -4643,15 +4722,15 @@ async function runAutoOptimization() {
                 for (let i = 0; i < 5; i++) diamondsHtml += `<span style="display:inline-block; width:6px; height:6px; margin-right:2px; background:${i < rec.brk ? '#ffca28' : '#333'}; transform:rotate(45deg); border:1px solid #555;"></span>`;
 
                 html += `
-                <div style="background:#1a1a20; padding:15px; border-radius:8px; border:1px solid #00e676; position:relative;">
+                <div style="background:#1a1a20; padding:15px; border-radius:8px; border:1px solid #ffca28; position:relative;">
                     <div style="color:#ccc; font-size:12px; text-decoration:line-through; margin-bottom:8px;">
                         기존 착용: +${rec.oldEnh} ${rec.oldName}
                     </div>
                     <div style="color:${getGradeColor(rec.newItem.grade)}; font-size:15px; font-weight:bold; display:flex; align-items:center; flex-wrap:wrap;">
                         ➡ +${rec.newEnh} ${rec.newItem.name} ${badge}
                     </div>
-                    <div style="margin-top:5px; font-size:11px; color:#aaa; display:flex; align-items:center;">
-                        계승된 돌파: ${diamondsHtml} <span style="margin-left:5px; color:#00e676;">(CP ▲${rec.cpDiff})</span>
+                    <div style="margin-top:8px; font-size:11px; color:#aaa; display:flex; align-items:center;">
+                        계승된 돌파: ${diamondsHtml} <span style="margin-left:5px; color:#00e676; font-weight:bold;">(순수 CP ▲${rec.cpDiff})</span>
                     </div>
                 </div>`;
             }
@@ -4669,6 +4748,7 @@ async function runAutoOptimization() {
 </script>
 </body>
 </html>
+
 
 
 
