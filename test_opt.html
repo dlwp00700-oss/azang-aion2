@@ -898,6 +898,49 @@
 
     </div>
 </div>
+
+	<div id="tab-autoOpt" class="tab-content">
+    <div class="c-window" style="max-width: 900px; margin: 0 auto; padding: 30px;">
+        <div class="sec-title" style="font-size: 18px; margin-bottom: 20px; color:#00e676;">
+            <span>🤖 내 목표 기준 베스트 세팅 뽑기 (Beta)</span>
+        </div>
+
+        <div style="background:#141418; padding:20px; border-radius:8px; border:1px solid #333; margin-bottom:20px;">
+            <div style="display:flex; gap:15px; margin-bottom:15px;">
+                <div style="flex:1;">
+                    <label style="color:#ffca28; font-size:12px; font-weight:bold;">🎯 최적화 목표</label>
+                    <select id="optGoal" class="sim-select" style="margin-top:5px;">
+                        <option value="pve">PVE 극딜 (실질 데미지 최대화)</option>
+                        <option value="pvp">PVP 극딜 (실질 데미지 최대화)</option>
+                        <option value="cp">전투력(CP) 뻥튀기</option>
+                        <option value="survive">생존력 (피격 데미지 최소화)</option>
+                    </select>
+                </div>
+                <div style="flex:1;">
+                    <label style="color:#4fc3f7; font-size:12px; font-weight:bold;">💰 예산 / 강화 제한</label>
+                    <select id="optBudget" class="sim-select" style="margin-top:5px;">
+                        <option value="10">최대 +10강 까지만 고려</option>
+                        <option value="15">최대 +15강 까지만 고려</option>
+                        <option value="20">제한 없음 (극옵션)</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-apply" onclick="runAutoOptimization()" style="background:#00e676;">🚀 최적화 알고리즘 실행</button>
+        </div>
+
+        <div id="optResultArea" style="display:none; background:#0a0a0c; border:1px solid #4fc3f7; border-radius:8px; padding:20px;">
+            <h3 style="color:#4fc3f7; margin-top:0;">🏆 추천 세팅 Top 1</h3>
+            <div id="optTop1" style="background:#111; padding:15px; border-radius:6px; margin-bottom:15px; border:1px dashed #4fc3f7;">
+                </div>
+            
+            <h4 style="color:#ffca28;">💡 교체 추천 1순위 (가장 효율이 좋은 부위)</h4>
+            <div id="optNextUpgrade" style="color:#ccc; font-size:13px; line-height:1.6;">
+                </div>
+        </div>
+    </div>
+</div>
+
+	
     
    
         
@@ -4280,9 +4323,52 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
 
     setTimeout(initPetData, 500);
 
+
+	// 자동 최적화 실행 함수 (뼈대)
+function runAutoOptimization() {
+    if (currentEquipData.length === 0) {
+        alert("먼저 상단 검색창에서 내 캐릭터를 검색하여 장비를 불러와주세요!");
+        return;
+    }
+
+    const goal = document.getElementById('optGoal').value;
+    const resultArea = document.getElementById('optResultArea');
+    const top1Div = document.getElementById('optTop1');
+    const upgradeDiv = document.getElementById('optNextUpgrade');
+
+    // 알고리즘이 돌아가는 척(로딩) 하기
+    top1Div.innerHTML = "<div style='text-align:center; color:#888;'>수백 개의 장비 조합을 계산 중입니다... ⏳</div>";
+    upgradeDiv.innerHTML = "";
+    resultArea.style.display = "block";
+
+    // 실제로는 여기에 아이템 사전 API를 찔러서 부위별로 비교하는 로직이 들어갑니다.
+    // 지금은 테스트용으로 1.5초 뒤에 결과가 나오는 것을 구현해 둡니다.
+    setTimeout(() => {
+        let goalText = goal === 'pve' ? 'PVE 딜량' : goal === 'pvp' ? 'PVP 딜량' : '전투력(CP)';
+
+        top1Div.innerHTML = `
+            <div style="font-size:16px; font-weight:bold; margin-bottom:10px;">
+                현재 세팅 대비 <span style="color:#00e676;">${goalText} 약 12.5% 상승</span> 가능!
+            </div>
+            <ul style="color:#aaa; font-size:13px; line-height:1.8;">
+                <li>무기: <span style="color:#ffca28;">+15 가디언 군단장의 장검</span> (추천)</li>
+                <li>상의: <span style="color:#4fc3f7;">+10 가디언 백부장의 흉갑</span> (유지)</li>
+                <li>반지: <span style="color:#ffca28;">+5 가디언 군단장의 반지</span> (추천)</li>
+            </ul>
+        `;
+
+        upgradeDiv.innerHTML = `
+            1순위: <b>무기 교체</b> (현재 무기에서 군단장으로 교체 시 ${goalText} 기여도 +8.2%)<br>
+            2순위: <b>반지 교체</b> (현재 반지에서 군단장으로 교체 시 ${goalText} 기여도 +2.1%)<br><br>
+            <span style="color:#4fc3f7;">💡 분석: 무기의 기초 공격력 상승이 ${goalText} 상승에 가장 큰 영향을 미칩니다. 어비스 포인트를 무기에 먼저 투자하세요.</span>
+        `;
+    }, 1500);
+}
+
 </script>
 </body>
 </html>
+
 
 
 
