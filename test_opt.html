@@ -4610,10 +4610,25 @@ function runAutoOptimization() {
         }
     }, 100); 
 }
+
+	// 🌟 [버그 픽스] 캐릭터 검색 시 자동 최적화 탭도 즉시 갱신되도록 완벽 동기화
+const originalRenderEquip = renderEquipGrid;
+renderEquipGrid = function() {
+    originalRenderEquip(); // 원래 하던 장비 시뮬레이터 화면 갱신 수행
+
+    // 캐릭터 정보를 다 불러오면 자동 최적화 화면도 알아서 갱신하도록 명령!
+    if (typeof renderOptEquipList === 'function') {
+        renderOptEquipList(); 
+    }
+    if (typeof toggleOptGoalInput === 'function') {
+        toggleOptGoalInput(); // 내 현재 전투력 수치도 최신화!
+    }
+};
 	
 </script>
 </body>
 </html>
+
 
 
 
