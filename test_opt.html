@@ -912,10 +912,10 @@
                 <div style="flex:1;">
                     <label style="color:#ffca28; font-size:12px; font-weight:bold;">🎯 최적화 목표</label>
                     <select id="optGoal" class="sim-select" style="margin-top:5px;">
-                        <option value="pve">PVE 극딜 (실질 데미지 최대화)</option>
-                        <option value="pvp">PVP 극딜 (실질 데미지 최대화)</option>
-                        <option value="cp">전투력(CP) 뻥튀기</option>
-                        <option value="survive">생존력 (피격 데미지 최소화)</option>
+                        <option value="pve">PVE 딜 상승</option>
+                        <option value="pvp">PVP 딜 상승</option>
+                        <option value="cp">전투력 뻥튀기</option>
+                        <option value="survive">PVP 생</option>
                     </select>
                 </div>
                 <div style="flex:1;">
@@ -4328,7 +4328,7 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
     setTimeout(initPetData, 500);
 
 
-	// 자동 최적화 실행 함수 (뼈대)
+// 자동 최적화 실행 함수 (뼈대)
 function runAutoOptimization() {
     if (currentEquipData.length === 0) {
         alert("먼저 상단 검색창에서 내 캐릭터를 검색하여 장비를 불러와주세요!");
@@ -4341,14 +4341,16 @@ function runAutoOptimization() {
     const upgradeDiv = document.getElementById('optNextUpgrade');
 
     // 알고리즘이 돌아가는 척(로딩) 하기
-    top1Div.innerHTML = "<div style='text-align:center; color:#888;'>수백 개의 장비 조합을 계산 중입니다... ⏳</div>";
+    top1Div.innerHTML = "<div style='text-align:center; color:#888; padding: 20px 0;'>수만 개의 장비 조합을 계산 중입니다... ⏳</div>";
     upgradeDiv.innerHTML = "";
     resultArea.style.display = "block";
 
-    // 실제로는 여기에 아이템 사전 API를 찔러서 부위별로 비교하는 로직이 들어갑니다.
-    // 지금은 테스트용으로 1.5초 뒤에 결과가 나오는 것을 구현해 둡니다.
     setTimeout(() => {
-        let goalText = goal === 'pve' ? 'PVE 딜량' : goal === 'pvp' ? 'PVP 딜량' : '전투력(CP)';
+        let goalText = '';
+        if (goal === 'pve') goalText = 'PVE 실질 딜량';
+        else if (goal === 'pvp') goalText = 'PVP 실질 딜량';
+        else if (goal === 'cp') goalText = '전투력 수치';
+        else if (goal === 'survive') goalText = 'PVP 생존력(피격 버팀)';
 
         top1Div.innerHTML = `
             <div style="font-size:16px; font-weight:bold; margin-bottom:10px;">
@@ -4362,13 +4364,50 @@ function runAutoOptimization() {
         `;
 
         upgradeDiv.innerHTML = `
-            1순위: <b>무기 교체</b> (현재 무기에서 군단장으로 교체 시 ${goalText} 기여도 +8.2%)<br>
-            2순위: <b>반지 교체</b> (현재 반지에서 군단장으로 교체 시 ${goalText} 기여도 +2.1%)<br><br>
-            <span style="color:#4fc3f7;">💡 분석: 무기의 기초 공격력 상승이 ${goalText} 상승에 가장 큰 영향을 미칩니다. 어비스 포인트를 무기에 먼저 투자하세요.</span>
+            1순위: <b>무기 교체</b> (군단장으로 교체 시 ${goalText} 기여도 +8.2%)<br>
+            2순위: <b>반지 교체</b> (군단장으로 교체 시 ${goalText} 기여도 +2.1%)<br><br>
+            <span style="color:#4fc3f7;">💡 분석: 선택하신 [${goalText}] 목표를 달성하려면 기초 공격력 상승이 가장 큽니다. 어비스 포인트를 무기에 먼저 투자하세요.</span>
         `;
     }, 1500);
 }
 
+// 🌟 [자동 최적화 패치] 검색창 전역(Global) 이동 마법 코드 🌟
+(function makeSearchGlobal() {
+    const nav = document.querySelector('.top-nav');
+    const searchArea = document.createElement('div');
+    searchArea.id = 'globalSearchUI';
+    
+    // 네비게이션 메뉴 바로 아래에 전용 구역 생성
+    nav.parentNode.insertBefore(searchArea, nav.nextSibling);
+
+    // 장비 시뮬레이터 탭 안에 갇혀있던 검색창 요소들을 빼옵니다.
+    const searchBar = document.querySelector('.search-bar');
+    const favBar = document.getElementById('favoritesBar');
+    const charSel = document.getElementById('characterSelection');
+    
+    // 밖으로 이동!
+    if(searchBar) searchArea.appendChild(searchBar);
+    if(favBar) searchArea.appendChild(favBar);
+    if(charSel) searchArea.appendChild(charSel);
+})();
+
+// 기존 탭 전환 함수에 '검색창 숨김/표시' 스마트 로직 추가
+const optSwitch = switchTab;
+switchTab = (id, el) => {
+    optSwitch(id, el); // 원래 하던 탭 전환 일 먼저 수행
+    
+    const searchUI = document.getElementById('globalSearchUI');
+    if (searchUI) {
+        // '장비 시뮬' 탭이거나 '자동 최적화' 탭일 때만 검색창 등장! (펫, 랭킹 탭은 가려줌)
+        if (id === 'equip' || id === 'autoOpt') {
+            searchUI.style.display = 'block';
+        } else {
+            searchUI.style.display = 'none';
+        }
+    }
+};
+	
 </script>
 </body>
 </html>
+
