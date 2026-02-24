@@ -4485,18 +4485,92 @@ switchTab = (id, el) => {
     }
 };
 
-// 🌟 진(眞) 완성형: 세트 조합 탐색 및 순수 스탯 비교 알고리즘 🌟
-async function runAutoOptimization() {
+// 🌟 [전역 변수] 아이템 DB를 담아둘 공간
+let globalItemDB = [];
+
+// 🌟 웹사이트 접속 시, 백그라운드에서 DB를 조용히 다운로드 해둡니다.
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const res = await fetch('/aion_item_db.json');
+        globalItemDB = await res.json();
+        console.log(`✅ 초고속 자체 아이템 DB 로드 완료! (총 ${globalItemDB.length}개 장비 장전됨)`);
+    } catch(e) {
+        console.error("아이템 DB를 찾을 수 없습니다. aion_item_db.json 파일을 업로드했는지 확인하세요.");
+    }
+});
+
+// 🌟 UI 편의성 함수들 (이전과 동일)
+function toggleOptGoalInput() {
+    const goal = document.getElementById('optGoal').value;
+    const label = document.getElementById('optTargetLabel');
+    const unit = document.getElementById('optTargetUnit');
+    const input = document.getElementById('optTargetVal');
+    const currentCP = parseInt(document.getElementById('baseCp').value) || 0;
+
+    if (goal === 'cp') {
+        label.innerHTML = `목표 전투력 <span style="color:#888;">(현재 내 전투력: <b style="color:#fff;">${currentCP}</b>)</span>`;
+        unit.innerText = 'CP 달성';
+        input.value = currentCP + 100;
+    } else if (goal === 'survive') {
+        label.innerText = '목표 생존력 향상 (%)';
+        unit.innerText = '% 이상 덜 아프게';
+        input.value = 10;
+    } else {
+        label.innerText = '목표 딜 상승률 (%)';
+        unit.innerText = '% 이상 상승';
+        input.value = 10;
+    }
+}
+
+function renderOptEquipList() {
+    const container = document.getElementById('optEquipSelection');
+    if (!container) return;
     if (currentEquipData.length === 0) {
-        alert("먼저 상단 검색창에서 내 캐릭터를 검색하여 장비를 불러와주세요!");
+        container.innerHTML = `<div style="text-align:center; padding:30px 0; color:#555;">캐릭터를 검색하면 내 장비가 나타납니다.</div>`;
         return;
     }
+    let html = '';
+    currentEquipData.forEach((eq, idx) => {
+        const name = eq.name || "장비";
+        const enh = eq.enchantLevel || 0;
+        const brk = eq.exceedLevel || 0; 
+        const img = eq.icon ? `<img src="${eq.icon}" style="width:32px; height:32px; border-radius:4px; border:1px solid #444;">` : `<div style="width:32px; height:32px; background:#222;"></div>`;
+        const gradeColor = getGradeColor(eq.grade);
+        let diamondsHtml = ''; 
+        for (let i = 0; i < 5; i++) diamondsHtml += `<div class="diamond-pip ${i < brk ? 'active' : ''}"></div>`;
+
+        html += `
+        <label style="display:flex; align-items:center; gap:10px; background:#0a0a0c; padding:10px; border:1px solid #222; border-radius:6px; cursor:pointer;">
+            <input type="checkbox" class="opt-eq-chk" value="${idx}" style="transform:scale(1.3); margin:0 5px;" checked>
+            ${img}
+            <div style="flex:1;">
+                <div style="color:${gradeColor}; font-size:13px; font-weight:bold;">+${enh} ${name}</div>
+                <div style="display:flex; gap:4px; margin-top:5px;">${diamondsHtml}</div>
+            </div>
+        </label>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+const autoOptSwitch = switchTab;
+switchTab = (id, el) => {
+    autoOptSwitch(id, el); 
+    const searchUI = document.getElementById('globalSearchUI');
+    if (searchUI) {
+        if (id === 'equip' || id === 'autoOpt') searchUI.style.display = 'block';
+        else searchUI.style.display = 'none';
+    }
+    if (id === 'autoOpt') { renderOptEquipList(); toggleOptGoalInput(); }
+};
+
+// 🌟 0.01초 빛의 속도로 동작하는 자체 DB 기반 알고리즘!
+function runAutoOptimization() {
+    if (currentEquipData.length === 0) return alert("먼저 상단 검색창에서 내 캐릭터를 검색하세요!");
+    if (globalItemDB.length === 0) return alert("아이템 DB를 로딩 중이거나 불러올 수 없습니다. (aion_item_db.json 파일 확인)");
 
     const checkedSlots = Array.from(document.querySelectorAll('.opt-eq-chk:checked')).map(cb => parseInt(cb.value));
-    if (checkedSlots.length === 0) {
-        alert("변경을 허용할 장비 부위를 최소 1개 이상 체크해주세요!");
-        return;
-    }
+    if (checkedSlots.length === 0) return alert("변경을 허용할 장비 부위를 1개 이상 체크해주세요!");
 
     const goal = document.getElementById('optGoal').value;
     const targetVal = parseFloat(document.getElementById('optTargetVal').value) || 0;
@@ -4510,244 +4584,242 @@ async function runAutoOptimization() {
 
     const resultArea = document.getElementById('optResultArea');
     resultArea.style.display = "block";
-    resultArea.innerHTML = `<div style='text-align:center; color:#00e676; padding: 40px 0; font-size:16px; font-weight:bold;'>🔄 [${checkedSlots.length}개 부위] 목표 달성을 위한 최적의 가성비 조합을 계산 중입니다... ⏳<br><span style='font-size:12px; color:#888; font-weight:normal; margin-top:8px; display:inline-block;'>(API 정밀 스탯 스캔 중... 최대 5~8초 소요)</span></div>`;
+    resultArea.innerHTML = `<div style='text-align:center; color:#00e676; padding: 40px 0; font-size:16px; font-weight:bold;'>⚡ 자체 DB를 활용하여 수만 개의 경우의 수를 0.1초 만에 돌파하는 중...</div>`;
 
-    try {
-        let slotCandidatesArray = [];
-        let currentCP = parseInt(document.getElementById('baseCp').value) || 0;
+    // 🚀 setTimeout을 줘서 UI가 멈추지 않고 로딩창이 살짝 보이게 연출
+    setTimeout(() => {
+        try {
+            let slotCandidatesArray = [];
+            let currentCP = parseInt(document.getElementById('baseCp').value) || 0;
 
-        // 기준 스탯 (퍼센트 계산용 베이스라인)
-        let bAtk = parseFloat(document.getElementById('baseAtk').value)||1600;
-        let bAmp = parseFloat(document.getElementById('baseAmp').value)||0;
-        let bPveAmp = parseFloat(document.getElementById('basePveAmp').value)||0;
-        let bPvpAmp = parseFloat(document.getElementById('basePvpAmp').value)||0;
-        let bDef = parseFloat(document.getElementById('baseDef').value)||2000;
-        
-        let basePveScore = bAtk + (bPveAmp*15) + (bAmp*15);
-        let basePvpScore = bAtk + (bPvpAmp*15) + (bAmp*15);
-        let baseSurvScore = bDef + (parseFloat(document.getElementById('baseHp').value)||10000)*0.1;
-
-        // 1. 체크된 부위별로 '후보 아이템 리스트' 생성
-        for (let slotIdx of checkedSlots) {
-            const oldEq = currentEquipData[slotIdx];
-            const catObj = getSmartCategory(oldEq);
-            if (!catObj) continue;
-
-            // 🚨 버그 픽스: 50개 제한에 걸리지 않도록 고급 키워드 강제 주입!
-            let qList = [catObj.label, "군단장의 " + catObj.label, "천부장의 " + catObj.label, "백부장의 " + catObj.label, "명룡왕의 " + catObj.label, "가디언 " + catObj.label];
-            let fetchPromises = qList.map(q => fetch(`${API_BASE}/searchDictItem?keyword=${encodeURIComponent(q)}`).then(r => r.json()).catch(e => ({list:[]})));
-            let results = await Promise.all(fetchPromises);
+            let bAtk = parseFloat(document.getElementById('baseAtk').value)||1600;
+            let bAmp = parseFloat(document.getElementById('baseAmp').value)||0;
+            let bPveAmp = parseFloat(document.getElementById('basePveAmp').value)||0;
+            let bPvpAmp = parseFloat(document.getElementById('basePvpAmp').value)||0;
+            let bDef = parseFloat(document.getElementById('baseDef').value)||2000;
             
-            let uniqueItems = new Map();
-            results.forEach(res => {
-                let items = res.contents || res.list || [];
-                items.forEach(it => {
-                    if (!EXCLUDE_KEYWORDS.some(kw => (it.name||"").includes(kw))) uniqueItems.set(it.id, it);
+            let basePveScore = bAtk + (bPveAmp*15) + (bAmp*15);
+            let basePvpScore = bAtk + (bPvpAmp*15) + (bAmp*15);
+            let baseSurvScore = bDef + (parseFloat(document.getElementById('baseHp').value)||10000)*0.1;
+
+            // 1. 체크된 부위별로 '내장된 DB'에서 즉시 후보 색출 (통신 없음!)
+            for (let slotIdx of checkedSlots) {
+                const oldEq = currentEquipData[slotIdx];
+                const catObj = getSmartCategory(oldEq);
+                if (!catObj) continue;
+
+                // DB 필터링 (순식간에 끝남)
+                let candidates = globalItemDB.filter(item => {
+                    let itCat = getSmartCategory(item);
+                    if (!itCat || itCat.key !== catObj.key) return false;
+
+                    let passGrade = (fUnique && item.grade === 'Unique') || (fHero && (item.grade === 'Hero' || item.grade === 'Epic'));
+                    if (!passGrade) return false;
+                    
+                    let itemSources = item.sources || [];
+                    let passSource = false;
+                    if (fAbyss && itemSources.includes('교환 상점')) passSource = true;
+                    if (fCraft && itemSources.includes('제작')) passSource = true;
+                    if (fDungeon && (itemSources.includes('원정') || itemSources.includes('성역'))) passSource = true;
+                    if(!fAbyss && !fCraft && !fDungeon) return false; 
+                    if(itemSources.length > 0 && !passSource) return false; 
+                    return true;
                 });
-            });
 
-            let candidates = Array.from(uniqueItems.values()).filter(item => {
-                let passGrade = (fUnique && item.grade === 'Unique') || (fHero && (item.grade === 'Hero' || item.grade === 'Epic'));
-                if (!passGrade) return false;
-                let itemSources = item.sources || [];
-                let passSource = false;
-                if (fAbyss && itemSources.includes('교환 상점')) passSource = true;
-                if (fCraft && itemSources.includes('제작')) passSource = true;
-                if (fDungeon && (itemSources.includes('원정') || itemSources.includes('성역'))) passSource = true;
-                if(!fAbyss && !fCraft && !fDungeon) return false; 
-                if(itemSources.length > 0 && !passSource) return false; 
-                return true;
-            });
+                let getLv = x => parseInt(x.level || x.itemLevel || x.equipLevel || 0);
+                candidates.sort((a, b) => getLv(b) - getLv(a));
+                let topCands = candidates.slice(0, 10); // DB가 있으니 10개까지 넉넉하게 분석!
 
-            let getLv = x => parseInt(x.level || x.itemLevel || x.equipLevel || 0);
-            candidates.sort((a, b) => getLv(b) - getLv(a));
-            let topCands = candidates.slice(0, 5); // 5개 씩만 추려서 정밀 분석
+                let oldBaseCp = calculateNewItemCP(oldEq, oldEq.enchantLevel || 0, oldEq.exceedLevel || 0);
+                let oldBaseStats = extractBaseStats(oldEq, oldEq.exceedLevel || 0).total;
 
-            // 🚨 핵심 버그 픽스: '마석'을 뺀 순수 장비 스탯으로만 비교 (애플 투 애플)
-            let oldBaseCp = calculateNewItemCP(oldEq, oldEq.enchantLevel || 0, oldEq.exceedLevel || 0);
-            let oldBaseStats = extractBaseStats(oldEq, oldEq.exceedLevel || 0).total;
+                let processedCands = [];
+                processedCands.push({
+                    isKeep: true, oldName: oldEq.name, oldEnh: oldEq.enchantLevel||0, grade: oldEq.grade, brk: oldEq.exceedLevel||0,
+                    cpDiff: 0, pveDiff: 0, pvpDiff: 0, survDiff: 0
+                });
 
-            let processedCands = [];
-            
-            // "이 부위는 안 바꾸고 그대로 둔다"는 선택지도 경우의 수에 포함
-            processedCands.push({
-                isKeep: true, oldName: oldEq.name, oldEnh: oldEq.enchantLevel||0, grade: oldEq.grade,
-                cpDiff: 0, pveDiff: 0, pvpDiff: 0, survDiff: 0
-            });
+                for (let cand of topCands) {
+                    let enh = budgetRule === 'inherit' ? (oldEq.enchantLevel || 0) : parseInt(budgetRule);
+                    let brk = oldEq.exceedLevel || 0; 
 
-            for (let candSum of topCands) {
-                let enh = budgetRule === 'inherit' ? (oldEq.enchantLevel || 0) : parseInt(budgetRule);
-                let brk = oldEq.exceedLevel || 0; // 돌파는 무조건 기존 장비에서 계승!
-                
-                let candDetailRes = await fetch(`${API_BASE}/getDictItemDetail?id=${candSum.id}&enchantLevel=${enh}&exceedLevel=${brk}`);
-                let cand = await candDetailRes.json();
+                    let nCp = calculateNewItemCP(cand, enh, brk);
+                    let nStats = extractBaseStats(cand, brk).total;
 
-                let nCp = calculateNewItemCP(cand, enh, brk);
-                let nStats = extractBaseStats(cand, brk).total;
+                    let cpDiff = nCp - oldBaseCp; 
+                    
+                    let oPveAtk = (oldBaseStats.atk||0) + (oldBaseStats.pveAmp||0)*15 + (oldBaseStats.amp||0)*15;
+                    let nPveAtk = (nStats.atk||0) + (nStats.pveAmp||0)*15 + (nStats.amp||0)*15;
+                    let pveDiff = nPveAtk - oPveAtk;
 
-                let cpDiff = nCp - oldBaseCp; // 순수하게 장비 스펙업으로 오르는 찐 전투력
-                
-                let oPveAtk = (oldBaseStats.atk||0) + (oldBaseStats.pveAmp||0)*15 + (oldBaseStats.amp||0)*15;
-                let nPveAtk = (nStats.atk||0) + (nStats.pveAmp||0)*15 + (nStats.amp||0)*15;
-                let pveDiff = nPveAtk - oPveAtk;
+                    let oPvpAtk = (oldBaseStats.atk||0) + (oldBaseStats.pvpAmp||0)*15 + (oldBaseStats.amp||0)*15;
+                    let nPvpAtk = (nStats.atk||0) + (nStats.pvpAmp||0)*15 + (nStats.amp||0)*15;
+                    let pvpDiff = nPvpAtk - oPvpAtk;
 
-                let oPvpAtk = (oldBaseStats.atk||0) + (oldBaseStats.pvpAmp||0)*15 + (oldBaseStats.amp||0)*15;
-                let nPvpAtk = (nStats.atk||0) + (nStats.pvpAmp||0)*15 + (nStats.amp||0)*15;
-                let pvpDiff = nPvpAtk - oPvpAtk;
+                    let oDef = (oldBaseStats.def||0) + (oldBaseStats.hp||0)*0.1;
+                    let nDef = (nStats.def||0) + (nStats.hp||0)*0.1;
+                    let survDiff = nDef - oDef;
 
-                let oDef = (oldBaseStats.def||0) + (oldBaseStats.hp||0)*0.1;
-                let nDef = (nStats.def||0) + (nStats.hp||0)*0.1;
-                let survDiff = nDef - oDef;
+                    if (cpDiff > 0 || pveDiff > 0 || pvpDiff > 0 || survDiff > 0) {
+                        processedCands.push({
+                            isKeep: false, slotIdx: slotIdx, oldName: oldEq.name, oldEnh: oldEq.enchantLevel || 0,
+                            newItem: cand, newEnh: enh, brk: brk, cpDiff, pveDiff, pvpDiff, survDiff
+                        });
+                    }
+                }
+                slotCandidatesArray.push(processedCands);
+            }
 
-                // 스펙이 조금이라도 오르는 장비만 후보에 추가
-                if (cpDiff > 0 || pveDiff > 0 || pvpDiff > 0 || survDiff > 0) {
-                    processedCands.push({
-                        isKeep: false, slotIdx: slotIdx, oldName: oldEq.name, oldEnh: oldEq.enchantLevel || 0,
-                        newItem: candSum, newEnh: enh, brk: brk, cpDiff, pveDiff, pvpDiff, survDiff
-                    });
+            // 2. 조합기 가동 (빛의 속도)
+            let allCombinations = [];
+            function buildCombos(idx, currentCombo) {
+                if (idx === slotCandidatesArray.length) {
+                    allCombinations.push([...currentCombo]);
+                    return;
+                }
+                for (let c of slotCandidatesArray[idx]) {
+                    currentCombo.push(c);
+                    buildCombos(idx+1, currentCombo);
+                    currentCombo.pop();
                 }
             }
-            slotCandidatesArray.push(processedCands);
-        }
+            buildCombos(0, []);
 
-        // 2. 모든 부위의 조합(경우의 수) 생성 
-        let allCombinations = [];
-        function buildCombos(idx, currentCombo) {
-            if (idx === slotCandidatesArray.length) {
-                allCombinations.push([...currentCombo]);
-                return;
-            }
-            for (let c of slotCandidatesArray[idx]) {
-                currentCombo.push(c);
-                buildCombos(idx+1, currentCombo);
-                currentCombo.pop();
-            }
-        }
-        buildCombos(0, []);
+            let validCombos = [];
+            let bestMaxCombo = null;
+            let bestMaxScore = -999999;
 
-        // 3. 목표치 달성 검사 (최소 변경 조합 찾기)
-        let validCombos = [];
-        let bestMaxCombo = null;
-        let bestMaxScore = -999999;
+            for (let combo of allCombinations) {
+                let tCp = 0, tPve = 0, tPvp = 0, tSurv = 0, changes = 0;
+                for (let c of combo) {
+                    if (!c.isKeep) changes++;
+                    tCp += c.cpDiff; tPve += c.pveDiff; tPvp += c.pvpDiff; tSurv += c.survDiff;
+                }
 
-        for (let combo of allCombinations) {
-            let tCp = 0, tPve = 0, tPvp = 0, tSurv = 0, changes = 0;
-            for (let c of combo) {
-                if (!c.isKeep) changes++;
-                tCp += c.cpDiff; tPve += c.pveDiff; tPvp += c.pvpDiff; tSurv += c.survDiff;
-            }
+                let isPass = false;
+                let score = 0;
 
-            let isPass = false;
-            let score = 0;
+                if (goal === 'cp') {
+                    score = currentCP + tCp;
+                    if (score >= targetVal) isPass = true;
+                } else if (goal === 'pve') {
+                    score = tPve;
+                    let reqDelta = basePveScore * (targetVal / 100); 
+                    if (tPve >= reqDelta) isPass = true;
+                } else if (goal === 'pvp') {
+                    score = tPvp;
+                    let reqDelta = basePvpScore * (targetVal / 100);
+                    if (tPvp >= reqDelta) isPass = true;
+                } else if (goal === 'survive') {
+                    score = tSurv;
+                    let reqDelta = baseSurvScore * (targetVal / 100);
+                    if (tSurv >= reqDelta) isPass = true;
+                }
 
-            if (goal === 'cp') {
-                score = currentCP + tCp;
-                if (score >= targetVal) isPass = true;
-            } else if (goal === 'pve') {
-                score = tPve;
-                let reqDelta = basePveScore * (targetVal / 100); 
-                if (tPve >= reqDelta) isPass = true;
-            } else if (goal === 'pvp') {
-                score = tPvp;
-                let reqDelta = basePvpScore * (targetVal / 100);
-                if (tPvp >= reqDelta) isPass = true;
-            } else if (goal === 'survive') {
-                score = tSurv;
-                let reqDelta = baseSurvScore * (targetVal / 100);
-                if (tSurv >= reqDelta) isPass = true;
+                let comboData = { combo, changes, score, tCp, tPve, tPvp, tSurv };
+                if (isPass) validCombos.push(comboData);
+                
+                if (score > bestMaxScore) {
+                    bestMaxScore = score;
+                    bestMaxCombo = comboData;
+                }
             }
 
-            let comboData = { combo, changes, score, tCp, tPve, tPvp, tSurv };
-            if (isPass) validCombos.push(comboData);
+            let winner = null;
+            let isForcedMax = false; 
             
-            if (score > bestMaxScore) {
-                bestMaxScore = score;
-                bestMaxCombo = comboData;
+            if (validCombos.length > 0) {
+                validCombos.sort((a, b) => {
+                    if (a.changes !== b.changes) return a.changes - b.changes; 
+                    return a.score - b.score; 
+                });
+                winner = validCombos[0];
+            } else {
+                winner = bestMaxCombo; 
+                isForcedMax = true;
             }
-        }
 
-        // 4. 승자 결정! (1원칙: 목표 달성시 최소 변경, 2원칙: 달성 실패시 최대 영끌)
-        let winner = null;
-        if (validCombos.length > 0) {
-            validCombos.sort((a, b) => {
-                if (a.changes !== b.changes) return a.changes - b.changes; // 가장 적은 장비를 바꾸는 가성비 조합!
-                return a.score - b.score; // 목표를 넘겼다면 초과분이 가장 적은(딱 맞춘) 세팅!
-            });
-            winner = validCombos[0];
-        } else {
-            winner = bestMaxCombo; // 목표엔 못 미쳐도 영끌한 최선책
-        }
+            // 3. UI 렌더링
+            let finalCP = currentCP + winner.tCp;
+            let targetAchievedHtml = '';
+            if (goal === 'cp') {
+                if (!isForcedMax) targetAchievedHtml = `<span style="color:#00e676; font-size:12px; font-weight:bold;">(목표 달성 ✅)</span>`;
+                else targetAchievedHtml = `<span style="color:#ff5252; font-size:12px; font-weight:bold;">(달성 실패 ❌ 최대치 추천)</span>`;
+            } else {
+                if (!isForcedMax) targetAchievedHtml = `<span style="color:#00e676; font-size:12px; font-weight:bold;">(상승률 달성 ✅)</span>`;
+                else targetAchievedHtml = `<span style="color:#ff5252; font-size:12px; font-weight:bold;">(달성 실패 ❌ 최대치 추천)</span>`;
+            }
 
-        // 5. 화면 출력부
-        let finalCP = currentCP + winner.tCp;
-        let targetAchievedHtml = '';
-        if (goal === 'cp') {
-            if (finalCP >= targetVal) targetAchievedHtml = `<span style="color:#00e676; font-size:12px; font-weight:bold;">(목표 달성 ✅)</span>`;
-            else targetAchievedHtml = `<span style="color:#ff5252; font-size:12px; font-weight:bold;">(목표 미달 ❌ 더 상위 장비 필요)</span>`;
-        }
-
-        let html = `
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px dashed #333; padding-bottom:15px; margin-bottom:15px;">
-            <div>
-                <h3 style="color:#00e676; margin:0 0 5px 0;">🎉 ${winner.changes}개 부위 교체 가성비 조합 발견!</h3>
-                <div style="font-size:12px; color:#aaa;">조건에 맞게 영혼의 덧셈/뺄셈을 마친 최적화 결과입니다.</div>
-            </div>
-            <div style="text-align:right; background:#111; padding:10px 15px; border-radius:6px; border:1px solid #444;">
-                <div style="font-size:11px; color:#888;">총 전투력 변화 ${targetAchievedHtml}</div>
-                <div style="font-size:18px; font-weight:bold;">
-                    <span style="color:#ccc;">${currentCP.toLocaleString()}</span> ➡ <span style="color:#00e676;">${finalCP.toLocaleString()}</span> 
-                    <span style="font-size:12px; color:#00e676;">(${winner.tCp >= 0 ? '▲' : '▼'} ${Math.abs(winner.tCp)})</span>
+            let html = `
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px dashed #333; padding-bottom:15px; margin-bottom:15px;">
+                <div>
+                    <h3 style="color:#00e676; margin:0 0 5px 0;">⚡ 0.1초 만에 ${winner.changes}개 부위 교체 조합 발견!</h3>
+                    <div style="font-size:12px; color:#aaa;">자체 구축 DB를 통해 찾아낸 가장 빠르고 정확한 가성비 세팅입니다.</div>
+                </div>
+                <div style="text-align:right; background:#111; padding:10px 15px; border-radius:6px; border:1px solid #444;">
+                    <div style="font-size:11px; color:#888;">총 전투력 변화 ${targetAchievedHtml}</div>
+                    <div style="font-size:18px; font-weight:bold;">
+                        <span style="color:#ccc;">${currentCP.toLocaleString()}</span> ➡ <span style="color:#00e676;">${finalCP.toLocaleString()}</span> 
+                        <span style="font-size:12px; color:#00e676;">(${winner.tCp >= 0 ? '▲' : '▼'} ${Math.abs(winner.tCp)})</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-        `;
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+            `;
 
-        winner.combo.forEach((rec) => {
-            if (rec.isKeep) {
-                html += `
-                <div style="background:#111; padding:15px; border-radius:8px; border:1px solid #333; opacity: 0.8;">
-                    <div style="color:#888; font-size:12px; margin-bottom:5px;">기존 착용 장비</div>
-                    <div style="color:${getGradeColor(rec.grade)}; font-size:14px; font-weight:bold;">+${rec.oldEnh} ${rec.oldName}</div>
-                    <div style="margin-top:10px; font-size:11px; color:#666;">✔️ 목표 달성을 위해 이 부위는 교체하지 않아도 충분합니다.</div>
-                </div>`;
-            } else {
-                let badge = '';
-                let sources = rec.newItem.sources || [];
-                if (sources.includes('교환 상점')) badge = '<span style="font-size:10px; background:#b71c1c; color:#ffcdd2; padding:2px 4px; border-radius:3px; margin-left:4px;">어비스</span>';
-                else if (sources.includes('제작')) badge = '<span style="font-size:10px; background:#4a148c; color:#e1bee7; padding:2px 4px; border-radius:3px; margin-left:4px;">제작</span>';
-                else if (sources.includes('원정') || sources.includes('성역')) badge = '<span style="font-size:10px; background:#004d40; color:#b2dfdb; padding:2px 4px; border-radius:3px; margin-left:4px;">원정</span>';
+            winner.combo.forEach((rec) => {
+                if (rec.isKeep) {
+                    let diamondsHtml = ''; 
+                    for (let i = 0; i < 5; i++) diamondsHtml += `<span style="display:inline-block; width:6px; height:6px; margin-right:2px; background:${i < rec.brk ? '#ffca28' : '#333'}; transform:rotate(45deg); border:1px solid #555;"></span>`;
 
-                let diamondsHtml = ''; 
-                for (let i = 0; i < 5; i++) diamondsHtml += `<span style="display:inline-block; width:6px; height:6px; margin-right:2px; background:${i < rec.brk ? '#ffca28' : '#333'}; transform:rotate(45deg); border:1px solid #555;"></span>`;
+                    html += `
+                    <div style="background:#111; padding:15px; border-radius:8px; border:1px solid #333; opacity: 0.8;">
+                        <div style="color:#888; font-size:12px; margin-bottom:5px;">기존 착용 장비 유지</div>
+                        <div style="color:${getGradeColor(rec.grade)}; font-size:14px; font-weight:bold;">+${rec.oldEnh} ${rec.oldName}</div>
+                        <div style="margin-top:5px; font-size:11px; color:#aaa; display:flex; align-items:center;">
+                            돌파: ${diamondsHtml}
+                        </div>
+                        <div style="margin-top:10px; font-size:11px; color:#666;">✔️ 목표 달성을 위해 이 부위는 바꾸지 않아도 충분합니다.</div>
+                    </div>`;
+                } else {
+                    let badge = '';
+                    let sources = rec.newItem.sources || [];
+                    if (sources.includes('교환 상점')) badge = '<span style="font-size:10px; background:#b71c1c; color:#ffcdd2; padding:2px 4px; border-radius:3px; margin-left:4px;">어비스</span>';
+                    else if (sources.includes('제작')) badge = '<span style="font-size:10px; background:#4a148c; color:#e1bee7; padding:2px 4px; border-radius:3px; margin-left:4px;">제작</span>';
+                    else if (sources.includes('원정') || sources.includes('성역')) badge = '<span style="font-size:10px; background:#004d40; color:#b2dfdb; padding:2px 4px; border-radius:3px; margin-left:4px;">원정</span>';
 
-                html += `
-                <div style="background:#1a1a20; padding:15px; border-radius:8px; border:1px solid #ffca28; position:relative;">
-                    <div style="color:#ccc; font-size:12px; text-decoration:line-through; margin-bottom:8px;">
-                        기존 착용: +${rec.oldEnh} ${rec.oldName}
-                    </div>
-                    <div style="color:${getGradeColor(rec.newItem.grade)}; font-size:15px; font-weight:bold; display:flex; align-items:center; flex-wrap:wrap;">
-                        ➡ +${rec.newEnh} ${rec.newItem.name} ${badge}
-                    </div>
-                    <div style="margin-top:8px; font-size:11px; color:#aaa; display:flex; align-items:center;">
-                        계승된 돌파: ${diamondsHtml} <span style="margin-left:5px; color:#00e676; font-weight:bold;">(순수 CP ▲${rec.cpDiff})</span>
-                    </div>
-                </div>`;
-            }
-        });
+                    let diamondsHtml = ''; 
+                    for (let i = 0; i < 5; i++) diamondsHtml += `<span style="display:inline-block; width:6px; height:6px; margin-right:2px; background:${i < rec.brk ? '#ffca28' : '#333'}; transform:rotate(45deg); border:1px solid #555;"></span>`;
 
-        html += `</div>`;
-        resultArea.innerHTML = html;
+                    html += `
+                    <div style="background:#1a1a20; padding:15px; border-radius:8px; border:1px solid #ffca28; position:relative;">
+                        <div style="color:#ccc; font-size:12px; text-decoration:line-through; margin-bottom:8px;">
+                            기존 착용: +${rec.oldEnh} ${rec.oldName}
+                        </div>
+                        <div style="color:${getGradeColor(rec.newItem.grade)}; font-size:15px; font-weight:bold; display:flex; align-items:center; flex-wrap:wrap;">
+                            ➡ +${rec.newEnh} ${rec.newItem.name} ${badge}
+                        </div>
+                        <div style="margin-top:8px; font-size:11px; color:#aaa; display:flex; align-items:center;">
+                            계승된 돌파: ${diamondsHtml} <span style="margin-left:5px; color:#00e676; font-weight:bold;">(순수 CP ▲${rec.cpDiff})</span>
+                        </div>
+                    </div>`;
+                }
+            });
 
-    } catch (e) {
-        console.error(e);
-        resultArea.innerHTML = `<div style="text-align:center; padding:20px; color:#ff5252;">데이터 분석 중 오류 발생. 5초 뒤 다시 눌러주세요.</div>`;
-    }
+            html += `</div>`;
+            resultArea.innerHTML = html;
+
+        } catch (e) {
+            console.error(e);
+            resultArea.innerHTML = `<div style="text-align:center; padding:20px; color:#ff5252;">분석 중 오류가 발생했습니다. DB 파일을 확인해주세요.</div>`;
+        }
+    }, 100); // 0.1초 뒤 즉시 렌더링!
 }
 	
 </script>
 </body>
 </html>
+
 
 
 
