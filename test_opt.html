@@ -1101,7 +1101,52 @@
 
     const STAT_LABEL = { atk:"공격력", acc:"명중", amp:"피해 증폭(%)", wAmp:"무기 피증(%)", pvpAmp:"PVP 피증(%)", pveAmp:"PVE 피증(%)", crit:"치명타", critDmg:"치명타 피해 증폭(%)", critAddDmg:"치명타 공격력", critRes:"치명 저항", hp:"생명력", mp:"정신력", def:"방어력", spd:"전투 속도(%)", power:"위력", agi:"민첩", acc_stat:"정확", will:"의지", know:"지식", vit:"체력", dest:"파괴", death:"죽음", wis:"지혜", destiny:"운명", space:"공간", time_stat:"시간", life:"생명", illusion:"환상", freedom:"자유", justice:"정의", atkPct:"공격력 증가(%)", defPct:"방어력 증가(%)", bossAmp:"보스 피증(%)", raceAmp:"종족 피증(%)", pveRes:"PVE 내성(%)", pvpRes:"PVP 내성(%)", genRes:"일반 내성(%)" };
 
-    function findData(obj, key) {
+    // =========================================================
+    // 🚀 복구된 핵심 엔진: 이 아래부터 복사해서 넣으시면 됩니다!
+    const STAT_KEYS = Object.keys(STAT_LABEL);
+
+    function mapStatName(name) {
+        if(!name) return null;
+        if(name.includes('공격력 증가')) return 'atkPct';
+        if(name.includes('방어력 증가')) return 'defPct';
+        if(name.includes('생명력 증가')) return 'hpPct';
+        if(name.includes('일반 피해 증폭') || name==='DamageAmplify') return 'amp';
+        if(name.includes('무기 피해 증폭') || name==='AmplifyWeaponDamage') return 'wAmp';
+        if(name.includes('PVP 피해 증폭') || name==='PvPAmplifyDamage') return 'pvpAmp';
+        if(name.includes('PVE 피해 증폭') || name==='PvEAmplifyDamage') return 'pveAmp';
+        if(name.includes('치명타 피해 증폭') || name==='CriticalAmplifyDamage') return 'critDmg';
+        if(name==='공격력' || name==='WeaponFixingDamage' || name.includes('추가 공격력')) return 'atk';
+        if(name==='명중' || name==='WeaponAccuracy') return 'acc';
+        if(name==='치명타' || name==='Critical') return 'crit';
+        if(name==='치명타 저항' || name==='CriticalResist' || name.includes('치명타 방어력')) return 'critRes';
+        if(name==='방어력' || name==='Defense' || name.includes('추가 방어력')) return 'def';
+        if(name==='생명력' || name==='MaxHp') return 'hp';
+        if(name==='정신력' || name==='MaxMp') return 'mp';
+        if(name==='일반 피해 내성' || name==='DamageResist') return 'genRes';
+        if(name.includes('PVE 피해 내성') || name==='PvEDamageResist' || name.includes('PVE 방어력')) return 'pveRes';
+        if(name.includes('PVP 피해 내성') || name==='PvPDamageResist') return 'pvpRes';
+        if(name==='위력' || name==='STR') return 'power';
+        if(name==='민첩' || name==='DEX') return 'agi';
+        if(name==='정확' || name==='AGI') return 'acc_stat';
+        if(name==='의지' || name==='WIS') return 'will';
+        if(name==='지식' || name==='INT') return 'know';
+        if(name==='체력' || name==='CON') return 'vit';
+        if(name==='파괴' || name==='Destruction') return 'dest';
+        if(name==='죽음' || name==='Death') return 'death';
+        if(name==='지혜' || name==='Wisdom') return 'wis';
+        if(name==='운명' || name==='Destiny') return 'destiny';
+        if(name==='공간' || name==='Space') return 'space';
+        if(name==='시간' || name==='Time') return 'time_stat';
+        if(name==='생명' || name==='Life') return 'life';
+        if(name==='환상' || name==='Illusion') return 'illusion';
+        if(name==='자유' || name==='Freedom') return 'freedom';
+        if(name==='정의' || name==='Justice') return 'justice';
+        return null;
+    }
+    // 🚀 복구 끝
+    // =========================================================
+	
+	function findData(obj, key) {
         if (!obj || typeof obj !== 'object') return null;
         if (key in obj) return obj[key];
         for (let k in obj) { const res = findData(obj[k], key); if (res) return res; }
@@ -4742,6 +4787,7 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
