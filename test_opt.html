@@ -4316,18 +4316,15 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
 
 
 // =========================================================================
-// 🌟 [1] 아이템 JSON DB 전역 로드 (0.01초 최적화 & 더미 장비 차단)
+// 🌟 [1] 아이템 JSON DB 전역 로드 (sources 필터링 취소, 전체 로드)
 // =========================================================================
 let globalItemDB = [];
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         const res = await fetch('/db.json'); 
-        let rawDB = await res.json();
+        globalItemDB = await res.json(); // 필터링 없이 통째로 로드
         
-        // 🚀 "sources"가 아예 없거나 빈 배열인 미구현/더미 장비를 여기서 완벽하게 쳐냅니다!
-        globalItemDB = rawDB.filter(item => item.sources && item.sources.length > 0);
-        
-        console.log(`✅ 초고속 자체 아이템 DB 로드 완료! (총 ${globalItemDB.length}개 유효 장비 장전됨)`);
+        console.log(`✅ 초고속 자체 아이템 DB 로드 완료! (총 ${globalItemDB.length}개 장비 장전됨)`);
     } catch(e) {
         console.error("아이템 DB 파일(db.json)을 찾을 수 없습니다.");
     }
@@ -4725,6 +4722,7 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
