@@ -1773,9 +1773,10 @@
         resultArea.style.display = 'block';
 
         if (typeof globalItemDB === 'undefined' || globalItemDB.length === 0) {
-            resultArea.innerHTML = `<div style="padding:15px; text-align:center; color:#ffca28;">아이템 DB(aion_item_db.json)를 로드 중입니다... 잠시 후 다시 시도해주세요.</div>`;
-            return;
-        }
+        // db.json -> db.json으로 변경
+        resultArea.innerHTML = `<div style="padding:15px; text-align:center; color:#ffca28;">아이템 DB(db.json)를 로드 중입니다... 잠시 후 다시 시도해주세요.</div>`;
+        return;
+    }
 
         // 🚀 통신(API) 없이 내장 DB에서 0.01초 만에 필터링!
         let items = globalItemDB.filter(item => {
@@ -4351,11 +4352,12 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
 let globalItemDB = [];
 window.addEventListener('DOMContentLoaded', async () => {
     try {
-        const res = await fetch('/aion_item_db.json');
+        // 수정 전: const res = await fetch('/db.json');
+        const res = await fetch('/db.json'); 
         globalItemDB = await res.json();
         console.log(`✅ 초고속 자체 아이템 DB 로드 완료! (총 ${globalItemDB.length}개 장비 장전됨)`);
     } catch(e) {
-        console.error("아이템 DB 파일(aion_item_db.json)을 찾을 수 없습니다.");
+        console.error("아이템 DB 파일(db.json)을 찾을 수 없습니다.");
     }
 });
 
@@ -4367,7 +4369,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 // =========================================================================
 async function runAutoOptimization() {
     if (typeof currentEquipData === 'undefined' || currentEquipData.length === 0) return alert("먼저 상단 검색창에서 내 캐릭터를 검색하세요!");
-    if (globalItemDB.length === 0) return alert("아이템 DB를 불러오지 못했습니다. (aion_item_db.json 확인)");
+    if (globalItemDB.length === 0) return alert("아이템 DB를 불러오지 못했습니다. (db.json 확인)");
 
     const checkedSlots = Array.from(document.querySelectorAll('.opt-eq-chk:checked')).map(cb => parseInt(cb.value));
     if (checkedSlots.length === 0) return alert("변경을 허용할 장비 부위를 1개 이상 체크해주세요!");
@@ -4751,6 +4753,7 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
