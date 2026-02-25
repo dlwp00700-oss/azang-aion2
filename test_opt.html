@@ -222,9 +222,10 @@
 
        <div class="top-nav">
             <div class="nav-item active" onclick="switchTab('equip', this)">⚔️ 장비 시뮬레이터</div>
+		   <div class="nav-item" onclick="switchTab('autoOpt', this)">🤖 자동 최적화(Beta)</div>
             <div class="nav-item" onclick="switchTab('pet', this)">🐾 펫작 계산기</div>
             <div class="nav-item" onclick="switchTab('abyss', this)">🏅 어비스 파밍 계산기</div>
-		  	<div class="nav-item" onclick="switchTab('autoOpt', this)">🤖 자동 최적화(Beta)</div>
+		  	
             <div class="nav-item" onclick="switchTab('ranking', this); loadFullRanking(0);">🏆 어비스 랭킹</div>
 		   
         </div>
@@ -1027,8 +1028,8 @@
         { key: 'w_bow', ncId: 'Bow', label: '활', match: ['활', '장궁', '궁'], queries: ['활'] },
         { key: 'w_spellbook', ncId: 'Magicbook', label: '법서', match: ['법서'], queries: ['법서'] },
         { key: 'w_orb', ncId: 'Orb', label: '보주', match: ['보주'], queries: ['보주'] },
-        { key: 'w_mace', ncId: 'Mace', label: '전곤', match: ['전곤', '망치'], queries: ['전곤'] },
-        { key: 'w_staff', ncId: 'Staff', label: '법봉', match: ['법봉', '멸곤'], queries: ['법봉'] },
+        { key: 'w_mace', ncId: 'Mace', label: '전곤', match: ['전곤', '망치', '멸곤'], queries: ['전곤'] },
+        { key: 'w_staff', ncId: 'Staff', label: '법봉', match: ['법봉'], queries: ['법봉'] },
         { key: 'guarder', ncId: 'Guarder', label: '가더', match: ['가더', '방패'], queries: ['가더'] },
         
         // 방어구류
@@ -1055,33 +1056,29 @@
         return "#fff";
     }
 
-    // 🚀 완벽한 부위 판별 함수 (오류 0% + '늘어남' 무기 완벽 지원)
+   // 🚀 완벽한 부위 판별 함수 (클릭 시 화면 멈춤 에러 완벽 해결)
     function getSmartCategory(item) {
         if (!item) return null;
         
-        // 🌟 핵심: 인식 방해꾼인 '(늘어남)' 텍스트를 내부적으로만 잠시 지우고 판별합니다!
         let iName = (item.name || "").replace(/\s*\(늘어남\)\s*/g, '').trim();
         let cName = (item.categoryName || (item.category && item.category.name) || "").replace(/\s*\(늘어남\)\s*/g, '').trim();
-        let catId = item.categoryId || (item.category && item.category.id) || ""; 
+        
+        // 🌟 핵심: ID가 숫자로 들어올 경우를 대비해 String으로 감싸서 에러를 원천 차단합니다!
+        let catId = String(item.categoryId || (item.category && item.category.id) || ""); 
 
-        // NC 데이터에 _Extend 등이 붙어있을 경우 원본 카테고리 ID로 치환
         let baseCatId = catId.replace(/_Extend|_Ext/g, '');
 
-        // 1. NC 공식 ID 검사 (가장 확실함)
         let exactMatch = CATEGORY_MAP.find(c => c.ncId === catId || c.ncId === baseCatId);
         if (exactMatch) return exactMatch;
 
-        // 2. 아이템 이름에 '장갑', '반지' 등이 들어갔는지 1차 검사 (천룡왕의 장갑 -> 장갑으로 직행)
         for (let cat of CATEGORY_MAP) {
             if (cat.match.some(m => iName.includes(m))) return cat;
         }
 
-        // 3. 카테고리 이름으로 검사
         for (let cat of CATEGORY_MAP) {
             if (cat.match.some(m => cName.includes(m))) return cat;
         }
 
-        // 4. 최후의 보루 (이름 끝자리 검사 - 늘어남이 지워졌으므로 완벽 작동!)
         if (iName.endsWith('대검')) return CATEGORY_MAP.find(c => c.key === 'w_greatsword');
         if (iName.endsWith('단검') || iName.endsWith('비수')) return CATEGORY_MAP.find(c => c.key === 'w_dagger');
         if (iName.endsWith('장검') || iName.endsWith('검')) return CATEGORY_MAP.find(c => c.key === 'w_longsword');
@@ -1609,6 +1606,14 @@
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Rare" onchange="searchDictItem()"> 희귀</label>
         `;
 
+        // 🚀 신규: 획득처 필터 HTML
+        let sourceFiltersHtml = `
+            <label class="filter-label"><input type="checkbox" class="filter-source" value="craft" checked onchange="searchDictItem()"> 🛠️ 제작</label>
+            <label class="filter-label"><input type="checkbox" class="filter-source" value="dungeon" checked onchange="searchDictItem()"> 🏰 원정</label>
+            <label class="filter-label"><input type="checkbox" class="filter-source" value="abyss" checked onchange="searchDictItem()"> 🏅 어비스</label>
+            <label class="filter-label"><input type="checkbox" class="filter-source" value="etc" checked onchange="searchDictItem()"> 📦 기타(드랍 등)</label>
+        `;
+
         let html = `
         <div class="wb-title">
             <span>🛠️ 시뮬레이팅: <span style="color:#fff;">[${eq.name.split(' ')[0]||'장비'}]</span> 교체</span>
@@ -1624,7 +1629,15 @@
             <div style="display:flex; flex-direction:column; gap:12px; font-size:12px; background:#0a0a0c; padding:15px; border-radius:4px; border:1px dashed #333;">
                 <div style="display:flex; gap:15px; align-items:center; border-bottom:1px solid #222; padding-bottom:10px;">
                     <span style="color:#ffca28; font-weight:bold; width:45px;">💎 등급</span>
-                    ${gradeFiltersHtml}
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; flex:1;">
+                        ${gradeFiltersHtml}
+                    </div>
+                </div>
+                <div style="display:flex; gap:15px; align-items:center; border-bottom:1px solid #222; padding-bottom:10px;">
+                    <span style="color:#69f0ae; font-weight:bold; width:45px;">🎁 획득</span>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; flex:1;">
+                        ${sourceFiltersHtml}
+                    </div>
                 </div>
                 <div style="display:flex; gap:15px; align-items:flex-start;">
                     <span style="color:#ff5252; font-weight:bold; width:45px; margin-top:2px;">⚔️ 무기</span>
@@ -1748,7 +1761,7 @@
     }
 
         // 🚀 통신(API) 없이 내장 DB에서 0.01초 만에 필터링!
-        let items = globalItemDB.filter(item => {
+       let items = globalItemDB.filter(item => {
             // 제외 키워드 필터링
             if (EXCLUDE_KEYWORDS.some(kw => (item.name || "").includes(kw))) return false;
 
@@ -1763,15 +1776,25 @@
             if (!itemCat) return false; 
             if (checkedCategories.length > 0 && !checkedCategories.includes(itemCat.key)) return false;
             
-            // 4. 획득처 필터
-            if (checkedSources && checkedSources.length > 0) {
-                let itemSources = item.sources || [];
-                let matchSource = false;
-                if (checkedSources.includes('craft') && itemSources.includes('제작')) matchSource = true;
-                if (checkedSources.includes('dungeon') && (itemSources.includes('원정') || itemSources.includes('성역'))) matchSource = true;
-                if (checkedSources.includes('abyss') && itemSources.includes('교환 상점')) matchSource = true;
-                if (!matchSource) return false; 
-            }
+            // 🚀 4. 획득처 필터 완벽 적용
+            if (checkedSources.length === 0) return false; // 체크가 하나도 없으면 아무것도 안 나옴
+
+            let itemSources = item.sources || [];
+            let matchSource = false;
+            
+            let isCraft = itemSources.includes('제작');
+            let isDungeon = itemSources.includes('원정') || itemSources.includes('성역');
+            let isAbyss = itemSources.includes('교환 상점');
+            
+            // 유저가 체크한 항목에 해당하면 통과!
+            if (checkedSources.includes('craft') && isCraft) matchSource = true;
+            if (checkedSources.includes('dungeon') && isDungeon) matchSource = true;
+            if (checkedSources.includes('abyss') && isAbyss) matchSource = true;
+            
+            // 3가지 주요 획득처에 포함되지 않는(드랍/퀘스트 등) 아이템들은 '기타'를 체크했을 때 나오게 합니다.
+            if (checkedSources.includes('etc') && !isCraft && !isDungeon && !isAbyss) matchSource = true;
+            
+            if (!matchSource) return false; 
             
             return true;
         });
@@ -4316,26 +4339,23 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
 
 
 // =========================================================================
-// 🌟 [1] 아이템 JSON DB 전역 로드 (sources 필터링 취소, 전체 로드)
+// 🌟 [1] 아이템 JSON DB 전역 로드 (0.01초 최적화 & 더미 장비 차단)
 // =========================================================================
 let globalItemDB = [];
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         const res = await fetch('/db.json'); 
-        globalItemDB = await res.json(); // 필터링 없이 통째로 로드
+        let rawDB = await res.json();
         
-        console.log(`✅ 초고속 자체 아이템 DB 로드 완료! (총 ${globalItemDB.length}개 장비 장전됨)`);
+        // 🚀 "sources"가 아예 없거나 빈 배열인 미구현/더미 장비를 여기서 완벽하게 쳐냅니다!
+        globalItemDB = rawDB.filter(item => item.sources && item.sources.length > 0);
+        
+        console.log(`✅ 초고속 자체 아이템 DB 로드 완료! (총 ${globalItemDB.length}개 유효 장비 장전됨)`);
     } catch(e) {
         console.error("아이템 DB 파일(db.json)을 찾을 수 없습니다.");
     }
 });
 
-// =========================================================================
-// 🌟 [2] 0.01초 빛의 속도로 동작하는 100% 자체 DB 알고리즘!
-// =========================================================================
-// =========================================================================
-// 🌟 [하이브리드-2] 0.5초 최적화 (로컬 DB + 실시간 스탯 스캔)
-// =========================================================================
 async function runAutoOptimization() {
     if (typeof currentEquipData === 'undefined' || currentEquipData.length === 0) return alert("먼저 상단 검색창에서 내 캐릭터를 검색하세요!");
     if (globalItemDB.length === 0) return alert("아이템 DB를 불러오지 못했습니다. (db.json 확인)");
@@ -4722,6 +4742,7 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
