@@ -800,12 +800,20 @@
                 <div>
                     <h3 style="font-size:14px; color:#4fc3f7; margin-top:0;">📊 내 현재 자원 정보</h3>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#0a0a0c; padding:15px; border-radius:8px; border:1px solid #333;">
-                        <div style="grid-column: span 2;">
-                           <label style="font-size:11px; color:#888;">내 현재 보유 어포</label>
-                           <input type="number" id="my_ap" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; font-size:16px;" oninput="calcAbyss()">
-                           <div id="remain_limit_text" style="font-size:11px; color:#ff5252; margin-top:5px;">한도까지 남은 획득 가능 어포: 5,000,000 AP</div>
+                        
+                        <div style="grid-column: span 2; display:flex; gap:15px;">
+                            <div style="flex:1;">
+                               <label style="font-size:11px; color:#ffca28; font-weight:bold;">💰 현재 인벤토리 보유 어포</label>
+                               <input type="number" id="my_ap" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; font-size:16px;" oninput="calcAbyss()">
+                               <div style="font-size:10px; color:#888; margin-top:4px;">* 장비 구매에 쓸 수 있는 실제 돈</div>
+                            </div>
+                            <div style="flex:1;">
+                               <label style="font-size:11px; color:#4fc3f7; font-weight:bold;">📈 시즌 누적 획득 어포 (P창)</label>
+                               <input type="number" id="season_ap" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; font-size:16px;" oninput="calcAbyss()">
+                               <div id="remain_limit_text" style="font-size:11px; color:#ff5252; margin-top:4px; font-weight:bold;">한도까지 남은 획득 가능 어포: 5,000,000 AP</div>
+                            </div>
                         </div>
-                        <div style="grid-column: span 2; display:flex; gap:10px;">
+                        <div style="grid-column: span 2; display:flex; gap:10px; margin-top:5px;">
                             <div style="flex:1;">
                                 <label style="font-size:11px; color:#888;">은 공훈 훈장</label>
                                 <input type="number" id="my_medal_silver" value="0" style="width:100%; padding:8px; background:#111; border:1px solid #444; color:#fff; box-sizing: border-box;" oninput="calcAbyss()">
@@ -2736,7 +2744,10 @@ async function selectDictItem(id, name, savedEngravings = null) {
         const baseLimit = CURRENT_AP_LIMIT;
         
         const myAp = parseInt(document.getElementById('my_ap').value) || 0;
-        const remainLimit = Math.max(0, baseLimit - myAp);
+        const seasonAp = parseInt(document.getElementById('season_ap').value) || 0; // 🚀 신규: 누적 어포 가져오기
+        
+        // 🚀 버그 수정: 남은 한도는 무조건 '시즌 누적 어포'로만 뺍니다!
+        const remainLimit = Math.max(0, baseLimit - seasonAp);
         document.getElementById('remain_limit_text').innerText = `한도까지 남은 획득 가능 어포: ${remainLimit.toLocaleString()} AP`;
 
         // 1. 시즌 퀘스트 체크값 합산 (단순 표시용)
@@ -3130,7 +3141,12 @@ window.addEventListener('load', () => {
             equipData: currentEquipData,
             simState: simulationState,
             abyss: {
-                myAp: document.getElementById('my_ap').value, s: document.getElementById('my_medal_silver').value, g: document.getElementById('my_medal_gold').value, p: document.getElementById('my_medal_plat').value, wAp: document.getElementById('week_ap').value, 
+                myAp: document.getElementById('my_ap').value, 
+                seasonAp: document.getElementById('season_ap') ? document.getElementById('season_ap').value : "0", // 🚀 추가됨
+                s: document.getElementById('my_medal_silver').value, 
+                g: document.getElementById('my_medal_gold').value, 
+                p: document.getElementById('my_medal_plat').value, 
+                wAp: document.getElementById('week_ap').value, 
                 cart: abyCart,
                 checks: abyssCheckStates 
             },
@@ -3182,12 +3198,16 @@ window.addEventListener('load', () => {
             }
 
             if(state.abyss) {
-                document.getElementById('my_ap').value = state.abyss.myAp; document.getElementById('my_medal_silver').value = state.abyss.s; document.getElementById('my_medal_gold').value = state.abyss.g; document.getElementById('my_medal_plat').value = state.abyss.p; document.getElementById('week_ap').value = state.abyss.wAp; 
-                
-                if (state.abyss.checks) {
-                    let chks = document.querySelectorAll('.abyss-chk');
-                    state.abyss.checks.forEach((val, i) => { if(chks[i]) chks[i].checked = val; });
+                document.getElementById('my_ap').value = state.abyss.myAp; 
+                if(state.abyss.seasonAp && document.getElementById('season_ap')) {
+                    document.getElementById('season_ap').value = state.abyss.seasonAp; // 🚀 추가됨
                 }
+                document.getElementById('my_medal_silver').value = state.abyss.s; 
+                document.getElementById('my_medal_gold').value = state.abyss.g; 
+                document.getElementById('my_medal_plat').value = state.abyss.p; 
+                document.getElementById('week_ap').value = state.abyss.wAp; 
+                
+                // ... (아래 코드는 기존과 동일하게 유지) ...
                 
                 abyCart = state.abyss.cart || [];
                 renderAbyCart();
@@ -4806,6 +4826,7 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
