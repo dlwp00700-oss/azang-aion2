@@ -11,7 +11,8 @@
     <meta property="og:url" content="https://aion2zang.info">
     <meta property="og:type" content="website">
     <meta name="robots" content="index, follow">
-    
+
+	
     <title>아장(AZANG) - 아이온2 장비 분석 도우미</title>
     <link rel="icon" type="image/png" href="flogo.png">
 
@@ -221,9 +222,12 @@
 
        <div class="top-nav">
             <div class="nav-item active" onclick="switchTab('equip', this)">⚔️ 장비 시뮬레이터</div>
+		   <div class="nav-item" onclick="switchTab('autoOpt', this)">🤖 자동 최적화(Beta)</div>
             <div class="nav-item" onclick="switchTab('pet', this)">🐾 펫작 계산기</div>
             <div class="nav-item" onclick="switchTab('abyss', this)">🏅 어비스 파밍 계산기</div>
+		  	
             <div class="nav-item" onclick="switchTab('ranking', this); loadFullRanking(0);">🏆 어비스 랭킹</div>
+		   
         </div>
 
         <div id="tab-equip" class="tab-content active">
@@ -898,10 +902,109 @@
 
     </div>
 </div>
+
+	<div id="tab-autoOpt" class="tab-content">
+
+    <details class="seo-guide-box" style="max-width: 1000px; margin: 0 auto 20px auto; background: #141418; border-color: #ff9800;">
+        <summary style="color: #ff9800; font-size: 15px;">⚠️ [알림] 테스트 중인 기능입니다. (클릭하여 설명 보기)</summary>
+        <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
+            <ul style="line-height: 1.8;">
+                <li><b>목표 설정:</b> PVE/PVP 딜 상승, 전투력 뻥튀기, 생존력 등 원하는 목표와 수치(%)를 설정하세요.</li>
+                <li><b>부위 선택:</b> 현재 장착 중인 장비 목록에서 <b>교체를 허용할 부위</b>만 체크하세요. (체크된 장비만 계산에 포함됩니다.)</li>
+                <li><b>필터 및 예산:</b> 원하는 등급과 획득처를 고르고, 강화 수치를 기존과 동일하게 갈지 고정할지 선택하세요.</li>
+                <li><b>알고리즘 실행:</b> 조건에 맞는 수만 가지 경우의 수를 계산하여 <b>최적의 가성비 템셋팅 조합</b>을 찾아냅니다.</li>
+            </ul>
+            <div style="margin-top: 15px; padding: 12px; background: rgba(255, 82, 82, 0.1); border-left: 3px solid #ff5252; border-radius: 4px; color: #ff5252; font-weight: bold; line-height: 1.5;">
+                🚨 주의: 본 자동 최적화 기능은 현재 Beta(테스트) 버전입니다.<br>
+                <span style="color:#ccc; font-weight:normal; font-size:12px;">아직 알고리즘 고도화 및 지속적인 업데이트가 필요한 기능이므로, 도출된 세팅 결과는 완벽하지 않을 수 있으며 반드시 참고용으로만 활용해 주시길 바랍니다!</span>
+            </div>
+        </div>
+    </details>
+    <div class="c-window" style="max-width: 1000px; margin: 0 auto; padding: 30px;">
+        <div class="sec-title" style="font-size: 18px; margin-bottom: 20px; color:#00e676;">
+    <div class="c-window" style="max-width: 1000px; margin: 0 auto; padding: 30px;">
+        <div class="sec-title" style="font-size: 18px; margin-bottom: 20px; color:#00e676;">
+            <span>🤖 내 목표 기준 베스트 세팅 뽑기 (Beta)</span>
+        </div>
+
+        <div style="display:flex; gap:20px; align-items:flex-start;">
+            <div style="flex: 1; background:#141418; padding:20px; border-radius:8px; border:1px solid #333;">
+                <h3 style="color:#fff; font-size:14px; margin-top:0; border-bottom:1px dashed #444; padding-bottom:10px;">
+                    1. 변경을 허용할 장비 부위 선택
+                </h3>
+                <div style="font-size:11px; color:#888; margin-bottom:10px;">* 체크한 부위의 장비만 추천 대상에 포함됩니다.</div>
+                
+                <div id="optEquipSelection" style="display:flex; flex-direction:column; gap:8px; max-height:400px; overflow-y:auto; padding-right:5px;">
+                    <div style="text-align:center; padding:30px 0; color:#555;">캐릭터를 검색하면 내 장비가 나타납니다.</div>
+                </div>
+            </div>
+
+            <div style="flex: 1.2; background:#141418; padding:20px; border-radius:8px; border:1px solid #333;">
+                <h3 style="color:#ffca28; font-size:14px; margin-top:0; border-bottom:1px dashed #444; padding-bottom:10px;">
+                    2. 최적화 목표 및 필터 설정
+                </h3>
+
+                <div style="margin-bottom:15px;">
+                    <label style="color:#ffca28; font-size:12px; font-weight:bold;">🎯 최적화 목표</label>
+                    <select id="optGoal" class="sim-select" style="margin-top:5px; margin-bottom:10px;" onchange="toggleOptGoalInput()">
+                        <option value="pve">PVE 딜 상승</option>
+                        <option value="pvp">PVP 딜 상승</option>
+                        <option value="cp">전투력 뻥튀기</option>
+                        <option value="survive">PVP 생존</option>
+                    </select>
+                    
+                    <div id="optTargetWrap" style="background:#0a0a0c; padding:10px; border-radius:6px; border:1px solid #444;">
+                        <label id="optTargetLabel" style="font-size:12px; color:#4fc3f7;">목표 딜 상승률 (%)</label>
+                        <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                            <input type="number" id="optTargetVal" class="sim-input" value="10" style="flex:1;">
+                            <span id="optTargetUnit" style="color:#888; font-weight:bold;">% 이상 상승</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <label style="color:#ce93d8; font-size:12px; font-weight:bold;">🔍 추천 아이템 필터</label>
+                    <div style="background:#0a0a0c; padding:10px; border-radius:6px; border:1px solid #444; margin-top:5px; font-size:12px; color:#ccc;">
+                        <div style="display:flex; gap:15px; border-bottom:1px solid #222; padding-bottom:8px; margin-bottom:8px;">
+                            <span style="color:#fff; width:50px;">등급</span>
+                            <label class="filter-label"><input type="checkbox" id="optFilterUnique" checked> 유일</label>
+                            <label class="filter-label"><input type="checkbox" id="optFilterHero" checked> 영웅</label>
+                        </div>
+                        <div style="display:flex; gap:15px;">
+                            <span style="color:#fff; width:50px;">획득처</span>
+                            <label class="filter-label"><input type="checkbox" id="optFilterAbyss" checked> 어비스</label>
+                            <label class="filter-label"><input type="checkbox" id="optFilterCraft" checked> 제작</label>
+                            <label class="filter-label"><input type="checkbox" id="optFilterDungeon" checked> 원정/성역</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:20px;">
+                    <label style="color:#4fc3f7; font-size:12px; font-weight:bold;">💰 예산 / 강화 제한</label>
+                    <select id="optBudget" class="sim-select" style="margin-top:5px;">
+                        <option value="inherit">기존 장비의 강화/돌파 수치 유지 (추천)</option>
+                        <option value="10">모든 추천 장비 +10강 고정</option>
+                        <option value="12">모든 추천 장비 +12강 고정</option>
+                        <option value="15">모든 추천 장비 +15강 고정</option>
+                    </select>
+                </div>
+
+                <button class="btn-apply" onclick="runAutoOptimization()" style="background:#00e676;">🚀 최적화 알고리즘 실행</button>
+            </div>
+        </div>
+
+        <div id="optResultArea" style="display:none; margin-top:20px; background:#0a0a0c; border:1px solid #00e676; border-radius:8px; padding:20px; box-shadow: 0 0 20px rgba(0,230,118,0.1);">
+            </div>
+    </div>
+</div>
+
+	
     
    
         
-        <footer class="site-footer">
+    
+    </div>    
+	<footer class="site-footer">
             <div class="footer-links">
                 <a href="https://aion2.plaync.com/" target="_blank">AION2 공식 홈페이지</a> | 
                 <a href="terms.html">이용약관</a> | 
@@ -943,8 +1046,8 @@
         { key: 'w_bow', ncId: 'Bow', label: '활', match: ['활', '장궁', '궁'], queries: ['활'] },
         { key: 'w_spellbook', ncId: 'Magicbook', label: '법서', match: ['법서'], queries: ['법서'] },
         { key: 'w_orb', ncId: 'Orb', label: '보주', match: ['보주'], queries: ['보주'] },
-        { key: 'w_mace', ncId: 'Mace', label: '전곤', match: ['전곤', '망치'], queries: ['전곤'] },
-        { key: 'w_staff', ncId: 'Staff', label: '법봉', match: ['법봉', '멸곤'], queries: ['법봉'] },
+        { key: 'w_mace', ncId: 'Mace', label: '전곤', match: ['전곤', '망치', '멸곤'], queries: ['전곤'] },
+        { key: 'w_staff', ncId: 'Staff', label: '법봉', match: ['법봉'], queries: ['법봉'] },
         { key: 'guarder', ncId: 'Guarder', label: '가더', match: ['가더', '방패'], queries: ['가더'] },
         
         // 방어구류
@@ -971,87 +1074,97 @@
         return "#fff";
     }
 
-    // 🚀 완벽한 부위 판별 함수 (오류 0%)
+   // 🚀 완벽한 부위 판별 함수 (클릭 시 화면 멈춤 에러 완벽 해결)
     function getSmartCategory(item) {
         if (!item) return null;
-        let iName = item.name || "";
-        let cName = item.categoryName || (item.category && item.category.name) || "";
-        let catId = item.categoryId || (item.category && item.category.id) || ""; 
+        
+        let iName = (item.name || "").replace(/\s*\(늘어남\)\s*/g, '').trim();
+        let cName = (item.categoryName || (item.category && item.category.name) || "").replace(/\s*\(늘어남\)\s*/g, '').trim();
+        
+        // 🌟 핵심: ID가 숫자로 들어올 경우를 대비해 String으로 감싸서 에러를 원천 차단합니다!
+        let catId = String(item.categoryId || (item.category && item.category.id) || ""); 
 
-        // 1. NC 공식 ID 검사 (가장 확실함)
-        let exactMatch = CATEGORY_MAP.find(c => c.ncId === catId);
+        let baseCatId = catId.replace(/_Extend|_Ext/g, '');
+
+        let exactMatch = CATEGORY_MAP.find(c => c.ncId === catId || c.ncId === baseCatId);
         if (exactMatch) return exactMatch;
 
-        // 2. 아이템 이름에 '장갑', '반지' 등이 들어갔는지 1차 검사 (천룡왕의 장갑 -> 장갑으로 직행)
         for (let cat of CATEGORY_MAP) {
             if (cat.match.some(m => iName.includes(m))) return cat;
         }
 
-        // 3. 카테고리 이름으로 검사
         for (let cat of CATEGORY_MAP) {
             if (cat.match.some(m => cName.includes(m))) return cat;
         }
 
-        // 4. 최후의 보루 (이름 끝자리)
-        if (iName.endsWith('검')) return CATEGORY_MAP.find(c => c.key === 'w_longsword');
+        if (iName.endsWith('대검')) return CATEGORY_MAP.find(c => c.key === 'w_greatsword');
+        if (iName.endsWith('단검') || iName.endsWith('비수')) return CATEGORY_MAP.find(c => c.key === 'w_dagger');
+        if (iName.endsWith('장검') || iName.endsWith('검')) return CATEGORY_MAP.find(c => c.key === 'w_longsword');
         if (iName.endsWith('도')) return CATEGORY_MAP.find(c => c.key === 'w_dagger');
         if (iName.endsWith('활') || iName.endsWith('궁')) return CATEGORY_MAP.find(c => c.key === 'w_bow');
-        if (iName.endsWith('곤')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
-        if (iName.endsWith('서')) return CATEGORY_MAP.find(c => c.key === 'w_spellbook');
-        if (iName.endsWith('주')) return CATEGORY_MAP.find(c => c.key === 'w_orb');
-        if (iName.endsWith('치')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
-        if (iName.endsWith('고리')) return CATEGORY_MAP.find(c => c.key === 'earring');
+        if (iName.endsWith('전곤') || iName.endsWith('망치') || iName.endsWith('해머') || iName.endsWith('곤')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
+        if (iName.endsWith('법서') || iName.endsWith('서')) return CATEGORY_MAP.find(c => c.key === 'w_spellbook');
+        if (iName.endsWith('보주') || iName.endsWith('주')) return CATEGORY_MAP.find(c => c.key === 'w_orb');
+        if (iName.endsWith('법봉') || iName.endsWith('지팡이') || iName.endsWith('봉')) return CATEGORY_MAP.find(c => c.key === 'w_staff');
         
-        return null;
-    }
+        if (iName.endsWith('방패') || iName.endsWith('가더')) return CATEGORY_MAP.find(c => c.key === 'guarder');
 
-    const STAT_KEYS = ["atk", "acc", "amp", "pvpAmp", "pveAmp", "crit", "critDmg", "critAddDmg", "critRes", "hp", "mp", "def", "spd", "multiHit", "shockHit", "power", "agi", "acc_stat", "will", "know", "vit", "dest", "death", "wis", "destiny", "space", "time_stat", "life", "illusion", "freedom", "justice", "rearAtk", "block", "evasion", "wAmp", "atkPct", "defPct", "bossAmp", "raceAmp", "pveRes", "pvpRes", "genRes", "hpPct", "statusRes", "statusAcc"];
-    
-    function mapStatName(name) {
-        if(!name) return null;
-        if(name.includes("공격력 증가")) return "atkPct";
-        if(name.includes("방어력 증가")) return "defPct";
-        if(name === "공격력" || name === "물리 공격력" || name === "마법 공격력") return "atk";
-        if(name === "명중" || name === "물리 명중" || name === "마법 명중") return "acc";
-        if(name === "피해 증폭") return "amp";
-        if(name === "무기 피해 증폭") return "wAmp";
-        if(name.includes("PVP") && name.includes("피해 증폭")) return "pvpAmp";
-        if(name.includes("PVE") && name.includes("피해 증폭")) return "pveAmp";
-        if(name.includes("치명타 피해 증폭")) return "critDmg";
-        if(name.includes("치명타 공격력")) return "critAddDmg";
-        if(name.includes("보스 피해 증폭")) return "bossAmp";
-        if(name.includes("종족 피해 증폭")) return "raceAmp";
-        if(name.includes("몬스터 피해 내성") || name.includes("PVE 피해 내성")) return "pveRes";
-        if(name.includes("PVP 피해 내성")) return "pvpRes";
-        if(name === "피해 내성" || name === "일반 피해 내성") return "genRes";
-        if(name === "위력" || name === "STR") return "power";
-        if(name === "민첩" || name === "DEX") return "agi";
-        if(name === "정확" || name === "AGI") return "acc_stat";
-        if(name === "의지" || name === "WIS") return "will";
-        if(name === "지식" || name === "INT") return "know";
-        if(name === "체력" || name === "CON") return "vit";
-        if(name === "파괴" || name === "Destruction") return "dest";
-        if(name === "죽음" || name === "Death") return "death";
-        if(name === "지혜" || name === "Wisdom") return "wis";
-        if(name === "운명" || name === "Destiny") return "destiny";
-        if(name === "공간" || name === "Space") return "space";
-        if(name === "시간" || name === "Time") return "time_stat";
-        if(name === "생명" || name === "Life") return "life";
-        if(name === "환상" || name === "Illusion") return "illusion";
-        if(name === "자유" || name === "Freedom") return "freedom";
-        if(name === "정의" || name === "Justice") return "justice";
-        if(name === "치명타" || name === "물리 치명타" || name === "마법 치명타") return "crit";
-        if(name === "치명타 저항" || name === "CriticalResist") return "critRes";
-        if(name.includes("생명력")) return "hp";
-        if(name.includes("정신력")) return "mp";
-        if(name === "방어력" || name === "물리 방어력" || name === "마법 방어력") return "def";
-        if(name.includes("전투 속도")) return "spd";
+        if (iName.endsWith('목걸이')) return CATEGORY_MAP.find(c => c.key === 'necklace');
+        if (iName.endsWith('귀걸이') || iName.endsWith('귀고리')) return CATEGORY_MAP.find(c => c.key === 'earring');
+        if (iName.endsWith('반지')) return CATEGORY_MAP.find(c => c.key === 'ring');
+        if (iName.endsWith('팔찌')) return CATEGORY_MAP.find(c => c.key === 'bracelet');
+        
         return null;
     }
 
     const STAT_LABEL = { atk:"공격력", acc:"명중", amp:"피해 증폭(%)", wAmp:"무기 피증(%)", pvpAmp:"PVP 피증(%)", pveAmp:"PVE 피증(%)", crit:"치명타", critDmg:"치명타 피해 증폭(%)", critAddDmg:"치명타 공격력", critRes:"치명 저항", hp:"생명력", mp:"정신력", def:"방어력", spd:"전투 속도(%)", power:"위력", agi:"민첩", acc_stat:"정확", will:"의지", know:"지식", vit:"체력", dest:"파괴", death:"죽음", wis:"지혜", destiny:"운명", space:"공간", time_stat:"시간", life:"생명", illusion:"환상", freedom:"자유", justice:"정의", atkPct:"공격력 증가(%)", defPct:"방어력 증가(%)", bossAmp:"보스 피증(%)", raceAmp:"종족 피증(%)", pveRes:"PVE 내성(%)", pvpRes:"PVP 내성(%)", genRes:"일반 내성(%)" };
 
-    function findData(obj, key) {
+    // =========================================================
+    // 🚀 복구된 핵심 엔진: 이 아래부터 복사해서 넣으시면 됩니다!
+    const STAT_KEYS = Object.keys(STAT_LABEL);
+
+    function mapStatName(name) {
+        if(!name) return null;
+        if(name.includes('공격력 증가')) return 'atkPct';
+        if(name.includes('방어력 증가')) return 'defPct';
+        if(name.includes('생명력 증가')) return 'hpPct';
+        if(name.includes('일반 피해 증폭') || name==='DamageAmplify') return 'amp';
+        if(name.includes('무기 피해 증폭') || name==='AmplifyWeaponDamage') return 'wAmp';
+        if(name.includes('PVP 피해 증폭') || name==='PvPAmplifyDamage') return 'pvpAmp';
+        if(name.includes('PVE 피해 증폭') || name==='PvEAmplifyDamage') return 'pveAmp';
+        if(name.includes('치명타 피해 증폭') || name==='CriticalAmplifyDamage') return 'critDmg';
+        if(name==='공격력' || name==='WeaponFixingDamage' || name.includes('추가 공격력')) return 'atk';
+        if(name==='명중' || name==='WeaponAccuracy') return 'acc';
+        if(name==='치명타' || name==='Critical') return 'crit';
+        if(name==='치명타 저항' || name==='CriticalResist' || name.includes('치명타 방어력')) return 'critRes';
+        if(name==='방어력' || name==='Defense' || name.includes('추가 방어력')) return 'def';
+        if(name==='생명력' || name==='MaxHp') return 'hp';
+        if(name==='정신력' || name==='MaxMp') return 'mp';
+        if(name==='일반 피해 내성' || name==='DamageResist') return 'genRes';
+        if(name.includes('PVE 피해 내성') || name==='PvEDamageResist' || name.includes('PVE 방어력')) return 'pveRes';
+        if(name.includes('PVP 피해 내성') || name==='PvPDamageResist') return 'pvpRes';
+        if(name==='위력' || name==='STR') return 'power';
+        if(name==='민첩' || name==='DEX') return 'agi';
+        if(name==='정확' || name==='AGI') return 'acc_stat';
+        if(name==='의지' || name==='WIS') return 'will';
+        if(name==='지식' || name==='INT') return 'know';
+        if(name==='체력' || name==='CON') return 'vit';
+        if(name==='파괴' || name==='Destruction') return 'dest';
+        if(name==='죽음' || name==='Death') return 'death';
+        if(name==='지혜' || name==='Wisdom') return 'wis';
+        if(name==='운명' || name==='Destiny') return 'destiny';
+        if(name==='공간' || name==='Space') return 'space';
+        if(name==='시간' || name==='Time') return 'time_stat';
+        if(name==='생명' || name==='Life') return 'life';
+        if(name==='환상' || name==='Illusion') return 'illusion';
+        if(name==='자유' || name==='Freedom') return 'freedom';
+        if(name==='정의' || name==='Justice') return 'justice';
+        return null;
+    }
+    // 🚀 복구 끝
+    // =========================================================
+	
+	function findData(obj, key) {
         if (!obj || typeof obj !== 'object') return null;
         if (key in obj) return obj[key];
         for (let k in obj) { const res = findData(obj[k], key); if (res) return res; }
@@ -1472,6 +1585,11 @@
             document.getElementById('appBody').className = 'dash-mode';
             
             renderEquipGrid();
+
+            // 🌟 [추가된 부분] 캐릭터 로드 시 자동 최적화 탭에도 내 장비 즉시 뿌려주기!
+            if (typeof renderOptEquipList === 'function') renderOptEquipList();
+            if (typeof toggleOptGoalInput === 'function') toggleOptGoalInput();
+
             document.getElementById('workbench').innerHTML = `<div class="empty-wb"><div style="font-size:40px; margin-bottom:15px;">🛠️</div>왼쪽 목록에서 <b>변경하고 싶은 장비</b>를 클릭하세요.</div>`;
             updateDeltaDashboard();
         } catch (e) { 
@@ -1551,6 +1669,14 @@
             <label class="filter-label"><input type="checkbox" class="filter-grade" value="Rare" onchange="searchDictItem()"> 희귀</label>
         `;
 
+        // 🚀 신규: 획득처 필터 HTML
+        let sourceFiltersHtml = `
+            <label class="filter-label"><input type="checkbox" class="filter-source" value="craft" checked onchange="searchDictItem()"> 🛠️ 제작</label>
+            <label class="filter-label"><input type="checkbox" class="filter-source" value="dungeon" checked onchange="searchDictItem()"> 🏰 원정</label>
+            <label class="filter-label"><input type="checkbox" class="filter-source" value="abyss" checked onchange="searchDictItem()"> 🏅 어비스</label>
+            <label class="filter-label"><input type="checkbox" class="filter-source" value="etc" checked onchange="searchDictItem()"> 📦 기타(드랍 등)</label>
+        `;
+
         let html = `
         <div class="wb-title">
             <span>🛠️ 시뮬레이팅: <span style="color:#fff;">[${eq.name.split(' ')[0]||'장비'}]</span> 교체</span>
@@ -1566,7 +1692,15 @@
             <div style="display:flex; flex-direction:column; gap:12px; font-size:12px; background:#0a0a0c; padding:15px; border-radius:4px; border:1px dashed #333;">
                 <div style="display:flex; gap:15px; align-items:center; border-bottom:1px solid #222; padding-bottom:10px;">
                     <span style="color:#ffca28; font-weight:bold; width:45px;">💎 등급</span>
-                    ${gradeFiltersHtml}
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; flex:1;">
+                        ${gradeFiltersHtml}
+                    </div>
+                </div>
+                <div style="display:flex; gap:15px; align-items:center; border-bottom:1px solid #222; padding-bottom:10px;">
+                    <span style="color:#69f0ae; font-weight:bold; width:45px;">🎁 획득</span>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; flex:1;">
+                        ${sourceFiltersHtml}
+                    </div>
                 </div>
                 <div style="display:flex; gap:15px; align-items:flex-start;">
                     <span style="color:#ff5252; font-weight:bold; width:45px; margin-top:2px;">⚔️ 무기</span>
@@ -1670,142 +1804,128 @@
         }
     }
 
-    async function searchDictItem() {
+    // =========================================================================
+    // 🌟 [개선] 장비 시뮬레이터 사전 검색을 '자체 DB' 기반으로 초고속화!
+    // =========================================================================
+    function searchDictItem() {
         let keyword = document.getElementById('dictSearchInput').value.trim();
         const resultArea = document.getElementById('dictResultArea');
         
         const checkedGrades = Array.from(document.querySelectorAll('.filter-grade:checked')).map(cb => cb.value);
         const checkedCategories = Array.from(document.querySelectorAll('.filter-category:checked')).map(cb => cb.value);
-        // 🚀 신규: 획득처 체크박스 상태 가져오기
         const checkedSources = Array.from(document.querySelectorAll('.filter-source:checked')).map(cb => cb.value);
 
         resultArea.style.display = 'block';
-        resultArea.innerHTML = `<div style="padding:15px; text-align:center; color:#ffca28;">검색 중... ⏳</div>`;
 
-        let queriesToRun = [];
-        if (keyword) {
-            if (checkedCategories.length > 0) {
-                checkedCategories.forEach(catKey => {
-                    const catObj = CATEGORY_MAP.find(c => c.key === catKey);
-                    if (catObj) {
-                        queriesToRun.push(keyword + "의 " + catObj.label); 
-                        queriesToRun.push(keyword + " " + catObj.label);   
-                    }
-                });
-            }
-            queriesToRun.push(keyword); 
-        } else {
-            if (checkedCategories.length > 0) {
-                checkedCategories.forEach(catKey => {
-                    const catObj = CATEGORY_MAP.find(c => c.key === catKey);
-                    if (catObj && catObj.queries) queriesToRun.push(...catObj.queries);
-                });
-            } else {
-                queriesToRun = ['영웅'];
-            }
+        if (typeof globalItemDB === 'undefined' || globalItemDB.length === 0) {
+        // db.json -> db.json으로 변경
+        resultArea.innerHTML = `<div style="padding:15px; text-align:center; color:#ffca28;">아이템 DB(db.json)를 로드 중입니다... 잠시 후 다시 시도해주세요.</div>`;
+        return;
+    }
+
+        // 🚀 통신(API) 없이 내장 DB에서 0.01초 만에 필터링!
+       let items = globalItemDB.filter(item => {
+            // 제외 키워드 필터링
+            if (EXCLUDE_KEYWORDS.some(kw => (item.name || "").includes(kw))) return false;
+
+            // 1. 이름 검색 필터
+            if (keyword && !item.name.includes(keyword)) return false;
+
+            // 2. 등급 필터
+            if (checkedGrades.length > 0 && !checkedGrades.includes(item.grade)) return false;
+            
+            // 3. 부위(카테고리) 필터
+            let itemCat = getSmartCategory(item);
+            if (!itemCat) return false; 
+            if (checkedCategories.length > 0 && !checkedCategories.includes(itemCat.key)) return false;
+            
+            // 🚀 4. 획득처 필터 완벽 적용
+            if (checkedSources.length === 0) return false; // 체크가 하나도 없으면 아무것도 안 나옴
+
+            let itemSources = item.sources || [];
+            let matchSource = false;
+            
+            let isCraft = itemSources.includes('제작');
+            let isDungeon = itemSources.includes('원정') || itemSources.includes('성역');
+            let isAbyss = itemSources.includes('교환 상점');
+            
+            // 유저가 체크한 항목에 해당하면 통과!
+            if (checkedSources.includes('craft') && isCraft) matchSource = true;
+            if (checkedSources.includes('dungeon') && isDungeon) matchSource = true;
+            if (checkedSources.includes('abyss') && isAbyss) matchSource = true;
+            
+            // 3가지 주요 획득처에 포함되지 않는(드랍/퀘스트 등) 아이템들은 '기타'를 체크했을 때 나오게 합니다.
+            if (checkedSources.includes('etc') && !isCraft && !isDungeon && !isAbyss) matchSource = true;
+            
+            if (!matchSource) return false; 
+            
+            return true;
+        });
+
+        if(items.length === 0) { 
+            resultArea.innerHTML = `<div style="padding:15px; text-align:center; color:#ff5252;">조건에 맞는 아이템이 없습니다. 필터를 조절해보세요!</div>`; 
+            return; 
         }
         
-        try {
-            queriesToRun = [...new Set(queriesToRun)].slice(0, 15);
-            
-            const fetchPromises = queriesToRun.map(q => 
-                fetch(`${API_BASE}/searchDictItem?keyword=${encodeURIComponent(q)}`)
-                    .then(res => res.json())
-                    .catch(e => ({ list: [] }))
-            );
+        // 레벨이 높은 순으로 정렬
+        items.sort((a, b) => {
+            let lvA = parseInt(a.level || a.itemLevel || a.equipLevel || 0);
+            let lvB = parseInt(b.level || b.itemLevel || b.equipLevel || 0);
+            return lvB - lvA;
+        });
 
-            const results = await Promise.all(fetchPromises);
-            let uniqueMap = new Map(); 
-            
-            results.forEach(data => {
-                let items = data.contents || data.list || [];
-                items.forEach(item => {
-                    let baseName = (item.name || "").trim();
-                    if (EXCLUDE_KEYWORDS.some(kw => baseName.includes(kw))) return;
-                    if (!uniqueMap.has(baseName)) {
-                        uniqueMap.set(baseName, item);
-                    }
-                });
-            });
-            
-            let allItems = Array.from(uniqueMap.values());
-            
-            let items = allItems.filter(item => {
-                // 1. 등급 필터
-                if (checkedGrades.length > 0 && !checkedGrades.includes(item.grade)) return false;
-                
-                // 2. 부위(카테고리) 필터
-                let itemCat = getSmartCategory(item);
-                if (!itemCat) return false; 
-                if (checkedCategories.length > 0 && !checkedCategories.includes(itemCat.key)) return false;
-                
-                // 🚀 3. 신규 획득처(Source) 필터! (체크된 게 있을 때만 작동)
-                if (checkedSources.length > 0) {
-                    let itemSources = item.sources || [];
-                    let matchSource = false;
-                    
-                    // 정답지 데이터 1:1 매칭
-                    if (checkedSources.includes('craft') && itemSources.includes('제작')) matchSource = true;
-                    if (checkedSources.includes('dungeon') && (itemSources.includes('원정') || itemSources.includes('성역'))) matchSource = true;
-                    if (checkedSources.includes('abyss') && itemSources.includes('교환 상점')) matchSource = true;
-                    
-                    if (!matchSource) return false; // 선택한 출신이 아니면 탈락!
-                }
-                
-                return true;
-            });
+        // 렌더링
+        let html = '';
+        items.forEach(item => {
+            let dispLv = item.level || item.itemLevel || item.equipLevel || "?";
+            let sourceBadge = '';
+            if (item.sources && item.sources.includes('제작')) sourceBadge = '<span style="background:#4a148c; color:#e1bee7; font-size:9px; padding:2px 4px; border-radius:3px; margin-left:4px;">🛠️제작</span>';
+            else if (item.sources && (item.sources.includes('원정') || item.sources.includes('성역'))) sourceBadge = '<span style="background:#004d40; color:#b2dfdb; font-size:9px; padding:2px 4px; border-radius:3px; margin-left:4px;">🏰원정</span>';
+            else if (item.sources && item.sources.includes('교환 상점')) sourceBadge = '<span style="background:#b71c1c; color:#ffcdd2; font-size:9px; padding:2px 4px; border-radius:3px; margin-left:4px;">🏅어비스</span>';
 
-            if(items.length === 0) { 
-                resultArea.innerHTML = `<div style="padding:15px; text-align:center; color:#ff5252;">조건에 맞는 아이템이 없습니다. 필터를 조절해보세요!</div>`; 
-                return; 
-            }
-            
-            items.sort((a, b) => {
-                let lvA = parseInt(a.level || a.itemLevel || a.equipLevel || 0);
-                let lvB = parseInt(b.level || b.itemLevel || b.equipLevel || 0);
-                return lvB - lvA;
-            });
-
-            let html = '';
-            items.forEach(item => {
-                let dispLv = item.level || item.itemLevel || item.equipLevel || "?";
-                
-                // 🚀 신규: 아이템 옆에 귀여운 획득처 뱃지 달아주기
-                let sourceBadge = '';
-                if (item.sources && item.sources.includes('제작')) sourceBadge = '<span style="background:#4a148c; color:#e1bee7; font-size:9px; padding:2px 4px; border-radius:3px; margin-left:4px;">🛠️제작</span>';
-                else if (item.sources && (item.sources.includes('원정') || item.sources.includes('성역'))) sourceBadge = '<span style="background:#004d40; color:#b2dfdb; font-size:9px; padding:2px 4px; border-radius:3px; margin-left:4px;">🏰원정</span>';
-                else if (item.sources && item.sources.includes('교환 상점')) sourceBadge = '<span style="background:#b71c1c; color:#ffcdd2; font-size:9px; padding:2px 4px; border-radius:3px; margin-left:4px;">🏅어비스</span>';
-
-                html += `<div class="dict-item" onclick="selectDictItem('${item.id}', '${item.name}')">
-                    <img src="${item.icon||''}" style="width:36px; height:36px; border-radius:4px; border:1px solid #444;" onerror="this.style.display='none'">
-                    <div>
-                        <div style="color:${getGradeColor(item.grade)}; font-weight:bold; font-size:13px; display:flex; align-items:center;">
-                            ${item.name} ${sourceBadge}
-                        </div>
-                        <div style="font-size:11px; color:#888;">Lv.${dispLv} | ${item.gradeName||item.grade}</div>
+            html += `<div class="dict-item" onclick="selectDictItem('${item.id}', '${item.name}')">
+                <img src="${item.icon||''}" style="width:36px; height:36px; border-radius:4px; border:1px solid #444;" onerror="this.style.display='none'">
+                <div>
+                    <div style="color:${getGradeColor(item.grade)}; font-weight:bold; font-size:13px; display:flex; align-items:center;">
+                        ${item.name} ${sourceBadge}
                     </div>
-                </div>`;
-            });
-            resultArea.innerHTML = html;
-        } catch(e) { resultArea.innerHTML = `<div style="padding:15px; text-align:center; color:#ff5252;">검색 에러!</div>`; }
+                    <div style="font-size:11px; color:#888;">Lv.${dispLv} | ${item.gradeName||item.grade}</div>
+                </div>
+            </div>`;
+        });
+        resultArea.innerHTML = html;
     }
 
-    async function selectDictItem(id, name, savedEngravings = null) {
-        document.getElementById('dictResultArea').innerHTML = `<div style="padding:15px; text-align:center; color:#4fc3f7;">[${name}] 스탯 파밍 중... ⏳</div>`;
-        const enh = parseInt(document.getElementById('wbEnh').value) || 0;
-        const brk = parseInt(document.getElementById('wbBrk').value) || 0;
+    // 🌟 [개선] 아이템 클릭 시 '로딩 없이' 즉시 스탯 반영!
+   // =========================================================================
+// 🌟 [하이브리드-1] 아이템 클릭 시 실시간으로 '진짜 스탯'만 가져오기
+// =========================================================================
+async function selectDictItem(id, name, savedEngravings = null) {
+    const enh = parseInt(document.getElementById('wbEnh').value) || 0;
+    const brk = parseInt(document.getElementById('wbBrk').value) || 0;
+    const apiBaseUrl = typeof API_BASE !== 'undefined' ? API_BASE : '/api';
+    
+    const resultArea = document.getElementById('dictResultArea');
+    resultArea.innerHTML = '<div style="padding:20px; text-align:center; color:#00e676;">정밀 스탯을 불러오는 중입니다... ⏳</div>';
+
+    try {
+        // 대표님 라이브 서버를 통해 진짜 알맹이(mainStats)를 쏙 빼옵니다!
+        let res = await fetch(`${apiBaseUrl}/getDictItemDetail?id=${id}&enchantLevel=${enh}&exceedLevel=${brk}`);
+        if (!res.ok) throw new Error("서버 에러");
+        let detailData = await res.json();
+
+        if (!detailData.mainStats) throw new Error("알맹이 없음");
+
+        currentNewItemAPIData = detailData;
+        resultArea.style.display = 'none';
         
-        try {
-            const res = await fetch(`${API_BASE}/getDictItemDetail?id=${id}&enchantLevel=${enh}&exceedLevel=${brk}`);
-            currentNewItemAPIData = await res.json();
-            document.getElementById('dictResultArea').style.display = 'none';
-            
-            renderNewCardValues(); 
-            updateEngraveDropdowns(savedEngravings); 
-            applySimulation(true);
-        } catch (e) { alert("상세 스탯 실패"); document.getElementById('dictResultArea').style.display = 'none'; }
+        renderNewCardValues(); 
+        updateEngraveDropdowns(savedEngravings); 
+        applySimulation(true);
+    } catch(e) {
+        resultArea.innerHTML = `<div style="padding:20px; text-align:center; color:#ff5252;">NC 서버 오류로 해당 아이템의 스탯을 불러올 수 없습니다.</div>`;
     }
-
+}
     function updateNewItemByEnhance() {
         if(!currentNewItemAPIData) { return; }
         
@@ -4280,102 +4400,411 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
 
     setTimeout(initPetData, 500);
 
+
+// =========================================================================
+// 🌟 [1] 아이템 JSON DB 전역 로드 (0.01초 최적화 & 더미 장비 차단)
+// =========================================================================
+let globalItemDB = [];
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const res = await fetch('/db.json'); 
+        let rawDB = await res.json();
+        
+        // 🚀 "sources"가 아예 없거나 빈 배열인 미구현/더미 장비를 여기서 완벽하게 쳐냅니다!
+        globalItemDB = rawDB.filter(item => item.sources && item.sources.length > 0);
+        
+        console.log(`✅ 초고속 자체 아이템 DB 로드 완료! (총 ${globalItemDB.length}개 유효 장비 장전됨)`);
+    } catch(e) {
+        console.error("아이템 DB 파일(db.json)을 찾을 수 없습니다.");
+    }
+});
+
+async function runAutoOptimization() {
+    if (typeof currentEquipData === 'undefined' || currentEquipData.length === 0) return alert("먼저 상단 검색창에서 내 캐릭터를 검색하세요!");
+    if (globalItemDB.length === 0) return alert("아이템 DB를 불러오지 못했습니다. (db.json 확인)");
+
+    const checkedSlots = Array.from(document.querySelectorAll('.opt-eq-chk:checked')).map(cb => parseInt(cb.value));
+    if (checkedSlots.length === 0) return alert("변경을 허용할 장비 부위를 1개 이상 체크해주세요!");
+
+    const goal = document.getElementById('optGoal').value;
+    const targetVal = parseFloat(document.getElementById('optTargetVal').value) || 0;
+    const budgetRule = document.getElementById('optBudget').value; 
+    
+    const fUnique = document.getElementById('optFilterUnique').checked;
+    const fHero = document.getElementById('optFilterHero').checked;
+    const fAbyss = document.getElementById('optFilterAbyss').checked;
+    const fCraft = document.getElementById('optFilterCraft').checked;
+    const fDungeon = document.getElementById('optFilterDungeon').checked;
+
+    const resultArea = document.getElementById('optResultArea');
+    resultArea.style.display = "block";
+    resultArea.innerHTML = `<div style='text-align:center; color:#00e676; padding: 40px 0; font-size:16px; font-weight:bold;'>⚡ 유력한 최적 장비들의 정밀 스탯을 분석 중입니다... ⏳<br><span style='font-size:12px; color:#aaa; font-weight:normal;'>(상위 후보 5개씩 스캔 중. 약 1~2초 소요)</span></div>`;
+
+    try {
+        let slotCandidatesArray = [];
+        let currentCP = parseInt(document.getElementById('baseCp').value) || 0;
+        let bAtk = parseFloat(document.getElementById('baseAtk').value)||1600;
+        let bAmp = parseFloat(document.getElementById('baseAmp').value)||0;
+        let bPveAmp = parseFloat(document.getElementById('basePveAmp').value)||0;
+        let bPvpAmp = parseFloat(document.getElementById('basePvpAmp').value)||0;
+        let bDef = parseFloat(document.getElementById('baseDef').value)||2000;
+        
+        let basePveScore = bAtk + (bPveAmp*15) + (bAmp*15);
+        let basePvpScore = bAtk + (bPvpAmp*15) + (bAmp*15);
+        let baseSurvScore = bDef + (parseFloat(document.getElementById('baseHp').value)||10000)*0.1;
+
+        const apiBaseUrl = typeof API_BASE !== 'undefined' ? API_BASE : '/api';
+
+        for (let slotIdx of checkedSlots) {
+            const oldEq = currentEquipData[slotIdx];
+            const catObj = getSmartCategory(oldEq);
+            if (!catObj) continue;
+
+            // 1차: 10초짜리 내장 DB에서 조건에 맞는 후보를 0.01초 만에 추려냅니다.
+            let candidates = globalItemDB.filter(item => {
+                let itCat = getSmartCategory(item);
+                if (!itCat || itCat.key !== catObj.key) return false;
+                let passGrade = (fUnique && item.grade === 'Unique') || (fHero && (item.grade === 'Hero' || item.grade === 'Epic'));
+                if (!passGrade) return false;
+                
+                let itemSources = item.sources || [];
+                let passSource = false;
+                if (fAbyss && itemSources.includes('교환 상점')) passSource = true;
+                if (fCraft && itemSources.includes('제작')) passSource = true;
+                if (fDungeon && (itemSources.includes('원정') || itemSources.includes('성역'))) passSource = true;
+                if(!fAbyss && !fCraft && !fDungeon) return false; 
+                if(itemSources.length > 0 && !passSource) return false; 
+                return true;
+            });
+
+            let getLv = x => parseInt(x.level || x.itemLevel || x.equipLevel || 0);
+            candidates.sort((a, b) => getLv(b) - getLv(a));
+            
+            // 🔥 핵심: 가장 좋은 상위 5개 후보만 쏙 뽑아냅니다.
+            let topCands = candidates.slice(0, 5);
+
+            let oldBaseCp = calculateNewItemCP(oldEq, oldEq.enchantLevel || 0, oldEq.exceedLevel || 0);
+            let oldBaseStats = extractBaseStats(oldEq, oldEq.exceedLevel || 0).total;
+
+            let processedCands = [];
+            processedCands.push({
+                isKeep: true, oldName: oldEq.name, oldEnh: oldEq.enchantLevel||0, grade: oldEq.grade, brk: oldEq.exceedLevel||0,
+                cpDiff: 0, pveDiff: 0, pvpDiff: 0, survDiff: 0
+            });
+
+            // 2차: 뽑아낸 5개의 후보만 대표님 서버에 물어봐서 진짜 스탯(알맹이)을 채워 넣습니다!
+            let detailPromises = topCands.map(cand => {
+                let enh = budgetRule === 'inherit' ? (oldEq.enchantLevel || 0) : parseInt(budgetRule);
+                let brk = oldEq.exceedLevel || 0; 
+                return fetch(`${apiBaseUrl}/getDictItemDetail?id=${cand.id}&enchantLevel=${enh}&exceedLevel=${brk}`)
+                    .then(r => r.ok ? r.json() : null)
+                    .then(detail => ({ detail, enh, brk, summary: cand }))
+                    .catch(e => null);
+            });
+
+            let detailResults = await Promise.all(detailPromises);
+
+            for (let res of detailResults) {
+                // NC 서버 버그(응룡왕 등)로 스탯이 안 온 아이템은 알아서 쿨하게 버립니다!
+                if (!res || !res.detail || !res.detail.mainStats) continue;
+
+                let candDetail = res.detail;
+                let enh = res.enh;
+                let brk = res.brk;
+                let candSum = res.summary;
+
+                let nCp = calculateNewItemCP(candDetail, enh, brk);
+                let nStats = extractBaseStats(candDetail, brk).total;
+
+                let cpDiff = nCp - oldBaseCp; 
+                let oPveAtk = (oldBaseStats.atk||0) + (oldBaseStats.pveAmp||0)*15 + (oldBaseStats.amp||0)*15;
+                let nPveAtk = (nStats.atk||0) + (nStats.pveAmp||0)*15 + (nStats.amp||0)*15;
+                let pveDiff = nPveAtk - oPveAtk;
+
+                let oPvpAtk = (oldBaseStats.atk||0) + (oldBaseStats.pvpAmp||0)*15 + (oldBaseStats.amp||0)*15;
+                let nPvpAtk = (nStats.atk||0) + (nStats.pvpAmp||0)*15 + (nStats.amp||0)*15;
+                let pvpDiff = nPvpAtk - oPvpAtk;
+
+                let oDef = (oldBaseStats.def||0) + (oldBaseStats.hp||0)*0.1;
+                let nDef = (nStats.def||0) + (nStats.hp||0)*0.1;
+                let survDiff = nDef - oDef;
+
+                if (cpDiff > 0 || pveDiff > 0 || pvpDiff > 0 || survDiff > 0) {
+                    processedCands.push({
+                        isKeep: false, slotIdx: slotIdx, oldName: oldEq.name, oldEnh: oldEq.enchantLevel || 0,
+                        newItem: candSum, newEnh: enh, brk: brk, cpDiff, pveDiff, pvpDiff, survDiff
+                    });
+                }
+            }
+            slotCandidatesArray.push(processedCands);
+        }
+
+        // 3차: 경우의 수를 모두 따져서 가성비 조합 찾기
+        let allCombinations = [];
+        function buildCombos(idx, currentCombo) {
+            if (idx === slotCandidatesArray.length) {
+                allCombinations.push([...currentCombo]);
+                return;
+            }
+            for (let c of slotCandidatesArray[idx]) {
+                currentCombo.push(c);
+                buildCombos(idx+1, currentCombo);
+                currentCombo.pop();
+            }
+        }
+        buildCombos(0, []);
+
+        let validCombos = [];
+        let bestMaxCombo = null;
+        let bestMaxScore = -999999;
+
+        for (let combo of allCombinations) {
+            let tCp = 0, tPve = 0, tPvp = 0, tSurv = 0, changes = 0;
+            for (let c of combo) {
+                if (!c.isKeep) changes++;
+                tCp += c.cpDiff; tPve += c.pveDiff; tPvp += c.pvpDiff; tSurv += c.survDiff;
+            }
+
+            let isPass = false;
+            let score = 0;
+
+            if (goal === 'cp') {
+                score = currentCP + tCp;
+                if (score >= targetVal) isPass = true;
+            } else if (goal === 'pve') {
+                score = tPve;
+                let reqDelta = basePveScore * (targetVal / 100); 
+                if (tPve >= reqDelta) isPass = true;
+            } else if (goal === 'pvp') {
+                score = tPvp;
+                let reqDelta = basePvpScore * (targetVal / 100);
+                if (tPvp >= reqDelta) isPass = true;
+            } else if (goal === 'survive') {
+                score = tSurv;
+                let reqDelta = baseSurvScore * (targetVal / 100);
+                if (tSurv >= reqDelta) isPass = true;
+            }
+
+            let comboData = { combo, changes, score, tCp, tPve, tPvp, tSurv };
+            if (isPass) validCombos.push(comboData);
+            
+            if (score > bestMaxScore) {
+                bestMaxScore = score;
+                bestMaxCombo = comboData;
+            }
+        }
+
+        let winner = null;
+        let isForcedMax = false; 
+        
+        if (validCombos.length > 0) {
+            validCombos.sort((a, b) => {
+                if (a.changes !== b.changes) return a.changes - b.changes; 
+                return a.score - b.score; 
+            });
+            winner = validCombos[0];
+        } else {
+            winner = bestMaxCombo; 
+            isForcedMax = true;
+        }
+
+        // 4차: 화면에 예쁘게 그려주기
+        let finalCP = currentCP + winner.tCp;
+        let targetAchievedHtml = '';
+        if (goal === 'cp') {
+            if (!isForcedMax) targetAchievedHtml = `<span style="color:#00e676; font-size:12px; font-weight:bold;">(목표 달성 ✅)</span>`;
+            else targetAchievedHtml = `<span style="color:#ff5252; font-size:12px; font-weight:bold;">(달성 실패 ❌ 예산 내 최대치 추천)</span>`;
+        } else {
+            if (!isForcedMax) targetAchievedHtml = `<span style="color:#00e676; font-size:12px; font-weight:bold;">(상승률 달성 ✅)</span>`;
+            else targetAchievedHtml = `<span style="color:#ff5252; font-size:12px; font-weight:bold;">(달성 실패 ❌ 예산 내 최대치 추천)</span>`;
+        }
+
+        let html = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px dashed #333; padding-bottom:15px; margin-bottom:15px;">
+            <div>
+                <h3 style="color:#00e676; margin:0 0 5px 0;">⚡ ${winner.changes}개 부위 교체 가성비 조합 발견!</h3>
+                <div style="font-size:12px; color:#aaa;">상위 후보의 스탯을 직접 비교하여 찾아낸 결과입니다.</div>
+            </div>
+            <div style="text-align:right; background:#111; padding:10px 15px; border-radius:6px; border:1px solid #444;">
+                <div style="font-size:11px; color:#888;">총 전투력 변화 ${targetAchievedHtml}</div>
+                <div style="font-size:18px; font-weight:bold;">
+                    <span style="color:#ccc;">${currentCP.toLocaleString()}</span> ➡ <span style="color:#00e676;">${finalCP.toLocaleString()}</span> 
+                    <span style="font-size:12px; color:#00e676;">(${winner.tCp >= 0 ? '▲' : '▼'} ${Math.abs(winner.tCp)})</span>
+                </div>
+            </div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+        `;
+
+        winner.combo.forEach((rec) => {
+            if (rec.isKeep) {
+                let diamondsHtml = ''; 
+                for (let i = 0; i < 5; i++) diamondsHtml += `<span style="display:inline-block; width:6px; height:6px; margin-right:2px; background:${i < rec.brk ? '#ffca28' : '#333'}; transform:rotate(45deg); border:1px solid #555;"></span>`;
+
+                html += `
+                <div style="background:#111; padding:15px; border-radius:8px; border:1px solid #333; opacity: 0.8;">
+                    <div style="color:#888; font-size:12px; margin-bottom:5px;">기존 착용 장비 유지</div>
+                    <div style="color:${getGradeColor(rec.grade)}; font-size:14px; font-weight:bold;">+${rec.oldEnh} ${rec.oldName}</div>
+                    <div style="margin-top:5px; font-size:11px; color:#aaa; display:flex; align-items:center;">
+                        돌파: ${diamondsHtml}
+                    </div>
+                    <div style="margin-top:10px; font-size:11px; color:#666;">✔️ 목표 달성을 위해 이 부위는 바꾸지 않아도 충분합니다.</div>
+                </div>`;
+            } else {
+                let badge = '';
+                let sources = rec.newItem.sources || [];
+                if (sources.includes('교환 상점')) badge = '<span style="font-size:10px; background:#b71c1c; color:#ffcdd2; padding:2px 4px; border-radius:3px; margin-left:4px;">어비스</span>';
+                else if (sources.includes('제작')) badge = '<span style="font-size:10px; background:#4a148c; color:#e1bee7; padding:2px 4px; border-radius:3px; margin-left:4px;">제작</span>';
+                else if (sources.includes('원정') || sources.includes('성역')) badge = '<span style="font-size:10px; background:#004d40; color:#b2dfdb; padding:2px 4px; border-radius:3px; margin-left:4px;">원정</span>';
+
+                let diamondsHtml = ''; 
+                for (let i = 0; i < 5; i++) diamondsHtml += `<span style="display:inline-block; width:6px; height:6px; margin-right:2px; background:${i < rec.brk ? '#ffca28' : '#333'}; transform:rotate(45deg); border:1px solid #555;"></span>`;
+
+                html += `
+                <div style="background:#1a1a20; padding:15px; border-radius:8px; border:1px solid #ffca28; position:relative;">
+                    <div style="color:#ccc; font-size:12px; text-decoration:line-through; margin-bottom:8px;">
+                        기존 착용: +${rec.oldEnh} ${rec.oldName}
+                    </div>
+                    <div style="color:${getGradeColor(rec.newItem.grade)}; font-size:15px; font-weight:bold; display:flex; align-items:center; flex-wrap:wrap;">
+                        ➡ +${rec.newEnh} ${rec.newItem.name} ${badge}
+                    </div>
+                    <div style="margin-top:8px; font-size:11px; color:#aaa; display:flex; align-items:center;">
+                        계승된 돌파: ${diamondsHtml} <span style="margin-left:5px; color:#00e676; font-weight:bold;">(순수 CP ▲${rec.cpDiff})</span>
+                    </div>
+                </div>`;
+            }
+        });
+
+        html += `</div>`;
+        resultArea.innerHTML = html;
+
+    } catch (e) {
+        console.error(e);
+        resultArea.innerHTML = `<div style="text-align:center; padding:20px; color:#ff5252;">분석 중 오류가 발생했습니다. 개발자 도구(F12) 콘솔을 확인해주세요.</div>`;
+    }
+}
+
+// =========================================================================
+// 🌟 [3] 실시간 UI 동기화 레이더 & 화면 갱신 복구 패치
+// =========================================================================
+window.toggleOptGoalInput = function() {
+    const goal = document.getElementById('optGoal')?.value;
+    const label = document.getElementById('optTargetLabel');
+    const unit = document.getElementById('optTargetUnit');
+    const input = document.getElementById('optTargetVal');
+    const currentCP = parseInt(document.getElementById('baseCp')?.value) || 0;
+
+    if(!label || !unit || !input) return;
+
+    if (goal === 'cp') {
+        label.innerHTML = `목표 전투력 <span style="color:#888;">(현재 내 전투력: <b style="color:#fff;">${currentCP}</b>)</span>`;
+        unit.innerText = 'CP 달성';
+        if(input.value == 10) input.value = currentCP + 100;
+    } else if (goal === 'survive') {
+        label.innerText = '목표 생존력 향상 (%)';
+        unit.innerText = '% 이상 덜 아프게';
+        if(input.value > 100) input.value = 10;
+    } else {
+        label.innerText = '목표 딜 상승률 (%)';
+        unit.innerText = '% 이상 상승';
+        if(input.value > 100) input.value = 10;
+    }
+};
+
+window.renderOptEquipList = function() {
+    const container = document.getElementById('optEquipSelection');
+    if (!container) return;
+
+    if (typeof currentEquipData === 'undefined' || currentEquipData.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:30px 0; color:#555;">캐릭터를 검색하면 내 장비가 나타납니다.</div>`;
+        return;
+    }
+
+    let html = '';
+    currentEquipData.forEach((eq, idx) => {
+        const name = eq.name || "장비";
+        const enh = eq.enchantLevel || 0;
+        const brk = eq.exceedLevel || 0; 
+        const img = eq.icon ? `<img src="${eq.icon}" style="width:32px; height:32px; border-radius:4px; border:1px solid #444;">` : `<div style="width:32px; height:32px; background:#222;"></div>`;
+        
+        let gradeColor = "#fff";
+        if (eq.grade === "Unique") gradeColor = "#ffca28"; 
+        if (eq.grade === "Hero" || eq.grade === "Epic") gradeColor = "#ff9800"; 
+        if (eq.grade === "Legend") gradeColor = "#4fc3f7"; 
+        if (eq.grade === "Rare") gradeColor = "#69f0ae"; 
+
+        let diamondsHtml = ''; 
+        for (let i = 0; i < 5; i++) {
+            diamondsHtml += `<div class="diamond-pip ${i < brk ? 'active' : ''}"></div>`;
+        }
+
+        html += `
+        <label style="display:flex; align-items:center; gap:10px; background:#0a0a0c; padding:10px; border:1px solid #222; border-radius:6px; cursor:pointer; margin-bottom:8px;">
+            <input type="checkbox" class="opt-eq-chk" value="${idx}" style="transform:scale(1.3); margin:0 5px;" checked>
+            ${img}
+            <div style="flex:1;">
+                <div style="color:${gradeColor}; font-size:13px; font-weight:bold;">+${enh} ${name}</div>
+                <div style="display:flex; gap:4px; margin-top:5px;">${diamondsHtml}</div>
+            </div>
+        </label>
+        `;
+    });
+    container.innerHTML = html;
+};
+
+// 장비 리스트 화면 0.5초마다 강제 동기화 감시 레이더
+setInterval(() => {
+    const container = document.getElementById('optEquipSelection');
+    if (typeof currentEquipData !== 'undefined' && currentEquipData.length > 0 && container) {
+        const currentRenderedCount = container.querySelectorAll('.opt-eq-chk').length;
+        if (currentRenderedCount !== currentEquipData.length) {
+            window.renderOptEquipList();
+            window.toggleOptGoalInput();
+        }
+    }
+}, 500);
+
+// 검색창 숨김/표시 처리
+const originSwitchTab = window.switchTab;
+window.switchTab = function(id, el) {
+    if (originSwitchTab) {
+        try { originSwitchTab(id, el); } catch(e) {}
+    }
+    const searchUI = document.getElementById('globalSearchUI');
+    if (searchUI) {
+        searchUI.style.display = (id === 'equip' || id === 'autoOpt') ? 'block' : 'none';
+    }
+    if (id === 'autoOpt') {
+        window.renderOptEquipList();
+        window.toggleOptGoalInput();
+    }
+};
+	// =========================================================================
+// 🌟 [UI 마법] 검색창을 모든 탭에서 볼 수 있게 맨 위로 꺼내기
+// =========================================================================
+window.addEventListener('DOMContentLoaded', () => {
+    const nav = document.querySelector('.top-nav');
+    let searchArea = document.getElementById('globalSearchUI');
+    if (!searchArea) {
+        searchArea = document.createElement('div');
+        searchArea.id = 'globalSearchUI';
+        // 네비게이션 메뉴 바로 아래에 전용 구역 생성
+        nav.parentNode.insertBefore(searchArea, nav.nextSibling);
+    }
+    
+    // 장비 탭 안에 갇혀있던 요소들을 밖으로 이사시킵니다!
+    const searchBar = document.querySelector('.search-bar');
+    const favBar = document.getElementById('favoritesBar');
+    const charSel = document.getElementById('characterSelection');
+    
+    if(searchBar) searchArea.appendChild(searchBar);
+    if(favBar) searchArea.appendChild(favBar);
+    if(charSel) searchArea.appendChild(charSel);
+});
+	
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
