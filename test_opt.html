@@ -1055,15 +1055,20 @@
         return "#fff";
     }
 
-    // 🚀 완벽한 부위 판별 함수 (오류 0%)
+    // 🚀 완벽한 부위 판별 함수 (오류 0% + '늘어남' 무기 완벽 지원)
     function getSmartCategory(item) {
         if (!item) return null;
-        let iName = item.name || "";
-        let cName = item.categoryName || (item.category && item.category.name) || "";
+        
+        // 🌟 핵심: 인식 방해꾼인 '(늘어남)' 텍스트를 내부적으로만 잠시 지우고 판별합니다!
+        let iName = (item.name || "").replace(/\s*\(늘어남\)\s*/g, '').trim();
+        let cName = (item.categoryName || (item.category && item.category.name) || "").replace(/\s*\(늘어남\)\s*/g, '').trim();
         let catId = item.categoryId || (item.category && item.category.id) || ""; 
 
+        // NC 데이터에 _Extend 등이 붙어있을 경우 원본 카테고리 ID로 치환
+        let baseCatId = catId.replace(/_Extend|_Ext/g, '');
+
         // 1. NC 공식 ID 검사 (가장 확실함)
-        let exactMatch = CATEGORY_MAP.find(c => c.ncId === catId);
+        let exactMatch = CATEGORY_MAP.find(c => c.ncId === catId || c.ncId === baseCatId);
         if (exactMatch) return exactMatch;
 
         // 2. 아이템 이름에 '장갑', '반지' 등이 들어갔는지 1차 검사 (천룡왕의 장갑 -> 장갑으로 직행)
@@ -1076,60 +1081,24 @@
             if (cat.match.some(m => cName.includes(m))) return cat;
         }
 
-        // 4. 최후의 보루 (이름 끝자리)
-        if (iName.endsWith('검')) return CATEGORY_MAP.find(c => c.key === 'w_longsword');
+        // 4. 최후의 보루 (이름 끝자리 검사 - 늘어남이 지워졌으므로 완벽 작동!)
+        if (iName.endsWith('대검')) return CATEGORY_MAP.find(c => c.key === 'w_greatsword');
+        if (iName.endsWith('단검') || iName.endsWith('비수')) return CATEGORY_MAP.find(c => c.key === 'w_dagger');
+        if (iName.endsWith('장검') || iName.endsWith('검')) return CATEGORY_MAP.find(c => c.key === 'w_longsword');
         if (iName.endsWith('도')) return CATEGORY_MAP.find(c => c.key === 'w_dagger');
         if (iName.endsWith('활') || iName.endsWith('궁')) return CATEGORY_MAP.find(c => c.key === 'w_bow');
-        if (iName.endsWith('곤')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
-        if (iName.endsWith('서')) return CATEGORY_MAP.find(c => c.key === 'w_spellbook');
-        if (iName.endsWith('주')) return CATEGORY_MAP.find(c => c.key === 'w_orb');
-        if (iName.endsWith('치')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
-        if (iName.endsWith('고리')) return CATEGORY_MAP.find(c => c.key === 'earring');
+        if (iName.endsWith('전곤') || iName.endsWith('망치') || iName.endsWith('해머') || iName.endsWith('곤')) return CATEGORY_MAP.find(c => c.key === 'w_mace');
+        if (iName.endsWith('법서') || iName.endsWith('서')) return CATEGORY_MAP.find(c => c.key === 'w_spellbook');
+        if (iName.endsWith('보주') || iName.endsWith('주')) return CATEGORY_MAP.find(c => c.key === 'w_orb');
+        if (iName.endsWith('법봉') || iName.endsWith('지팡이') || iName.endsWith('봉')) return CATEGORY_MAP.find(c => c.key === 'w_staff');
         
-        return null;
-    }
+        if (iName.endsWith('방패') || iName.endsWith('가더')) return CATEGORY_MAP.find(c => c.key === 'guarder');
 
-    const STAT_KEYS = ["atk", "acc", "amp", "pvpAmp", "pveAmp", "crit", "critDmg", "critAddDmg", "critRes", "hp", "mp", "def", "spd", "multiHit", "shockHit", "power", "agi", "acc_stat", "will", "know", "vit", "dest", "death", "wis", "destiny", "space", "time_stat", "life", "illusion", "freedom", "justice", "rearAtk", "block", "evasion", "wAmp", "atkPct", "defPct", "bossAmp", "raceAmp", "pveRes", "pvpRes", "genRes", "hpPct", "statusRes", "statusAcc"];
-    
-    function mapStatName(name) {
-        if(!name) return null;
-        if(name.includes("공격력 증가")) return "atkPct";
-        if(name.includes("방어력 증가")) return "defPct";
-        if(name === "공격력" || name === "물리 공격력" || name === "마법 공격력") return "atk";
-        if(name === "명중" || name === "물리 명중" || name === "마법 명중") return "acc";
-        if(name === "피해 증폭") return "amp";
-        if(name === "무기 피해 증폭") return "wAmp";
-        if(name.includes("PVP") && name.includes("피해 증폭")) return "pvpAmp";
-        if(name.includes("PVE") && name.includes("피해 증폭")) return "pveAmp";
-        if(name.includes("치명타 피해 증폭")) return "critDmg";
-        if(name.includes("치명타 공격력")) return "critAddDmg";
-        if(name.includes("보스 피해 증폭")) return "bossAmp";
-        if(name.includes("종족 피해 증폭")) return "raceAmp";
-        if(name.includes("몬스터 피해 내성") || name.includes("PVE 피해 내성")) return "pveRes";
-        if(name.includes("PVP 피해 내성")) return "pvpRes";
-        if(name === "피해 내성" || name === "일반 피해 내성") return "genRes";
-        if(name === "위력" || name === "STR") return "power";
-        if(name === "민첩" || name === "DEX") return "agi";
-        if(name === "정확" || name === "AGI") return "acc_stat";
-        if(name === "의지" || name === "WIS") return "will";
-        if(name === "지식" || name === "INT") return "know";
-        if(name === "체력" || name === "CON") return "vit";
-        if(name === "파괴" || name === "Destruction") return "dest";
-        if(name === "죽음" || name === "Death") return "death";
-        if(name === "지혜" || name === "Wisdom") return "wis";
-        if(name === "운명" || name === "Destiny") return "destiny";
-        if(name === "공간" || name === "Space") return "space";
-        if(name === "시간" || name === "Time") return "time_stat";
-        if(name === "생명" || name === "Life") return "life";
-        if(name === "환상" || name === "Illusion") return "illusion";
-        if(name === "자유" || name === "Freedom") return "freedom";
-        if(name === "정의" || name === "Justice") return "justice";
-        if(name === "치명타" || name === "물리 치명타" || name === "마법 치명타") return "crit";
-        if(name === "치명타 저항" || name === "CriticalResist") return "critRes";
-        if(name.includes("생명력")) return "hp";
-        if(name.includes("정신력")) return "mp";
-        if(name === "방어력" || name === "물리 방어력" || name === "마법 방어력") return "def";
-        if(name.includes("전투 속도")) return "spd";
+        if (iName.endsWith('목걸이')) return CATEGORY_MAP.find(c => c.key === 'necklace');
+        if (iName.endsWith('귀걸이') || iName.endsWith('귀고리')) return CATEGORY_MAP.find(c => c.key === 'earring');
+        if (iName.endsWith('반지')) return CATEGORY_MAP.find(c => c.key === 'ring');
+        if (iName.endsWith('팔찌')) return CATEGORY_MAP.find(c => c.key === 'bracelet');
+        
         return null;
     }
 
@@ -4347,15 +4316,18 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
 
 
 // =========================================================================
-// 🌟 [1] 아이템 JSON DB 전역 로드 (0.01초 최적화를 위한 핵심)
+// 🌟 [1] 아이템 JSON DB 전역 로드 (0.01초 최적화 & 더미 장비 차단)
 // =========================================================================
 let globalItemDB = [];
 window.addEventListener('DOMContentLoaded', async () => {
     try {
-        // 수정 전: const res = await fetch('/db.json');
         const res = await fetch('/db.json'); 
-        globalItemDB = await res.json();
-        console.log(`✅ 초고속 자체 아이템 DB 로드 완료! (총 ${globalItemDB.length}개 장비 장전됨)`);
+        let rawDB = await res.json();
+        
+        // 🚀 "sources"가 아예 없거나 빈 배열인 미구현/더미 장비를 여기서 완벽하게 쳐냅니다!
+        globalItemDB = rawDB.filter(item => item.sources && item.sources.length > 0);
+        
+        console.log(`✅ 초고속 자체 아이템 DB 로드 완료! (총 ${globalItemDB.length}개 유효 장비 장전됨)`);
     } catch(e) {
         console.error("아이템 DB 파일(db.json)을 찾을 수 없습니다.");
     }
@@ -4753,6 +4725,7 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
