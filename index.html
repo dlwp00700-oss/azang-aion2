@@ -604,16 +604,23 @@
                 </div>
             </details>
 
-            <div class="pet-calc-container" style="background:#141418; border:1px solid #ffca28; border-radius:12px; padding:30px; max-width:900px; margin:0 auto 20px auto; position:relative; overflow:hidden;">
+            <div class="pet-calc-container" style="margin-top:30px; background:#141418; border:1px solid #ce93d8; border-radius:12px; padding:25px; box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
                 
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #332a00; padding-bottom:15px; margin-bottom:20px;">
-                    <h2 style="margin:0; color:#ffca28; font-size:20px;">🎲 펫 옵션 기댓값 시뮬레이터 (목표 세팅)</h2>
-                    <select id="simPetLevel" style="background:#111; color:#fff; border:1px solid #ffca28; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer;" onchange="changeSimLvl()">
-                        <option value="9">펫 9레벨 옵션</option>
-                        <option value="10">펫 10레벨 옵션</option>
-                    </select>
+                <div style="text-align:center; border-bottom:1px dashed #333; padding-bottom:15px; margin-bottom:20px;">
+                    <h2 style="margin:0; color:#ce93d8; font-size:22px; display:flex; align-items:center; justify-content:center; gap:10px;">
+                        <span style="font-size:28px;">🎲</span> 펫작 분석효과 기대값 (목표 세팅)
+                    </h2>
+                    <div style="color:#888; font-size:13px; margin-top:8px; font-weight:bold;">* 9, 10 레벨 옵션만 계산됩니다. 목표를 설정하고 예상 비용을 확인하세요!</div>
                 </div>
-                
+
+                <div style="display:flex; justify-content:center; margin-bottom:25px;">
+                    <div style="display:flex; background:#0a0a0c; border:1px solid #333; border-radius:30px; padding:4px; gap:5px;">
+                        <button class="sim-lvl-btn active" onclick="changeSimLvlBtn(9, this)" style="padding:8px 25px; background:#e0e0e0; color:#000; border:none; border-radius:25px; font-weight:bold; cursor:pointer; transition:0.2s;">Lv. 9</button>
+                        <button class="sim-lvl-btn" onclick="changeSimLvlBtn(10, this)" style="padding:8px 25px; background:transparent; color:#888; border:none; border-radius:25px; font-weight:bold; cursor:pointer; transition:0.2s;">Lv. 10</button>
+                    </div>
+                    <select id="simPetLevel" style="display:none;"><option value="9" selected>9</option><option value="10">10</option></select>
+                </div>
+
                 <div style="display:flex; gap:10px; margin-bottom: 20px;">
                     <button class="sim-cat-btn" style="flex:1; padding:10px; background:#1a5de4; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('지성', this)">지성</button>
                     <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('야성', this)">야성</button>
@@ -633,30 +640,34 @@
                         </tr>
                     </thead>
                     <tbody id="simSlotsContainer">
-                    </tbody>
+                        </tbody>
                 </table>
 
-                <button onclick="runSimulatedReroll()" style="width:100%; padding:15px; background:#ffca28; color:#000; border:none; border-radius:8px; font-weight:bold; font-size:16px; cursor:pointer; transition:0.2s; box-shadow:0 4px 10px rgba(255,202,40,0.2);">🚀 계산하기 (10,000회 시뮬레이션)</button>
+                <div style="text-align:center;">
+                    <button onclick="runSimulatedReroll(); document.getElementById('simResultBox').style.display='block';" style="width:100%; max-width:400px; padding:15px; background:linear-gradient(90deg, #ce93d8, #ab47bc); color:#fff; border:none; border-radius:30px; font-weight:bold; font-size:16px; cursor:pointer; transition:0.3s; box-shadow:0 6px 15px rgba(206, 147, 216, 0.4);">
+                        🚀 계산하기 (10,000회 시뮬레이션)
+                    </button>
+                </div>
 
-                <div style="margin-top:20px; background:#0a0a0c; border:1px solid #333; border-radius:8px; padding:20px;">
-                    <div id="simResText" style="text-align:center; color:#4fc3f7; font-weight:bold; font-size:14px; margin-bottom:15px;">옵션과 잠금을 세팅하고 계산하기를 눌러주세요.</div>
+                <div id="simResultBox" style="display:none; margin-top:25px; background:#0a0a0c; border:1px solid #ce93d8; border-radius:8px; padding:20px; box-shadow:0 0 15px rgba(206, 147, 216, 0.2);">
+                    <div id="simResText" style="text-align:center; color:#ce93d8; font-weight:bold; font-size:14px; margin-bottom:15px;">계산 중입니다...</div>
                     <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:15px;">
                         <div style="text-align:center;">
                             <div style="font-size:11px; color:#888; margin-bottom:5px;">기대 리롤 횟수</div>
-                            <div id="simResRolls" style="font-size:22px; font-weight:bold; color:#fff;">0회</div>
+                            <div id="simResRolls" style="font-size:24px; font-weight:bold; color:#fff;">0회</div>
                         </div>
-                        <div style="text-align:center; border-left:1px solid #222; border-right:1px solid #222;">
+                        <div style="text-align:center; border-left:1px solid #333; border-right:1px solid #333;">
                             <div style="font-size:11px; color:#888; margin-bottom:5px;">예상 소모 영혼결정</div>
-                            <div id="simResCrys" style="font-size:22px; font-weight:bold; color:#ce93d8;">0개</div>
+                            <div id="simResCrys" style="font-size:24px; font-weight:bold; color:#ce93d8;">0개</div>
                         </div>
                         <div style="text-align:center;">
                             <div style="font-size:11px; color:#888; margin-bottom:5px;">예상 소모 키나</div>
-                            <div id="simResKinah" style="font-size:22px; font-weight:bold; color:#ffca28;">0</div>
+                            <div id="simResKinah" style="font-size:24px; font-weight:bold; color:#ce93d8;">0</div>
                         </div>
                     </div>
                 </div>
+
             </div>
-        </div>
             </div> </div> <div id="tab-abyss" class="tab-content">
             <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a24; border-color: #ffca28;">
             <summary style="color: #ffca28; font-size: 15px;">🏅 [필독] 어비스 파밍 계산기 사용 방법 (클릭하여 열기)</summary>
@@ -4276,6 +4287,7 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
     }
 
     // 🚀 슬롯 1~9 UI 그리기 (확률 표기 칸 추가)
+    // 🚀 슬롯 1~9 UI 그리기 (옵션 등급별 색상 적용)
     function buildSimSlots() {
         const cat = currentSimCategory;
         const lvl = parseInt(document.getElementById('simPetLevel').value) || 9;
@@ -4286,17 +4298,24 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
         for(let s=1; s<=9; s++) {
             let slotData = parsedPetDict[cat]?.[lvl]?.[s] || [];
             
-            let optionsHtml = `<option value="none">설정 안 함 (선택 시 드롭다운)</option>`;
+            let optionsHtml = `<option value="none" style="color:#888;">설정 안 함 (선택 시 드롭다운)</option>`;
             slotData.forEach(opt => {
                 let jStr = JSON.stringify(opt).replace(/"/g, '&quot;');
                 let u = opt.unit === 'flat' ? '' : '%';
                 let gradeLabel = opt.grade ? `[${opt.grade}] ` : '';
-                optionsHtml += `<option value="${jStr}">${gradeLabel}${opt.name} (${opt.min}${u} ~ ${opt.max}${u})</option>`;
+                
+                // 🚀 등급별 색상 스타일 적용
+                let gradeStyle = 'color:#fff;'; // 기본 흰색
+                if(opt.grade === '영웅') gradeStyle = 'color:#ff9800; font-weight:bold;'; // 주황색
+                else if(opt.grade === '유일') gradeStyle = 'color:#ffca28; font-weight:bold;'; // 노란색
+                
+                optionsHtml += `<option value="${jStr}" style="${gradeStyle}">${gradeLabel}${opt.name} (${opt.min}${u} ~ ${opt.max}${u})</option>`;
             });
 
+            // (아래 tr 생성 코드는 기존과 동일합니다)
             container.innerHTML += `
             <tr id="simRow_${s}" style="border-bottom:1px solid #222; background:#0f0f11; transition:0.2s;">
-                <td style="padding:12px 10px; text-align:center; font-weight:bold; color:#ffca28; font-size:14px;">${s}</td>
+                <td style="padding:12px 10px; text-align:center; font-weight:bold; color:#ce93d8; font-size:14px;">${s}</td>
                 <td style="padding:12px 10px; text-align:center;">
                     <label style="cursor:pointer; display:flex; align-items:center; justify-content:center;">
                         <input type="checkbox" id="simLock_${s}" style="display:none;" onchange="toggleSimLock(${s})">
@@ -4870,6 +4889,7 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
