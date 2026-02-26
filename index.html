@@ -615,7 +615,7 @@
                 </div>
                 
                 <div style="display:flex; gap:10px; margin-bottom: 20px;">
-                    <button class="sim-cat-btn" style="flex:1; padding:10px; background:#ffca28; color:#000; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('지성', this)">지성</button>
+                    <button class="sim-cat-btn" style="flex:1; padding:10px; background:#1a5de4; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('지성', this)">지성</button>
                     <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('야성', this)">야성</button>
                     <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('자연', this)">자연</button>
                     <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('변형', this)">변형</button>
@@ -628,7 +628,8 @@
                             <th style="padding:10px; width:50px; text-align:center;">슬롯</th>
                             <th style="padding:10px; width:70px; text-align:center;">🔒 잠금</th>
                             <th style="padding:10px;">목표 옵션 선택 (등급 및 수치)</th>
-                            <th style="padding:10px; width:100px;">최소 목표치</th>
+                            <th style="padding:10px; width:80px; text-align:center;">등장 확률</th>
+                            <th style="padding:10px; width:100px; text-align:center;">최소 목표치</th>
                         </tr>
                     </thead>
                     <tbody id="simSlotsContainer">
@@ -4202,7 +4203,7 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
     let parsedPetDict = {};
     let currentSimCategory = '지성';
 
-    // 종족 카테고리 변경
+    // 종족 카테고리 변경 (색상 이펙트 추가)
     function changeSimCat(catName, btnEl) {
         currentSimCategory = catName;
         const btns = document.querySelectorAll('.sim-cat-btn');
@@ -4211,8 +4212,15 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
             btn.style.color = '#888';
             btn.style.border = '1px solid #333';
         });
-        btnEl.style.background = '#ffca28';
-        btnEl.style.color = '#000';
+        
+        // 선택한 버튼에 고유 컬러 적용
+        if (PET_COLORS[catName]) {
+            btnEl.style.background = PET_COLORS[catName].bg;
+            btnEl.style.color = PET_COLORS[catName].fg;
+        } else {
+            btnEl.style.background = '#ffca28';
+            btnEl.style.color = '#000';
+        }
         btnEl.style.border = 'none';
 
         buildSimSlots();
@@ -4260,7 +4268,7 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
         } catch(e) { console.error("펫 데이터 로드 에러:", e); }
     }
 
-    // 슬롯 1~9 UI 그리기
+    // 🚀 슬롯 1~9 UI 그리기 (확률 표기 칸 추가)
     function buildSimSlots() {
         const cat = currentSimCategory;
         const lvl = parseInt(document.getElementById('simPetLevel').value) || 9;
@@ -4269,63 +4277,92 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
         container.innerHTML = '';
 
         for(let s=1; s<=9; s++) {
-            // 유저님이 올려주신 완벽한 데이터에서 정확히 해당 레벨, 해당 슬롯 번호를 찾아옵니다.
             let slotData = parsedPetDict[cat]?.[lvl]?.[s] || [];
             
-            let optionsHtml = `<option value="none">옵션 선택 안 함</option>`;
+            let optionsHtml = `<option value="none">설정 안 함 (선택 시 드롭다운)</option>`;
             slotData.forEach(opt => {
                 let jStr = JSON.stringify(opt).replace(/"/g, '&quot;');
                 let u = opt.unit === 'flat' ? '' : '%';
-                // 🚀 영웅, 유일 등급을 텍스트에 포함시켜 구분하기 쉽게 만듭니다.
                 let gradeLabel = opt.grade ? `[${opt.grade}] ` : '';
                 optionsHtml += `<option value="${jStr}">${gradeLabel}${opt.name} (${opt.min}${u} ~ ${opt.max}${u})</option>`;
             });
 
             container.innerHTML += `
-            <tr style="border-bottom:1px solid #222; background:#0f0f11;">
+            <tr id="simRow_${s}" style="border-bottom:1px solid #222; background:#0f0f11; transition:0.2s;">
                 <td style="padding:12px 10px; text-align:center; font-weight:bold; color:#ffca28; font-size:14px;">${s}</td>
                 <td style="padding:12px 10px; text-align:center;">
-                    <input type="checkbox" id="simLock_${s}" style="cursor:pointer; transform:scale(1.3);" onchange="toggleSimLock(${s})">
+                    <label style="cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                        <input type="checkbox" id="simLock_${s}" style="display:none;" onchange="toggleSimLock(${s})">
+                        <span id="lockIcon_${s}" style="font-size:20px; filter: grayscale(100%); opacity: 0.4; transition:0.2s;">🔓</span>
+                    </label>
                 </td>
                 <td style="padding:12px 10px;">
-                    <select id="simOpt_${s}" style="width:100%; padding:8px; background:#1a1a24; color:#fff; border:1px solid #333; border-radius:4px;" onchange="updateSimTargetUI(${s})">
+                    <select id="simOpt_${s}" style="width:100%; padding:8px; background:#1a1a24; color:#fff; border:1px solid #333; border-radius:4px; font-size:12px; outline:none;" onchange="updateSimTargetUI(${s})">
                         ${optionsHtml}
                     </select>
                 </td>
-                <td style="padding:12px 10px;">
-                    <div id="simValWrap_${s}" style="display:none; align-items:center;">
-                        <input type="number" id="simVal_${s}" value="0" step="0.1" style="width:80px; padding:8px; background:#1a1a24; color:#fff; border:1px solid #333; border-radius:4px; text-align:center;">
+                <td id="simProb_${s}" style="padding:12px 10px; text-align:center; font-size:12px; color:#4fc3f7; font-weight:bold; transition:0.2s;">-</td>
+                <td style="padding:12px 10px; text-align:center;">
+                    <div id="simValWrap_${s}" style="display:none; justify-content:center;">
+                        <input type="number" id="simVal_${s}" value="0" step="0.1" style="width:100%; max-width:70px; padding:6px; background:#111; color:#69f0ae; border:1px solid #444; border-radius:4px; text-align:center; font-weight:bold; font-size:12px; outline:none;">
                     </div>
+                    <span id="simLockText_${s}" style="display:none; color:#ff5252; font-size:12px; font-weight:bold;">🔒 잠김</span>
                 </td>
             </tr>`;
         }
     }
 
+    // 🚀 잠금(자물쇠) 시각적 이펙트 강화
     function toggleSimLock(slotId) {
         const isLocked = document.getElementById(`simLock_${slotId}`).checked;
+        const row = document.getElementById(`simRow_${slotId}`);
         const optSel = document.getElementById(`simOpt_${slotId}`);
         const wrap = document.getElementById(`simValWrap_${slotId}`);
+        const icon = document.getElementById(`lockIcon_${slotId}`);
+        const lockText = document.getElementById(`simLockText_${slotId}`);
+        const probLabel = document.getElementById(`simProb_${slotId}`);
         
         if(isLocked) {
+            icon.innerText = "🔒";
+            icon.style.filter = "none";
+            icon.style.opacity = "1";
+            row.style.background = "rgba(255, 82, 82, 0.08)"; // 붉은색 경고 배경
+            
             optSel.value = "none";
             optSel.disabled = true;
             optSel.style.opacity = "0.4";
             wrap.style.display = 'none';
+            probLabel.innerText = '-';
+            probLabel.style.opacity = "0.4";
+            lockText.style.display = 'block';
         } else {
+            icon.innerText = "🔓";
+            icon.style.filter = "grayscale(100%)";
+            icon.style.opacity = "0.4";
+            row.style.background = "#0f0f11"; // 원래 배경으로 복구
+            
             optSel.disabled = false;
             optSel.style.opacity = "1";
+            probLabel.style.opacity = "1";
+            lockText.style.display = 'none';
+            updateSimTargetUI(slotId); 
         }
     }
 
+    // 🚀 옵션 선택 시 확률 표기 로직 추가
     function updateSimTargetUI(slotId) {
         const optVal = document.getElementById(`simOpt_${slotId}`).value;
         const wrap = document.getElementById(`simValWrap_${slotId}`);
         const input = document.getElementById(`simVal_${slotId}`);
-        if(optVal === "none") {
+        const probLabel = document.getElementById(`simProb_${slotId}`);
+        
+        if(optVal === "none" || document.getElementById(`simLock_${slotId}`).checked) {
             wrap.style.display = 'none';
+            probLabel.innerText = '-';
         } else {
             const data = JSON.parse(optVal.replace(/&quot;/g, '"'));
             input.value = data.min; 
+            probLabel.innerText = data.prob ? `${data.prob.toFixed(2)}%` : '-';
             wrap.style.display = 'flex';
         }
     }
@@ -4826,6 +4863,7 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
