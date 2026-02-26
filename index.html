@@ -604,7 +604,7 @@
                 </div>
             </details>
 
-            <div class="pet-calc-container" style="margin-top:30px; background:#141418; border:1px solid #ce93d8; border-radius:12px; padding:25px; box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
+            <div class="pet-calc-container" style="max-width: 800px; margin: 30px auto 20px auto; background:#141418; border:1px solid #ce93d8; border-radius:12px; padding:25px; box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
                 
                 <div style="text-align:center; border-bottom:1px dashed #333; padding-bottom:15px; margin-bottom:20px;">
                     <h2 style="margin:0; color:#ce93d8; font-size:22px; display:flex; align-items:center; justify-content:center; gap:10px;">
@@ -4246,9 +4246,24 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
         buildSimSlots();
     }
 
-    // 9레벨 <-> 10레벨 변경
-    function changeSimLvl() {
-        buildSimSlots();
+    // 🚀 9레벨 <-> 10레벨 변경 버튼 애니메이션 및 데이터 연동 로직
+    function changeSimLvlBtn(lvl, btnEl) {
+        // 1. 내부적으로 사용할 실제 데이터(Lv) 변경
+        document.getElementById('simPetLevel').value = lvl; 
+        
+        // 2. 모든 버튼의 불을 끄기 (비활성화 스타일)
+        const btns = document.querySelectorAll('.sim-lvl-btn');
+        btns.forEach(btn => {
+            btn.style.background = 'transparent';
+            btn.style.color = '#888';
+        });
+        
+        // 3. 내가 클릭한 버튼만 불 켜기 (활성화 스타일)
+        btnEl.style.background = '#e0e0e0';
+        btnEl.style.color = '#000';
+        
+        // 4. 바뀐 레벨에 맞춰 아래 테이블 옵션 싹 다 새로고침!
+        buildSimSlots(); 
     }
 
     // CSV 및 엑셀(탭) 데이터를 파싱하여 [종족][레벨][슬롯번호] 구조로 완벽하게 정리
@@ -4889,6 +4904,7 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
