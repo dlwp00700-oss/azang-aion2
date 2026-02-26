@@ -4203,6 +4203,15 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
     let parsedPetDict = {};
     let currentSimCategory = '지성';
 
+    // 🚀 종족별 고유 컬러 설정 (가독성을 위해 글자색 fg도 함께 지정)
+    const PET_COLORS = { 
+        '지성': {bg:'#1a5de4', fg:'#fff'}, 
+        '야성': {bg:'#d1485d', fg:'#fff'}, 
+        '자연': {bg:'#69f0ae', fg:'#000'}, 
+        '변형': {bg:'#e2ce49', fg:'#000'}, 
+        '특수': {bg:'#71dce2', fg:'#000'} 
+    };
+
     // 종족 카테고리 변경 (색상 이펙트 추가)
     function changeSimCat(catName, btnEl) {
         currentSimCategory = catName;
@@ -4238,11 +4247,9 @@ Category	Level	Slot	Grade	Option	MinValue	MaxValue	Unit	ProbabilityPercent
             for(let i=1; i<rows.length; i++) {
                 if(!rows[i].trim()) continue;
                 
-                // 🚀 엑셀에서 바로 복붙했을 때 생기는 탭(\t)과 콤마(,)를 모두 완벽하게 인식!
                 const isTab = rows[i].includes('\t');
                 const cols = isTab ? rows[i].split('\t') : rows[i].split(',');
                 
-                // 만약 제목 줄(Category...)이 또 복사되었다면 건너뜁니다
                 if(cols[0].trim().toLowerCase() === 'category') continue;
 
                 const catRaw = cols[0].trim();
@@ -4863,6 +4870,7 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
