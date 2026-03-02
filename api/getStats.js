@@ -11,7 +11,7 @@ module.exports = async function handler(req, res) {
 
     try {
         // Vercel KV(Upstash)에서 'stats_assassin' 데이터 꺼내오기
-        const response = await fetch(`${KV_URL}/get/stats_assassin`, {
+        const response = await fetch(`${KV_URL}/get/stats_all_classes`, {
             headers: { 
                 Authorization: `Bearer ${KV_TOKEN}`
             }
