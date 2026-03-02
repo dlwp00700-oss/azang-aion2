@@ -9,32 +9,38 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-        console.log("통계 수집 시작...");
-
-        // 🌟 해결책 1: NC소프트 차단을 뚫기 위한 '사람 신분증' (헤더) 추가
+        // NC소프트 봇 차단 방지용 신분증
         const headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Referer': 'https://aion2.plaync.com/',
             'Origin': 'https://aion2.plaync.com'
         };
         
-        // 🌟 해결책 2: 진짜 랭킹 API 주소로 변경 (아래 주소는 totalRanking.js를 참고한 예시입니다. 맞는지 확인해 주세요!)
-        const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=1001&classId=5`;
+        // 🌟 수정: 이전에 대표님이 알려주셨던 오리지널 API 주소로 복구했습니다. (상위 20명만 테스트)
+        const rankUrl = `https://api-aion2.plaync.com/ranking/abyss/total?size=20&classId=5&serverId=1001`;
         
         const rankRes = await fetch(rankUrl, { headers });
         const rankData = await rankRes.json();
         
-        // 데이터 배열 이름이 contents가 아니라 rankingList일 수 있으니 확인!
-        const rankList = rankData.rankingList || rankData.contents || [];
+        const rankList = rankData.contents || rankData.list || rankData.rankingList || [];
+
+        // 🚨 [탐지기 작동] 만약 랭커 명단이 0명이면, NC 서버가 보낸 원본 메시지를 그대로 화면에 출력합니다!
+        if (rankList.length === 0) {
+            return res.status(200).json({ 
+                message: "DB는 완벽한데, NC 서버가 랭킹을 안 줍니다. 아래 이유를 확인해주세요!", 
+                nc_response: rankData 
+            });
+        }
 
         let stigmaCounts = {};
         let scannedCount = 0;
 
         for (const user of rankList) {
             try {
-                // 🌟 중요: 캐릭터의 스킬/스티그마 정보를 가져오는 '진짜 상세조회 주소'를 넣으셔야 합니다!
-                // (아래는 임시 주소입니다. 대표님이 아시는 주소로 꼭 바꿔주세요.)
-                const detailUrl = `https://aion2.plaync.com/api/gameinfo/character/detail?characterId=${user.characterId || user.id}&serverId=1001`;
+                // 🌟 수정: 상세 조회도 오리지널 API 주소로 복구
+                const charId = user.characterId || user.id;
+                const srvId = user.serverId || 1001;
+                const detailUrl = `https://api-aion2.plaync.com/character/detail?characterId=${charId}&serverId=${srvId}`;
                 
                 const detailRes = await fetch(detailUrl, { headers });
                 const detailData = await detailRes.json();
@@ -51,12 +57,11 @@ module.exports = async function handler(req, res) {
                 });
                 scannedCount++;
             } catch (err) {
-                console.error(`조회 에러 (스킵됨)`);
+                console.error(`상세조회 에러 스킵`);
             }
         }
 
         let sortedStigmas = Object.values(stigmaCounts).sort((a, b) => b.count - a.count);
-        // 0으로 나누는 에러 방지
         if (scannedCount > 0) {
             sortedStigmas = sortedStigmas.map(st => ({
                 ...st,
@@ -80,9 +85,9 @@ module.exports = async function handler(req, res) {
             body: JSON.stringify(finalData)
         });
 
-        res.status(200).json({ message: "DB 저장 성공", data: finalData });
+        res.status(200).json({ message: "DB 저장 성공 및 데이터 수집 완료!", data: finalData });
 
     } catch (error) {
-        res.status(500).json({ error: "통계 수집 실패", details: error.message });
+        res.status(500).json({ error: "통계 수집 에러", details: error.message });
     }
 };
