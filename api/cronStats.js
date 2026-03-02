@@ -2,8 +2,8 @@
 
 export default async function handler(req, res) {
     // Vercel KV DB 접속 정보 (연결 시 자동 생성됨)
-    const KV_URL = process.env.KV_REST_API_URL;
-    const KV_TOKEN = process.env.KV_REST_API_TOKEN;
+    const KV_URL = process.env.azang_db_KV_REST_API_URL;
+    const KV_TOKEN = process.env.azang_db_KV_REST_API_TOKEN;
 
     if (!KV_URL || !KV_TOKEN) {
         return res.status(500).json({ error: "DB 접속 정보가 없습니다. Vercel Storage를 확인하세요." });
