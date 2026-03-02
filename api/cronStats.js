@@ -1,7 +1,7 @@
 // api/cronStats.js
 
-export default async function handler(req, res) {
-    // Vercel KV DB 접속 정보 (연결 시 자동 생성됨)
+module.exports = async function handler(req, res) {
+    // 1. 방금 생성하신 환경변수 이름 완벽 적용
     const KV_URL = process.env.azang_db_KV_REST_API_URL;
     const KV_TOKEN = process.env.azang_db_KV_REST_API_TOKEN;
 
@@ -12,8 +12,7 @@ export default async function handler(req, res) {
     try {
         console.log("통계 수집 시작...");
         
-        // 1. 살성(5번)의 시엘 서버(1001) 상위 50명만 테스트로 가져와 봅시다.
-        // 나중에는 직업별로 반복문(for)을 돌려서 다 수집하게 만들 겁니다.
+        // 살성(5번)의 시엘 서버(1001) 상위 50명만 테스트로 가져오기
         const rankRes = await fetch(`https://api-aion2.plaync.com/ranking/abyss/total?size=50&classId=5&serverId=1001`);
         const rankData = await rankRes.json();
         const rankList = rankData.contents || rankData.list || [];
@@ -21,7 +20,6 @@ export default async function handler(req, res) {
         let stigmaCounts = {};
         let scannedCount = 0;
 
-        // 2. 50명의 상세 정보를 조회 (아까 대표님이 찾은 핵심 로직 적용!)
         for (const user of rankList) {
             try {
                 const detailRes = await fetch(`https://api-aion2.plaync.com/character/detail?characterId=${user.characterId}&serverId=${user.serverId}`);
@@ -44,7 +42,6 @@ export default async function handler(req, res) {
             }
         }
 
-        // 3. 통계 계산 (내림차순 정렬 및 픽률 계산)
         let sortedStigmas = Object.values(stigmaCounts).sort((a, b) => b.count - a.count);
         sortedStigmas = sortedStigmas.map(st => ({
             ...st,
@@ -57,10 +54,13 @@ export default async function handler(req, res) {
             stigmaRank: sortedStigmas
         };
 
-        // 4. 계산된 결과를 Vercel KV DB에 'stats_assassin' 이라는 이름으로 저장!
+        // 2. 계산된 결과를 Vercel KV DB에 'stats_assassin' 이라는 이름으로 저장
         await fetch(`${KV_URL}/set/stats_assassin`, {
             method: 'POST',
-            headers: { Authorization: `Bearer ${KV_TOKEN}` },
+            headers: { 
+                Authorization: `Bearer ${KV_TOKEN}`,
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(finalData)
         });
 
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
         res.status(200).json({ message: "DB 저장 성공", data: finalData });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "통계 수집 실패" });
+        console.error("서버 에러:", error);
+        res.status(500).json({ error: "통계 수집 실패", details: error.message });
     }
-}
+};
