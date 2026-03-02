@@ -5718,69 +5718,75 @@ marchutan: {"nodeList":[{"boardId":87,"nodeId":870013,"name":"치명타 저항",
     }
 
 
-    let globalStigmaData = null; // DB에서 꺼내온 전체 데이터를 저장해둘 변수
+    // =========================================================
+// 📊 [신규 추가] 스티그마 통계 데이터를 불러오고 화면에 그리는 엔진
+// =========================================================
+let globalStigmaData = null; 
 
-// DB에서 전체 데이터를 한 번만 가져오는 함수 (탭 누를 때 실행됨)
 async function loadStigmaStats() {
     const timeLabel = document.getElementById('statsUpdateTime');
+    
+    // 이미 불러왔다면 다시 서버에 요청하지 않음 (로딩 최적화)
+    if (globalStigmaData) return;
     
     try {
         const response = await fetch('/api/getStats');
         const dbResult = await response.json();
 
         if (dbResult.error) {
-            timeLabel.innerHTML = `<span style="color:red;">에러: ${dbResult.error}</span>`;
+            timeLabel.innerHTML = `<span style="color:#ff5252;">에러: ${dbResult.error}</span>`;
             return;
         }
 
-        // 전체 데이터 메모리에 저장
         globalStigmaData = dbResult;
         
         const updateDate = new Date(dbResult.updatedAt);
-        timeLabel.innerText = `마지막 업데이트: ${updateDate.toLocaleString()} (하루 1번 자동 갱신)`;
+        timeLabel.innerHTML = `마지막 업데이트: <span style="color:#ffca28;">${updateDate.toLocaleString()}</span> (하루 1번 자동 수집)`;
 
-        // 처음에 기본으로 살성(5번) 통계 먼저 띄워주기
-        renderClassStats(5);
+        // 처음에 기본으로 검성(1번) 통계 먼저 띄워주기
+        renderClassStats(1);
 
     } catch (error) {
-        timeLabel.innerHTML = `<span style="color:red;">데이터를 불러오는 데 실패했습니다.</span>`;
+        timeLabel.innerHTML = `<span style="color:#ff5252;">데이터를 불러오는 데 실패했습니다.</span>`;
     }
 }
 
-// 클릭한 직업의 데이터만 쏙 빼서 그려주는 함수
 function renderClassStats(classId) {
     const container = document.getElementById('stigmaListContainer');
     
     if (!globalStigmaData || !globalStigmaData.statsByClass[classId]) {
-        container.innerHTML = `<p>아직 수집된 데이터가 없습니다. (수집기가 도는 중일 수 있습니다)</p>`;
+        container.innerHTML = `<p style="text-align:center; color:#888; padding:30px;">아직 수집된 데이터가 없습니다.</p>`;
         return;
     }
 
     const classData = globalStigmaData.statsByClass[classId];
     
-    let htmlContent = `<h3 style="margin-top: 0;">${classData.className} (수집 인원: ${classData.targetCount}명)</h3>`;
+    let htmlContent = `<h3 style="margin-top: 0; color: #4fc3f7; border-bottom: 1px dashed #333; padding-bottom: 10px;">🛡️ ${classData.className} <span style="font-size:12px; color:#888; font-weight:normal;">(수집 인원: 상위 ${classData.targetCount}명)</span></h3>`;
     htmlContent += `<ul class="stigma-list" style="list-style: none; padding: 0;">`;
     
-    classData.stigmaRank.forEach((skill, index) => {
-        let rankIcon = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `<b>${index + 1}</b>`;
-        
-        htmlContent += `
-            <li style="display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-                <span style="width: 30px; text-align: center; margin-right: 10px; font-size: 1.2em;">${rankIcon}</span>
-                <img src="${skill.icon}" alt="${skill.name}" style="width: 40px; height: 40px; border-radius: 8px; margin-right: 15px; border: 1px solid #ddd;">
-                <div style="flex-grow: 1;">
-                    <strong style="font-size: 1.1em; color: #333;">${skill.name}</strong>
-                    <div style="background-color: #ddd; height: 8px; border-radius: 4px; margin-top: 5px; width: 100%;">
-                        <div style="background-color: #4CAF50; height: 100%; border-radius: 4px; width: ${skill.pickRate}%;"></div>
+    if (classData.stigmaRank.length === 0) {
+        htmlContent += `<p style="color:#666; text-align:center;">장착 중인 스티그마 정보가 없습니다.</p>`;
+    } else {
+        classData.stigmaRank.forEach((skill, index) => {
+            let rankIcon = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `<b style="color:#aaa;">${index + 1}</b>`;
+            
+            htmlContent += `
+                <li style="display: flex; align-items: center; margin-bottom: 15px; background: #111; border: 1px solid #2a2a35; border-radius: 8px; padding: 12px; transition: 0.2s;">
+                    <span style="width: 30px; text-align: center; margin-right: 10px; font-size: 1.2em;">${rankIcon}</span>
+                    <img src="${skill.icon}" alt="${skill.name}" style="width: 40px; height: 40px; border-radius: 8px; margin-right: 15px; border: 1px solid #444;" onerror="this.style.display='none'">
+                    <div style="flex-grow: 1;">
+                        <strong style="font-size: 14px; color: #fff;">${skill.name}</strong>
+                        <div style="background-color: #222; height: 6px; border-radius: 3px; margin-top: 6px; width: 100%;">
+                            <div style="background: linear-gradient(90deg, #00e676, #69f0ae); height: 100%; border-radius: 3px; width: ${skill.pickRate}%;"></div>
+                        </div>
                     </div>
-                </div>
-                <div style="width: 60px; text-align: right; font-weight: bold; color: #555;">
-                    ${skill.pickRate}%
-                </div>
-            </li>
-        `;
-    });
-    
+                    <div style="width: 60px; text-align: right; font-weight: bold; color: #00e676; font-size: 16px;">
+                        ${skill.pickRate}%
+                    </div>
+                </li>
+            `;
+        });
+    }
     htmlContent += `</ul>`;
     container.innerHTML = htmlContent;
 }
