@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
                 const srvId = user.serverId || 1001;
                 
                 // 성공했던 캐릭터 상세조회 오리지널 주소
-                const detailUrl = `https://aion2.plaync.com/api/gameinfo/character/detail?characterId=${charId}&serverId=${srvId}`;
+                const detailUrl = `https://aion2.plaync.com/api/character/equipment?lang=ko&characterId=${encodeURIComponent(charId)}&serverId=${srvId}`;
                 
                 const detailRes = await fetch(detailUrl, { headers });
                 
