@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
 
         for (const cls of classList) {
             // 🌟 수정: 아까 성공했던 '진짜' 랭킹 API 주소로 복구! (전체 서버 기준)
-            const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&classId=${cls.id}`;
+            const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=1001&classId=${cls.id}`;
             
             const rankRes = await fetch(rankUrl, { headers });
             const rankData = await rankRes.json();
