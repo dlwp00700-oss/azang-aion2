@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아장(AZANG) - 목표 스탯 계산기</title>
+    <style>
+        /* 기존 사이트의 메뉴바 스타일을 그대로 복제합니다 */
+        body { background-color: #0a0a0c; color: #fff; margin: 0; font-family: sans-serif; }
+        .top-nav { display: flex; overflow-x: auto; background: #141418; border-bottom: 1px solid #333; sticky: top; top: 0; z-index: 100; }
+        .nav-item { padding: 15px 20px; white-space: nowrap; cursor: pointer; color: #aaa; font-size: 14px; transition: 0.2s; }
+        .nav-item:hover { color: #fff; }
+        .nav-item.active { color: #ce93d8; border-bottom: 2px solid #ce93d8; font-weight: bold; }
+
+        /* 계산기 스타일 */
+        .calc-wrapper { margin: 20px auto; padding: 25px; border-radius: 12px; background: #141418; max-width: 420px; border: 1px solid #2a2a35; }
+        .calc-title { color: #ce93d8; font-size: 18px; margin-bottom: 20px; font-weight:bold; }
+        .input-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .input-row label { font-size: 14px; color: #ccc; }
+        .input-row select, .input-row input { background: #0a0a0c; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; text-align: right; }
+        .input-row select { text-align: left; width: 100%; color: #4fc3f7; }
+        .btn-calc { width: 100%; padding: 15px; background: linear-gradient(135deg, #ce93d8, #ab47bc); color: #fff; border: none; font-weight: bold; border-radius: 8px; margin-top: 20px; cursor: pointer; }
+        .res-box { margin-top: 20px; background: #0a0a0c; padding: 15px; border-radius: 8px; border: 1px solid #ce93d8; display: none; line-height: 1.6; }
+        .res-highlight { color: #ffca28; font-weight: bold; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <div class="nav-item" onclick="location.href='/'">장비 시뮬레이터</div>
+        <div class="nav-item" onclick="location.href='/'">자동 최적화(Beta)</div>
+        <div class="nav-item" onclick="location.href='/'">펫작 계산기</div>
+        <div class="nav-item" onclick="location.href='/'">어비스 파밍</div>
+        <div class="nav-item active">목표 스탯 계산기</div>
+    </div>
+
+    <div class="calc-wrapper">
+        <div class="calc-title">🧬 올인원 목표 스탯 세팅기</div>
+        
+        <div class="input-row">
+            <select id="statType" onchange="updateCalcUI()">
+                <option value="atk">⚔️ 공격력 (위력 + 파괴)</option>
+                <option value="hp">❤️ 생명력 (체력 + 생명)</option>
+                <option value="acc">🎯 명중 (정확 + 자유)</option>
+                <option value="evasion">💨 회피 (민첩 + 자유)</option>
+                <option value="crit">⚡ 치명타 (정확 + 죽음)</option>
+            </select>
+        </div>
+
+        <div id="baseStatGroup" class="input-row">
+            <label id="baseStatLabel">위력 (0.1%)</label>
+            <input type="number" id="baseStatVal" value="180">
+        </div>
+        <div id="specStatGroup" class="input-row">
+            <label id="specStatLabel">파괴 (0.2%)</label>
+            <input type="number" id="specStatVal" value="100">
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+
+        <div class="input-row">
+            <label>현재 최종 수치</label>
+            <input type="number" id="currentFinal" value="5000">
+        </div>
+        <div class="input-row">
+            <label>목표 최종 수치</label>
+            <input type="number" id="targetFinal" value="6000">
+        </div>
+
+        <button class="btn-calc" onclick="calculateUniversalStats()">필요 수치 계산하기</button>
+
+        <div class="res-box" id="resultBox"></div>
+    </div>
+
+    <script>
+        // ... (앞서 드린 JavaScript 로직을 여기에 동일하게 넣으시면 됩니다)
+        const STAT_CONFIG = {
+            atk: { name: '공격력', baseName: '위력', baseMult: 0.1, specName: '파괴', specMult: 0.2 },
+            hp: { name: '생명력', baseName: '체력', baseMult: 0.1, specName: '생명', specMult: 0.2 },
+            acc: { name: '명중', baseName: '정확', baseMult: 0.1, specName: '자유', specMult: 0.2 },
+            evasion: { name: '회피', baseName: '민첩', baseMult: 0.1, specName: '자유', specMult: 0.2 },
+            crit: { name: '치명타', baseName: '정확', baseMult: 0.1, specName: '죽음', specMult: 0.2 }
+        };
+
+        function updateCalcUI() {
+            const type = document.getElementById('statType').value;
+            const config = STAT_CONFIG[type];
+            document.getElementById('baseStatLabel').innerText = config.baseName + ' (0.1%)';
+            document.getElementById('specStatLabel').innerText = config.specName + ' (0.2%)';
+            document.getElementById('resultBox').style.display = 'none';
+        }
+
+        function calculateUniversalStats() {
+            const type = document.getElementById('statType').value;
+            const config = STAT_CONFIG[type];
+            const baseVal = Number(document.getElementById('baseStatVal').value);
+            const specVal = Number(document.getElementById('specStatVal').value);
+            const currentFinal = Number(document.getElementById('currentFinal').value);
+            const targetFinal = Number(document.getElementById('targetFinal').value);
+
+            const multiplier = 1 + ((baseVal * 0.1 + specVal * 0.2) / 100);
+            const neededFinal = targetFinal - currentFinal;
+
+            if (neededFinal <= 0) {
+                alert("이미 목표치입니다!"); return;
+            }
+
+            const required = Math.ceil(neededFinal / multiplier);
+            const resBox = document.getElementById('resultBox');
+            resBox.style.display = 'block';
+            resBox.innerHTML = `목표 달성을 위해 순수 <span class="res-highlight">+${required}</span> 의 ${config.name}이 더 필요합니다.`;
+        }
+    </script>
+</body>
+</html>
