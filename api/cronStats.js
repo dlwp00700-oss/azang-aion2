@@ -7,7 +7,6 @@ module.exports = async function handler(req, res) {
     if (!KV_URL || !KV_TOKEN) return res.status(500).json({ error: "DB 접속 정보 없음" });
 
     try {
-        // 🌟 핵심 1: URL 뒤에 ?classId=5 를 붙이면 그 직업만 100명 수집합니다! (기본값은 1번 검성)
         const targetClassId = req.query.classId || "1";
         const classMap = { "1":"검성", "2":"수호성", "4":"궁성", "5":"살성", "7":"마도성", "8":"정령성", "10":"치유성", "11":"호법성" };
         const targetClassName = classMap[targetClassId];
@@ -20,19 +19,44 @@ module.exports = async function handler(req, res) {
             'Origin': 'https://aion2.plaync.com'
         };
 
-        // 🌟 한 직업만 타겟으로 잡고 상위 100명을 여유롭게 불러옵니다.
-        const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=1001&classId=${targetClassId}&size=100`;
+        // 🌟 엔씨 API가 직업 필터를 무시할 때를 대비해, 넉넉하게 300명을 긁어옵니다.
+        const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=1001&classId=${targetClassId}&size=300`;
         const rankRes = await fetch(rankUrl, { headers });
         const rankData = await rankRes.json();
-        const rankList = rankData.rankingList || rankData.contents || [];
+        let rankList = rankData.rankingList || rankData.contents || [];
+
+        // 🌟 [핵심] 입구컷 수동 필터링 (CCTV 확인용으로 쓴 직업 매핑 활용)
+        const PC_CLASS_MAP = {
+            5: "검성", 6: "검성", 7: "검성", 8: "검성",
+            9: "수호성", 10: "수호성", 11: "수호성", 12: "수호성",
+            13: "궁성", 14: "궁성", 15: "궁성", 16: "궁성",
+            17: "살성", 18: "살성", 19: "살성", 20: "살성",
+            21: "정령성", 22: "정령성", 23: "정령성", 24: "정령성",
+            25: "마도성", 26: "마도성", 27: "마도성", 28: "마도성",
+            29: "치유성", 30: "치유성", 31: "치유성", 32: "치유성",
+            33: "호법성", 34: "호법성", 35: "호법성", 36: "호법성"
+        };
+        const classNameToId = {
+            "검성": "1", "수호성": "2", "궁성": "4", "살성": "5", 
+            "마도성": "7", "정령성": "8", "치유성": "10", "호법성": "11"
+        };
+
+        // 300명 중에 타겟 직업이랑 일치하는 진짜 랭커만 쏙 골라내기!
+        let filteredRankList = rankList.filter(user => {
+            let cName = user.jobName || user.className || user.class;
+            if (!cName && user.pcId) cName = PC_CLASS_MAP[user.pcId];
+            return classNameToId[cName] === targetClassId;
+        });
+
+        // 10초 타임아웃 방지를 위해, 진짜 랭커 중 상위 50명까지만 안전하게 자릅니다.
+        filteredRankList = filteredRankList.slice(0, 50);
 
         let stigmaCounts = {};
         let scannedCount = 0;
-        let debugStigmaRaw = null; // 🚨 레벨 이름표(Key)를 훔쳐보기 위한 CCTV
 
-        // 🌟 핵심 2: 엔씨 방어막 안 걸리게 10명씩 조심조심 끊어서 스캔합니다!
-        for (let i = 0; i < rankList.length; i += 10) {
-            const chunk = rankList.slice(i, i + 10);
+        // 10명씩 끊어서 스캔 (엔씨 서버 차단 방지)
+        for (let i = 0; i < filteredRankList.length; i += 10) {
+            const chunk = filteredRankList.slice(i, i + 10);
             const detailPromises = chunk.map(async (user) => {
                 try {
                     const charId = user.characterId || user.id;
@@ -47,11 +71,8 @@ module.exports = async function handler(req, res) {
                     const equippedStigmas = skillList.filter(s => s.category === 'Dp' && s.equip === 1);
 
                     equippedStigmas.forEach(stigma => {
-                        // 첫 번째 스티그마 원본 데이터를 CCTV에 복사해둡니다.
-                        if (!debugStigmaRaw) debugStigmaRaw = stigma; 
-
                         const name = stigma.name || "알수없음";
-                        // 🌟 레벨 정보가 있을만한 모든 이름을 다 뒤집니다!
+                        // 🌟 아까 찾은 레벨 이름표(skillLevel) 완벽 적용!
                         const level = stigma.enchant || stigma.enchantLevel || stigma.enchantStep || stigma.level || stigma.skillLevel || 0;
 
                         if (!stigmaCounts[name]) {
@@ -59,7 +80,6 @@ module.exports = async function handler(req, res) {
                         }
                         stigmaCounts[name].count += 1;
                         
-                        // 레벨별 인원 기록
                         if (!stigmaCounts[name].levels[level]) {
                             stigmaCounts[name].levels[level] = 0;
                         }
@@ -69,9 +89,7 @@ module.exports = async function handler(req, res) {
                 } catch (e) {}
             });
             await Promise.all(detailPromises);
-            
-            // 10명 스캔 후 0.2초 휴식 (엔씨 서버 화내지 않게)
-            await new Promise(resolve => setTimeout(resolve, 200));
+            await new Promise(resolve => setTimeout(resolve, 200)); // 휴식
         }
 
         let sortedStigmas = Object.values(stigmaCounts).sort((a, b) => b.count - a.count);
@@ -82,7 +100,7 @@ module.exports = async function handler(req, res) {
             }));
         }
 
-        // 🌟 핵심 3: DB에 있는 기존 다른 직업 통계는 살리고, 방금 수집한 직업만 쏙 갈아끼웁니다!
+        // DB 덮어쓰기 로직
         const dbGetRes = await fetch(`${KV_URL}/get/stats_all_classes`, { headers: { Authorization: `Bearer ${KV_TOKEN}` } });
         const dbGetData = await dbGetRes.json();
         
@@ -100,7 +118,6 @@ module.exports = async function handler(req, res) {
 
         const dbData = { updatedAt: new Date().toISOString(), statsByClass: finalAllStats };
 
-        // 다시 DB에 완벽 저장!
         await fetch(`${KV_URL}/set/stats_all_classes`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
@@ -108,9 +125,8 @@ module.exports = async function handler(req, res) {
         });
 
         res.status(200).json({ 
-            message: `${targetClassName} 상위 100명 통계 수집 완료!`, 
-            targetCount: scannedCount,
-            debug_stigma_raw: debugStigmaRaw  // 🚨 화면에 레벨 안 뜨면 이거 확인!
+            message: `[진짜 ${targetClassName}만 필터링 완료] 총 ${scannedCount}명 통계 수집 성공!`, 
+            targetCount: scannedCount
         });
 
     } catch (error) {
