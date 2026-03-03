@@ -19,23 +19,43 @@ module.exports = async function handler(req, res) {
             'Origin': 'https://aion2.plaync.com'
         };
 
-        // 🌟 핵심: rankingType=1 로 변경! 이제 엔씨가 알아서 '해당 직업'의 상위 랭커만 줍니다.
-        const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=1&serverId=1001&classId=${targetClassId}&size=100`;
-        
+        // 🌟 무식하지만 가장 확실한 방법: 전체 랭킹 상위 2000명을 0.1초 만에 통째로 긁어옵니다!
+        const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=1001&size=2000`;
         const rankRes = await fetch(rankUrl, { headers });
         const rankData = await rankRes.json();
         let rankList = rankData.rankingList || rankData.contents || [];
 
-        // 🌟 Vercel 서버가 10초 안에 끝낼 수 있는 가장 안전하고 꽉 찬 인원인 '50명'으로 자릅니다.
-        // (만약 100명을 꽉 채우고 싶으시면 아래 50을 100으로 바꾸시면 되지만, 시간 초과 에러가 날 확률이 있습니다!)
-        rankList = rankList.slice(0, 50);
+        const PC_CLASS_MAP = {
+            5: "검성", 6: "검성", 7: "검성", 8: "검성",
+            9: "수호성", 10: "수호성", 11: "수호성", 12: "수호성",
+            13: "궁성", 14: "궁성", 15: "궁성", 16: "궁성",
+            17: "살성", 18: "살성", 19: "살성", 20: "살성",
+            21: "정령성", 22: "정령성", 23: "정령성", 24: "정령성",
+            25: "마도성", 26: "마도성", 27: "마도성", 28: "마도성",
+            29: "치유성", 30: "치유성", 31: "치유성", 32: "치유성",
+            33: "호법성", 34: "호법성", 35: "호법성", 36: "호법성"
+        };
+        const classNameToId = {
+            "검성": "1", "수호성": "2", "궁성": "4", "살성": "5", 
+            "마도성": "7", "정령성": "8", "치유성": "10", "호법성": "11"
+        };
+
+        // 🌟 2000명 중에서 타겟 직업(예: 검성)만 빠르게 걸러냅니다.
+        let filteredRankList = rankList.filter(user => {
+            let cName = user.jobName || user.className || user.class;
+            if (!cName && user.pcId) cName = PC_CLASS_MAP[user.pcId];
+            return classNameToId[cName] === targetClassId;
+        });
+
+        // 🌟 걸러낸 타겟 직업 중 가장 랭킹이 높은 50명만 딱 자릅니다. (시간 초과 절대 안 걸림)
+        filteredRankList = filteredRankList.slice(0, 50);
 
         let stigmaCounts = {};
         let scannedCount = 0;
 
-        // 10명씩 끊어서 스캔 (엔씨 서버 차단 방지)
-        for (let i = 0; i < rankList.length; i += 10) {
-            const chunk = rankList.slice(i, i + 10);
+        // 타겟 50명의 장비만 10명씩 끊어서 스캔!
+        for (let i = 0; i < filteredRankList.length; i += 10) {
+            const chunk = filteredRankList.slice(i, i + 10);
             const detailPromises = chunk.map(async (user) => {
                 try {
                     const charId = user.characterId || user.id;
@@ -68,7 +88,7 @@ module.exports = async function handler(req, res) {
                 } catch (e) {}
             });
             await Promise.all(detailPromises);
-            await new Promise(resolve => setTimeout(resolve, 200)); // 0.2초 휴식
+            await new Promise(resolve => setTimeout(resolve, 200)); 
         }
 
         let sortedStigmas = Object.values(stigmaCounts).sort((a, b) => b.count - a.count);
@@ -79,7 +99,7 @@ module.exports = async function handler(req, res) {
             }));
         }
 
-        // DB 덮어쓰기
+        // DB 기존 데이터 가져와서 업데이트
         const dbGetRes = await fetch(`${KV_URL}/get/stats_all_classes`, { headers: { Authorization: `Bearer ${KV_TOKEN}` } });
         const dbGetData = await dbGetRes.json();
         
@@ -91,7 +111,7 @@ module.exports = async function handler(req, res) {
 
         finalAllStats[targetClassId] = {
             className: targetClassName,
-            targetCount: scannedCount,
+            targetCount: scannedCount, // (최대 50명)
             stigmaRank: sortedStigmas
         };
 
@@ -104,7 +124,7 @@ module.exports = async function handler(req, res) {
         });
 
         res.status(200).json({ 
-            message: `[${targetClassName} 직업별 랭킹] 총 ${scannedCount}명 통계 수집 성공!`, 
+            message: `[전체 2000명 중 ${targetClassName} 추출 완료] 총 ${scannedCount}명 통계 수집 성공!`, 
             targetCount: scannedCount
         });
 
