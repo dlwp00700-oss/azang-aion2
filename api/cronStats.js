@@ -22,9 +22,9 @@ module.exports = async function handler(req, res) {
 
         let finalAllStats = {}; 
 
-        // 🌟 상위 50명씩 직업별로 완벽하게 긁어옵니다.
         for (const cls of classList) {
-            const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=1001&classId=${cls.id}&size=50`;
+            // 🌟 NC 서버 차단 방지를 위해 상위 30명으로 세팅
+            const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=1001&classId=${cls.id}&size=30`;
             
             const rankRes = await fetch(rankUrl, { headers });
             const rankData = await rankRes.json();
@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
 
                     equippedStigmas.forEach(stigma => {
                         const name = stigma.name || "알수없음";
-                        // 🌟 레벨(강화 수치) 추출 (NC API는 주로 enchant 또는 level을 씁니다)
+                        // 🌟 스티그마 강화(레벨) 수치 가져오기
                         const level = stigma.enchant || stigma.level || 0; 
 
                         if (!stigmaCounts[name]) {
@@ -56,7 +56,7 @@ module.exports = async function handler(req, res) {
                         }
                         stigmaCounts[name].count += 1;
                         
-                        // 레벨별로 몇 명이 끼고 있는지 카운트
+                        // 레벨별 인원 기록
                         if (!stigmaCounts[name].levels[level]) {
                             stigmaCounts[name].levels[level] = 0;
                         }
@@ -91,7 +91,7 @@ module.exports = async function handler(req, res) {
             body: JSON.stringify(dbData)
         });
 
-        res.status(200).json({ message: "상위 50명, 레벨 상세 통계 수집 완료!", data: dbData });
+        res.status(200).json({ message: "상위 30명, 레벨 상세 통계 수집 완료!", data: dbData });
     } catch (error) {
         res.status(500).json({ error: "에러 발생", details: error.message });
     }
