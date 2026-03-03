@@ -19,12 +19,6 @@ module.exports = async function handler(req, res) {
             'Origin': 'https://aion2.plaync.com'
         };
 
-        // 🌟 무식하지만 가장 확실한 방법: 전체 랭킹 상위 2000명을 0.1초 만에 통째로 긁어옵니다!
-        const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=1001&size=2000`;
-        const rankRes = await fetch(rankUrl, { headers });
-        const rankData = await rankRes.json();
-        let rankList = rankData.rankingList || rankData.contents || [];
-
         const PC_CLASS_MAP = {
             5: "검성", 6: "검성", 7: "검성", 8: "검성",
             9: "수호성", 10: "수호성", 11: "수호성", 12: "수호성",
@@ -40,20 +34,39 @@ module.exports = async function handler(req, res) {
             "마도성": "7", "정령성": "8", "치유성": "10", "호법성": "11"
         };
 
-        // 🌟 2000명 중에서 타겟 직업(예: 검성)만 빠르게 걸러냅니다.
-        let filteredRankList = rankList.filter(user => {
-            let cName = user.jobName || user.className || user.class;
-            if (!cName && user.pcId) cName = PC_CLASS_MAP[user.pcId];
-            return classNameToId[cName] === targetClassId;
-        });
+        let filteredRankList = [];
+        let page = 1;
 
-        // 🌟 걸러낸 타겟 직업 중 가장 랭킹이 높은 50명만 딱 자릅니다. (시간 초과 절대 안 걸림)
+        // 🌟 핵심: 해당 직업이 50명 꽉 찰 때까지 페이지를 계속 넘깁니다! (최대 20페이지=2000등까지 스캔)
+        while (filteredRankList.length < 50 && page <= 20) {
+            const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=1001&size=100&page=${page}`;
+            const rankRes = await fetch(rankUrl, { headers });
+            if (!rankRes.ok) break;
+            
+            const rankData = await rankRes.json();
+            let rankList = rankData.rankingList || rankData.contents || [];
+            
+            if (rankList.length === 0) break; // 더 이상 랭커가 없으면 중단
+
+            // 현재 페이지에서 타겟 직업만 쏙 골라내기
+            let chunkFiltered = rankList.filter(user => {
+                let cName = user.jobName || user.className || user.class;
+                if (!cName && user.pcId) cName = PC_CLASS_MAP[user.pcId];
+                return classNameToId[cName] === targetClassId;
+            });
+
+            filteredRankList = filteredRankList.concat(chunkFiltered);
+            page++;
+            await new Promise(resolve => setTimeout(resolve, 50)); // 엔씨 서버 화나지 않게 0.05초 휴식
+        }
+
+        // 🌟 초과 수집된 인원이 있다면 딱 50명에서 컷!
         filteredRankList = filteredRankList.slice(0, 50);
 
         let stigmaCounts = {};
         let scannedCount = 0;
 
-        // 타겟 50명의 장비만 10명씩 끊어서 스캔!
+        // 10명씩 장비 까보기
         for (let i = 0; i < filteredRankList.length; i += 10) {
             const chunk = filteredRankList.slice(i, i + 10);
             const detailPromises = chunk.map(async (user) => {
@@ -71,7 +84,6 @@ module.exports = async function handler(req, res) {
 
                     equippedStigmas.forEach(stigma => {
                         const name = stigma.name || "알수없음";
-                        // 레벨 완벽 수집
                         const level = stigma.enchant || stigma.enchantLevel || stigma.enchantStep || stigma.level || stigma.skillLevel || 0;
 
                         if (!stigmaCounts[name]) {
@@ -99,7 +111,7 @@ module.exports = async function handler(req, res) {
             }));
         }
 
-        // DB 기존 데이터 가져와서 업데이트
+        // DB 저장
         const dbGetRes = await fetch(`${KV_URL}/get/stats_all_classes`, { headers: { Authorization: `Bearer ${KV_TOKEN}` } });
         const dbGetData = await dbGetRes.json();
         
@@ -111,7 +123,7 @@ module.exports = async function handler(req, res) {
 
         finalAllStats[targetClassId] = {
             className: targetClassName,
-            targetCount: scannedCount, // (최대 50명)
+            targetCount: scannedCount,
             stigmaRank: sortedStigmas
         };
 
@@ -124,7 +136,7 @@ module.exports = async function handler(req, res) {
         });
 
         res.status(200).json({ 
-            message: `[전체 2000명 중 ${targetClassName} 추출 완료] 총 ${scannedCount}명 통계 수집 성공!`, 
+            message: `[페이지 스캔 완료] ${targetClassName} 총 ${scannedCount}명 통계 수집 성공!`, 
             targetCount: scannedCount
         });
 
