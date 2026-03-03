@@ -652,23 +652,23 @@
                 </div> </div>     </div>
         
         
-        <div id="tab-stigmaStats" class="tab-content">
-    <h2>📊 직업별 스티그마 대세 픽률 (전체 서버 Top 20)</h2>
-    <p id="statsUpdateTime" style="color: gray; font-size: 0.9em;">데이터를 불러오는 중입니다...</p>
+       <div id="tab-stigmaStats" class="tab-content">
+    <h2 style="color: #4fc3f7; text-align: center;">📊 직업별 스티그마 픽률</h2>
+    <p id="statsUpdateTime" style="color: gray; font-size: 0.9em; text-align: center;">데이터를 불러오는 중입니다... ⏳</p>
     
-    <div style="margin: 15px 0; display: flex; gap: 10px; flex-wrap: wrap;">
-        <button onclick="renderClassStats(1)" class="btn">검성</button>
-        <button onclick="renderClassStats(2)" class="btn">수호성</button>
-        <button onclick="renderClassStats(4)" class="btn">궁성</button>
-        <button onclick="renderClassStats(5)" class="btn">살성</button>
-        <button onclick="renderClassStats(7)" class="btn">마도성</button>
-        <button onclick="renderClassStats(8)" class="btn">정령성</button>
-        <button onclick="renderClassStats(10)" class="btn">치유성</button>
-        <button onclick="renderClassStats(11)" class="btn">호법성</button>
+    <div style="margin: 15px 0; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;" id="stigmaClassButtons">
+        <button onclick="renderClassStats(1)" class="class-btn active">검성</button>
+        <button onclick="renderClassStats(2)" class="class-btn">수호성</button>
+        <button onclick="renderClassStats(4)" class="class-btn">궁성</button>
+        <button onclick="renderClassStats(5)" class="class-btn">살성</button>
+        <button onclick="renderClassStats(7)" class="class-btn">마도성</button>
+        <button onclick="renderClassStats(8)" class="class-btn">정령성</button>
+        <button onclick="renderClassStats(10)" class="class-btn">치유성</button>
+        <button onclick="renderClassStats(11)" class="class-btn">호법성</button>
     </div>
 
-    <div id="stigmaListContainer" class="stats-container" style="background: #f9f9f9; padding: 20px; border-radius: 8px;">
-        </div>
+    <div id="stigmaListContainer" class="stats-container" style="background: transparent; padding: 10px; border-radius: 8px;">
+    </div>
 </div>
         
                 <div id="tab-pet" class="tab-content">
@@ -5719,7 +5719,7 @@ marchutan: {"nodeList":[{"boardId":87,"nodeId":870013,"name":"치명타 저항",
 
 
 // =========================================================
-// 📊 [업그레이드] 스티그마 통계 + UI 개선 + 레벨 통계 엔진
+// 📊 스티그마 통계 데이터 처리 엔진
 // =========================================================
 let globalStigmaData = null; 
 
@@ -5740,7 +5740,7 @@ async function loadStigmaStats() {
         const updateDate = new Date(dbResult.updatedAt);
         timeLabel.innerHTML = `마지막 업데이트: <span style="color:#ffca28;">${updateDate.toLocaleString()}</span> (하루 1번 자동 수집)`;
 
-        // 기본으로 검성(1번) 띄우기
+        // 처음에 검성(1번) 보여주기
         renderClassStats(1);
     } catch (error) {
         timeLabel.innerHTML = `<span style="color:#ff5252;">데이터를 불러오는 데 실패했습니다.</span>`;
@@ -5750,31 +5750,22 @@ async function loadStigmaStats() {
 function renderClassStats(classId) {
     const container = document.getElementById('stigmaListContainer');
     
-    // 버튼 스타일 (기존 사이트와 비슷하게 예쁜 탭 느낌으로)
-    const btnHtml = `
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #333;">
-            ${[
-                {id: 1, name: "검성"}, {id: 2, name: "수호성"}, {id: 4, name: "궁성"}, {id: 5, name: "살성"},
-                {id: 7, name: "마도성"}, {id: 8, name: "정령성"}, {id: 10, name: "치유성"}, {id: 11, name: "호법성"}
-            ].map(cls => `
-                <button onclick="renderClassStats(${cls.id})" 
-                        style="padding: 6px 14px; background: ${classId === cls.id ? '#4fc3f7' : '#222'}; color: ${classId === cls.id ? '#000' : '#ccc'}; border: 1px solid ${classId === cls.id ? '#4fc3f7' : '#444'}; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s;">
-                    ${cls.name}
-                </button>
-            `).join('')}
-        </div>
-    `;
+    // 눌린 버튼 색깔 칠하기 로직
+    const btns = document.getElementById('stigmaClassButtons').querySelectorAll('.class-btn');
+    btns.forEach(btn => btn.classList.remove('active'));
+    // 어떤 버튼이 눌렸는지 찾아서 active 붙이기 (간단 처리)
+    const btnIndexMap = {1:0, 2:1, 4:2, 5:3, 7:4, 8:5, 10:6, 11:7};
+    if (btns[btnIndexMap[classId]]) btns[btnIndexMap[classId]].classList.add('active');
 
     if (!globalStigmaData || !globalStigmaData.statsByClass[classId]) {
-        container.innerHTML = btnHtml + `<p style="text-align:center; color:#888; padding:30px;">아직 수집된 데이터가 없습니다.</p>`;
+        container.innerHTML = `<p style="text-align:center; color:#888; padding:30px;">아직 수집된 데이터가 없습니다.</p>`;
         return;
     }
 
     const classData = globalStigmaData.statsByClass[classId];
     
-    let htmlContent = btnHtml;
-    htmlContent += `<h3 style="margin-top: 0; color: #eee; font-size: 16px;">🛡️ ${classData.className} <span style="font-size:12px; color:#888; font-weight:normal;">(수집 인원: 상위 ${classData.targetCount}명)</span></h3>`;
-    htmlContent += `<ul class="stigma-list" style="list-style: none; padding: 0;">`;
+    let htmlContent = `<div style="text-align:right; font-size:12px; color:#aaa; margin-bottom:10px;">(수집 인원: 상위 ${classData.targetCount}명 기준)</div>`;
+    htmlContent += `<ul class="stigma-list" style="list-style: none; padding: 0; margin: 0;">`;
     
     if (classData.stigmaRank.length === 0) {
         htmlContent += `<p style="color:#666; text-align:center;">장착 중인 스티그마 정보가 없습니다.</p>`;
@@ -5785,20 +5776,20 @@ function renderClassStats(classId) {
             // 🌟 레벨별 인원수를 예쁜 뱃지로 만들기
             let levelBadges = "";
             if (skill.levels) {
-                // 레벨 높은 순서대로 정렬 (예: +20, +15, +0)
+                // 레벨 높은 순서대로 정렬 (예: +15, +10, 기본)
                 const sortedLevels = Object.keys(skill.levels).sort((a, b) => Number(b) - Number(a));
                 sortedLevels.forEach(lvl => {
                     let displayLvl = lvl === "0" ? "기본" : `+${lvl}`;
-                    levelBadges += `<span style="display: inline-block; background: #333; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 5px; color: #ddd; border: 1px solid #444;">${displayLvl} <span style="color:#ffca28;">${skill.levels[lvl]}명</span></span>`;
+                    levelBadges += `<span style="display: inline-block; background: #222; padding: 3px 6px; border-radius: 4px; font-size: 11px; margin-right: 5px; color: #ddd; border: 1px solid #444;">${displayLvl} <b style="color:#ffca28;">${skill.levels[lvl]}명</b></span>`;
                 });
             }
 
             htmlContent += `
-                <li style="display: flex; align-items: center; margin-bottom: 15px; background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 8px; padding: 12px;">
+                <li style="display: flex; align-items: center; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; padding: 12px;">
                     <span style="width: 30px; text-align: center; margin-right: 10px; font-size: 1.2em;">${rankIcon}</span>
                     <img src="${skill.icon}" alt="${skill.name}" style="width: 44px; height: 44px; border-radius: 8px; margin-right: 15px; border: 1px solid #555;" onerror="this.style.display='none'">
                     <div style="flex-grow: 1;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
                             <strong style="font-size: 15px; color: #fff;">${skill.name}</strong>
                             <div style="display: flex; flex-wrap: wrap;">${levelBadges}</div>
                         </div>
