@@ -13,92 +13,77 @@ module.exports = async function handler(req, res) {
             'Origin': 'https://aion2.plaync.com'
         };
 
-        // NC API 직업 번호 번역기
-        const PC_CLASS_MAP = {
-            5: "검성", 6: "검성", 7: "검성", 8: "검성",
-            9: "수호성", 10: "수호성", 11: "수호성", 12: "수호성",
-            13: "궁성", 14: "궁성", 15: "궁성", 16: "궁성",
-            17: "살성", 18: "살성", 19: "살성", 20: "살성",
-            21: "정령성", 22: "정령성", 23: "정령성", 24: "정령성",
-            25: "마도성", 26: "마도성", 27: "마도성", 28: "마도성",
-            29: "치유성", 30: "치유성", 31: "치유성", 32: "치유성",
-            33: "호법성", 34: "호법성", 35: "호법성", 36: "호법성"
-        };
+        const classList = [
+            { id: 1, name: "검성" }, { id: 2, name: "수호성" }, 
+            { id: 4, name: "궁성" }, { id: 5, name: "살성" }, 
+            { id: 7, name: "마도성" }, { id: 8, name: "정령성" }, 
+            { id: 10, name: "치유성" }, { id: 11, name: "호법성" }
+        ];
 
-        const classNameToId = {
-            "검성": 1, "수호성": 2, "궁성": 4, "살성": 5, 
-            "마도성": 7, "정령성": 8, "치유성": 10, "호법성": 11
-        };
+        let finalAllStats = {}; 
 
-        let finalAllStats = {
-            1: { className: "검성", targetCount: 0, stigmaCounts: {} },
-            2: { className: "수호성", targetCount: 0, stigmaCounts: {} },
-            4: { className: "궁성", targetCount: 0, stigmaCounts: {} },
-            5: { className: "살성", targetCount: 0, stigmaCounts: {} },
-            7: { className: "마도성", targetCount: 0, stigmaCounts: {} },
-            8: { className: "정령성", targetCount: 0, stigmaCounts: {} },
-            10: { className: "치유성", targetCount: 0, stigmaCounts: {} },
-            11: { className: "호법성", targetCount: 0, stigmaCounts: {} }
-        };
+        // 🌟 상위 50명씩 직업별로 완벽하게 긁어옵니다.
+        for (const cls of classList) {
+            const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=1001&classId=${cls.id}&size=50`;
+            
+            const rankRes = await fetch(rankUrl, { headers });
+            const rankData = await rankRes.json();
+            let rankList = rankData.rankingList || rankData.contents || [];
+            
+            let stigmaCounts = {};
+            let scannedCount = 0;
 
-        // 🌟 전체 서버 상위 100명을 한 번에 긁어옴!
-        const rankUrl = `https://aion2.plaync.com/api/ranking/list?lang=ko&rankingContentsType=1&rankingType=0&serverId=1001&size=100`;
-        const rankRes = await fetch(rankUrl, { headers });
-        const rankData = await rankRes.json();
-        const rankList = rankData.rankingList || rankData.contents || [];
+            const detailPromises = rankList.map(async (user) => {
+                try {
+                    const charId = user.characterId || user.id;
+                    const srvId = user.serverId || 1001; 
+                    const detailUrl = `https://aion2.plaync.com/api/character/equipment?lang=ko&characterId=${encodeURIComponent(charId)}&serverId=${srvId}`;
+                    
+                    const detailRes = await fetch(detailUrl, { headers });
+                    if (!detailRes.ok) return;
+                    
+                    const detailData = await detailRes.json();
+                    const skillList = detailData.skill?.skillList || [];
+                    const equippedStigmas = skillList.filter(s => s.category === 'Dp' && s.equip === 1);
 
-        // 100명의 장비를 1초 만에 확인하고 직업별 바구니에 담기
-        const detailPromises = rankList.map(async (user) => {
-            try {
-                let cName = user.jobName || user.className || user.class;
-                if (!cName && user.pcId) cName = PC_CLASS_MAP[user.pcId];
-                if (!cName) return;
+                    equippedStigmas.forEach(stigma => {
+                        const name = stigma.name || "알수없음";
+                        // 🌟 레벨(강화 수치) 추출 (NC API는 주로 enchant 또는 level을 씁니다)
+                        const level = stigma.enchant || stigma.level || 0; 
 
-                const clsId = classNameToId[cName];
-                if (!clsId) return;
+                        if (!stigmaCounts[name]) {
+                            stigmaCounts[name] = { name: name, count: 0, icon: stigma.icon || "", levels: {} };
+                        }
+                        stigmaCounts[name].count += 1;
+                        
+                        // 레벨별로 몇 명이 끼고 있는지 카운트
+                        if (!stigmaCounts[name].levels[level]) {
+                            stigmaCounts[name].levels[level] = 0;
+                        }
+                        stigmaCounts[name].levels[level] += 1;
+                    });
+                    scannedCount++;
+                } catch (e) {}
+            });
 
-                const charId = user.characterId || user.id;
-                const srvId = user.serverId || 1001; 
-                const detailUrl = `https://aion2.plaync.com/api/character/equipment?lang=ko&characterId=${encodeURIComponent(charId)}&serverId=${srvId}`;
-                
-                const detailRes = await fetch(detailUrl, { headers });
-                if (!detailRes.ok) return;
-                
-                const detailData = await detailRes.json();
-                const skillList = detailData.skill?.skillList || [];
-                const equippedStigmas = skillList.filter(s => s.category === 'Dp' && s.equip === 1);
+            await Promise.all(detailPromises); 
 
-                equippedStigmas.forEach(stigma => {
-                    const name = stigma.name || "알수없음";
-                    if (!finalAllStats[clsId].stigmaCounts[name]) {
-                        finalAllStats[clsId].stigmaCounts[name] = { name: name, count: 0, icon: stigma.icon || "" };
-                    }
-                    finalAllStats[clsId].stigmaCounts[name].count += 1;
-                });
-                finalAllStats[clsId].targetCount += 1;
-            } catch (e) {}
-        });
-
-        await Promise.all(detailPromises);
-
-        let dbFormatStats = {};
-        for (let clsId in finalAllStats) {
-            let clsData = finalAllStats[clsId];
-            let sortedStigmas = Object.values(clsData.stigmaCounts).sort((a, b) => b.count - a.count);
-            if (clsData.targetCount > 0) {
+            let sortedStigmas = Object.values(stigmaCounts).sort((a, b) => b.count - a.count);
+            if (scannedCount > 0) {
                 sortedStigmas = sortedStigmas.map(st => ({
                     ...st,
-                    pickRate: Math.round((st.count / clsData.targetCount) * 100)
+                    pickRate: Math.round((st.count / scannedCount) * 100)
                 }));
             }
-            dbFormatStats[clsId] = {
-                className: clsData.className,
-                targetCount: clsData.targetCount,
+
+            finalAllStats[cls.id] = {
+                className: cls.name,
+                targetCount: scannedCount,
                 stigmaRank: sortedStigmas
             };
         }
 
-        const dbData = { updatedAt: new Date().toISOString(), statsByClass: dbFormatStats };
+        const dbData = { updatedAt: new Date().toISOString(), statsByClass: finalAllStats };
 
         await fetch(`${KV_URL}/set/stats_all_classes`, {
             method: 'POST',
@@ -106,7 +91,7 @@ module.exports = async function handler(req, res) {
             body: JSON.stringify(dbData)
         });
 
-        res.status(200).json({ message: "전 직업 정밀 수집 완료!", data: dbData });
+        res.status(200).json({ message: "상위 50명, 레벨 상세 통계 수집 완료!", data: dbData });
     } catch (error) {
         res.status(500).json({ error: "에러 발생", details: error.message });
     }
