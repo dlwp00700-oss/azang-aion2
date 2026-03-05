@@ -310,6 +310,47 @@
         .opt-actions label.disabled { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; background: #0b0b0e; }
         .opt-actions input[type="checkbox"] { margin: 0; cursor: pointer; }
 
+
+        /* ===== Footer (AdSense / Policy Links) ===== */
+.site-footer{
+  margin-top: 28px;
+  padding: 18px 14px;
+  border-top: 1px solid #2a2a35;
+  background: #0b0b10;
+}
+.site-footer .footer-inner{
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  text-align: center;
+}
+.site-footer .footer-links{
+  font-size: 13px;
+  color: #9aa0a6;
+  line-height: 1.5;
+}
+.site-footer .footer-links a{
+  color: #8c9eff;
+  text-decoration: none;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.site-footer .footer-links a:hover{
+  background: rgba(140,158,255,0.12);
+}
+.site-footer .footer-meta{
+  font-size: 12px;
+  color: #7b818a;
+  line-height: 1.5;
+}
+.site-footer .sep{
+  margin: 0 6px;
+  color: #444a52;
+}
+
     </style>
 </head>
 <body id="appBody" class="home-mode">
@@ -1238,17 +1279,22 @@
     </div>
 
 </div> </div> <footer class="site-footer">
-    <div class="footer-links">
-        <a href="https://aion2.plaync.com/" target="_blank">AION2 공식 홈페이지</a> | 
-        <a href="terms.html">이용약관</a> | 
-        <a href="privacy.html">개인정보처리방침</a> | 
-        <a href="https://discord.gg/sA7HDtyCW3" target="_blank">1:1 문의 (Discord)</a>
-    </div>
-    <div class="footer-copy">© 2026 AZANG (아장) - 아이온2 장비 시뮬레이터. All rights reserved.</div>
-    <div class="footer-desc">
-        본 사이트는 (주)엔씨소프트와 무관한 비공식 팬 사이트입니다.<br>
-        This site is not associated with NCsoft Corporation. AION2 is a trademark of NCSOFT.
-    </div>
+  <div class="footer-links">
+    <a href="https://aion2.plaync.com/" target="_blank">AION2 공식 홈페이지</a> | 
+    <a href="about.html">사이트 소개</a> |
+    <a href="guide.html">사용법/FAQ</a> |
+    <a href="terms.html">이용약관</a> | 
+    <a href="privacy.html">개인정보처리방침</a> | 
+    <a href="disclaimer.html">면책/저작권 고지</a> |
+    <a href="https://discord.gg/sA7HDtyCW3" target="_blank">1:1 문의 (Discord)</a>
+  </div>
+
+  <div class="footer-copy">© 2026 AZANG (아장) - 아이온2 장비 시뮬레이터. All rights reserved.</div>
+
+  <div class="footer-desc">
+    본 사이트는 (주)엔씨소프트와 무관한 비공식 팬 사이트입니다.<br>
+    This site is not associated with NCsoft Corporation. AION2 is a trademark of NCSOFT.
+  </div>
 </footer>
 
 <script>
