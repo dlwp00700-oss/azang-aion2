@@ -1,3 +1,6 @@
+<title>아이온2 데바니온 최적화 | 아장(AZANG)</title>
+<meta name="description" content="아이온2 데바니온 보드와 선호 옵션을 바탕으로 최적 경로를 계산해주는 도구입니다."></meta>
+
 let currentClass = ""; // 처음 시작할 땐 아무것도 선택되지 않음
 
     function selectClass(className) {
