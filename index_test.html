@@ -380,6 +380,45 @@
                
         </div>
 
+        <div class="top-nav">
+
+
+             <div class="search-bar" style="max-width: 1050px;">
+                <div style="display:flex; gap:5px;">
+                    <button class="fac-btn active" onclick="selectSearchFaction(0, this)">🌐 전체</button>
+                    <button class="fac-btn" onclick="selectSearchFaction(1, this)">🕊️ 천족</button>
+                    <button class="fac-btn" onclick="selectSearchFaction(2, this)">🦇 마족</button>
+                </div>
+                <input type="hidden" id="searchFaction" value="0">
+                
+                <select id="searchServer">
+                    <option value="">🌐 전체 서버 검색</option>
+                </select>
+                <input type="text" id="charNameInput" placeholder="캐릭터명을 입력하세요." onkeypress="if(event.keyCode==13) searchCharacter()">
+                <button class="btn-search" onclick="searchCharacter()">🔍 검색</button>
+                <span id="statusMsg" style="color: #aaa; margin-left: 10px; white-space: nowrap;">* 서버 연동 완료</span>
+            </div>
+            
+            <div id="favoritesBar" style="background: var(--panel); border: 1px solid var(--border); padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+                <span style="color:#ffca28; font-weight:bold; font-size:14px;">⭐ 즐겨찾기</span>
+                <div id="favoriteList" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;"></div>
+            </div>
+
+            <div id="characterSelection" style="display:none; background: #141418; padding: 20px; border-radius: 8px; border: 1px solid #4fc3f7; box-shadow: 0 0 15px rgba(79, 195, 247, 0.2);">
+                <h3 style="color: #4fc3f7; margin-top: 0; margin-bottom: 15px; font-size: 16px;">🔍 검색된 캐릭터 목록 (선택 시 바로 로드)</h3>
+                <div id="selectionList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;"></div>
+        
+
+
+
+
+
+
+
+
+            
+        </div>
+
         <div id="homeContent">
             <div class="info-box">
                 <div class="info-title">📰 아이온2 패치 노트 요약</div>
@@ -432,32 +471,7 @@
                 .fac-btn.active { background: #1a1a24; color: #fff; border-color: #ffca28; }
             </style>
             
-            <div class="search-bar" style="max-width: 1050px;">
-                <div style="display:flex; gap:5px;">
-                    <button class="fac-btn active" onclick="selectSearchFaction(0, this)">🌐 전체</button>
-                    <button class="fac-btn" onclick="selectSearchFaction(1, this)">🕊️ 천족</button>
-                    <button class="fac-btn" onclick="selectSearchFaction(2, this)">🦇 마족</button>
-                </div>
-                <input type="hidden" id="searchFaction" value="0">
-                
-                <select id="searchServer">
-                    <option value="">🌐 전체 서버 검색</option>
-                </select>
-                <input type="text" id="charNameInput" placeholder="캐릭터명을 입력하세요." onkeypress="if(event.keyCode==13) searchCharacter()">
-                <button class="btn-search" onclick="searchCharacter()">🔍 검색</button>
-                <span id="statusMsg" style="color: #aaa; margin-left: 10px; white-space: nowrap;">* 서버 연동 완료</span>
-            </div>
-            
-            <div id="favoritesBar" style="background: var(--panel); border: 1px solid var(--border); padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
-                <span style="color:#ffca28; font-weight:bold; font-size:14px;">⭐ 즐겨찾기</span>
-                <div id="favoriteList" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;"></div>
-            </div>
-
-            <div id="characterSelection" style="display:none; background: #141418; padding: 20px; border-radius: 8px; border: 1px solid #4fc3f7; box-shadow: 0 0 15px rgba(79, 195, 247, 0.2);">
-                <h3 style="color: #4fc3f7; margin-top: 0; margin-bottom: 15px; font-size: 16px;">🔍 검색된 캐릭터 목록 (선택 시 바로 로드)</h3>
-                <div id="selectionList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;"></div>
-        </div>
-
+           
         <style>
             /* 3개를 나란히 배치하고 랭킹칸을 살짝 더 넓게 주는 마법의 정렬 코드 */
             .home-mode #homeContent { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 20px; align-items: start; margin-bottom: 30px; width: 100%; }
@@ -2798,8 +2812,24 @@ async function selectDictItem(id, name, savedEngravings = null) {
     // 🗂️ 카테고리 탭 전환 로직
     // ==========================================
    function switchTab(tabId, element) {
+    // 🚀 홈 화면 숨기기
     let homeBox = document.getElementById('homeContent');
     if (homeBox) homeBox.style.display = 'none';
+
+    // 🚀 [해결] 장비 시뮬레이터('equip')와 자동 최적화('autoOpt') 탭에서만 검색창 켜기!
+    let searchArea = document.getElementById('globalSearchArea');
+    if (searchArea) {
+        if (tabId === 'equip' || tabId === 'autoOpt') {
+            searchArea.style.display = 'block'; // 이 두 탭에서는 검색창 보이기
+        } else {
+            searchArea.style.display = 'none';  // 다른 탭에서는 검색창 숨기기
+        }
+    }
+
+    // 탭 내용 숨기기 (이 아래는 원래 있던 코드 그대로)
+
+
+
   const tabEl = document.getElementById('tab-' + tabId);
   if (!tabEl) {
     console.error('[switchTab] tab element not found:', 'tab-' + tabId);
