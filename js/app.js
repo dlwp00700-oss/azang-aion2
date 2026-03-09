@@ -512,7 +512,7 @@
     currentLoadedChar = { serverId: serverId, characterName: characterName }; // 로드 성공 시 기억!
         
         // 🚀 추가된 마법의 코드: 새로고침 없이 주소창만 아툴처럼 싹 바꿔치기!
-        const newUrl = `/?server=${serverId}&name=${encodeURIComponent(characterName)}`;
+        const newUrl = `?server=${serverId}&name=${encodeURIComponent(characterName)}`;
         window.history.pushState({path:newUrl}, '', newUrl);
 
         statusMsg.innerHTML = `⏳ [${characterName}] 분석 중...`;
@@ -1813,7 +1813,7 @@ async function selectDictItem(id, name, savedEngravings = null) {
     switchTab = (id, el) => {
         oldSwitch(id, el);
         if(id === 'abyss') calcAbyss();
-        window.history.pushState(null, '', '/?menu=' + id);
+        window.history.pushState(null, '', '?menu=' + id);
     };
        
 
