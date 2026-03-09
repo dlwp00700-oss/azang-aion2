@@ -2798,6 +2798,8 @@ async function selectDictItem(id, name, savedEngravings = null) {
     // 🗂️ 카테고리 탭 전환 로직
     // ==========================================
    function switchTab(tabId, element) {
+    let homeBox = document.getElementById('homeContent');
+    if (homeBox) homeBox.style.display = 'none';
   const tabEl = document.getElementById('tab-' + tabId);
   if (!tabEl) {
     console.error('[switchTab] tab element not found:', 'tab-' + tabId);
