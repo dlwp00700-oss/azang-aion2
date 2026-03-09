@@ -380,7 +380,7 @@
                
         </div>
 
-        <div class="top-nav">
+        <div id="globalSearchArea" style="display: none;">
 
 
              <div class="search-bar" style="max-width: 1050px;">
@@ -735,10 +735,10 @@
     
 
     
-    </div></div>
+    </div>
         
         
-</div><div id="tab-stigmaStats" class="tab-content">
+<div id="tab-stigmaStats" class="tab-content">
     <h2 style="color: #4fc3f7; text-align: center;">어비스 랭킹 직업별 상위 50명 스티그마 통계</h2>
     <p id="statsUpdateTime" style="color: gray; font-size: 0.9em; text-align: center;">데이터를 불러오는 중입니다... ⏳</p>
     
@@ -2816,6 +2816,7 @@ async function selectDictItem(id, name, savedEngravings = null) {
     let homeBox = document.getElementById('homeContent');
     if (homeBox) homeBox.style.display = 'none';
 
+    
     // 🚀 [해결] 장비 시뮬레이터('equip')와 자동 최적화('autoOpt') 탭에서만 검색창 켜기!
     let searchArea = document.getElementById('globalSearchArea');
     if (searchArea) {
@@ -2825,6 +2826,14 @@ async function selectDictItem(id, name, savedEngravings = null) {
             searchArea.style.display = 'none';  // 다른 탭에서는 검색창 숨기기
         }
     }
+
+    // 🚀 자동 최적화 탭 클릭 시, 내 장비 리스트 즉시 불러오기
+    if (tabId === 'autoOpt') {
+        if (typeof renderOptEquipList === 'function') renderOptEquipList();
+        if (typeof toggleOptGoalInput === 'function') toggleOptGoalInput();
+    }
+
+    // 탭 내용 숨기기 (이 아래는 원래 있던 코드 그대로)
 
     // 탭 내용 숨기기 (이 아래는 원래 있던 코드 그대로)
 
@@ -5178,43 +5187,7 @@ setInterval(() => {
     }
 }, 500);
 
-// 검색창 숨김/표시 처리
-const originSwitchTab = window.switchTab;
-window.switchTab = function(id, el) {
-    if (originSwitchTab) {
-        try { originSwitchTab(id, el); } catch(e) {}
-    }
-    const searchUI = document.getElementById('globalSearchUI');
-    if (searchUI) {
-        searchUI.style.display = (id === 'equip' || id === 'autoOpt') ? 'block' : 'none';
-    }
-    if (id === 'autoOpt') {
-        window.renderOptEquipList();
-        window.toggleOptGoalInput();
-    }
-};
-	// =========================================================================
-// 🌟 [UI 마법] 검색창을 모든 탭에서 볼 수 있게 맨 위로 꺼내기
-// =========================================================================
-window.addEventListener('DOMContentLoaded', () => {
-    const nav = document.querySelector('.top-nav');
-    let searchArea = document.getElementById('globalSearchUI');
-    if (!searchArea) {
-        searchArea = document.createElement('div');
-        searchArea.id = 'globalSearchUI';
-        // 네비게이션 메뉴 바로 아래에 전용 구역 생성
-        nav.parentNode.insertBefore(searchArea, nav.nextSibling);
-    }
-    
-    // 장비 탭 안에 갇혀있던 요소들을 밖으로 이사시킵니다!
-    const searchBar = document.querySelector('.search-bar');
-    const favBar = document.getElementById('favoritesBar');
-    const charSel = document.getElementById('characterSelection');
-    
-    if(searchBar) searchArea.appendChild(searchBar);
-    if(favBar) searchArea.appendChild(favBar);
-    if(charSel) searchArea.appendChild(charSel);
-});
+
 
 // 복사 중 발생한 치명적인 에러를 화면에 띄워주는 안전장치
     window.onerror = function(msg, url, lineNo) {
