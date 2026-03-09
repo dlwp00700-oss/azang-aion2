@@ -366,7 +366,7 @@
 </div>
 
        <div class="top-nav">
-            <div class="nav-item active" onclick="switchTab('equip', this)">장비 시뮬레이터</div>
+            <div class="nav-item" onclick="switchTab('equip', this)">장비 시뮬레이터</div>
 		    <div class="nav-item" onclick="switchTab('autoOpt', this)">자동 최적화(Beta)</div>
             <div class="nav-item" onclick="switchTab('pet', this)">펫작 계산기</div>
             
@@ -380,7 +380,41 @@
                
         </div>
 
-        <div id="tab-equip" class="tab-content active">
+        <div id="homeContent">
+            <div class="info-box">
+                <div class="info-title">📰 아이온2 패치 노트 요약</div>
+                <ul class="news-list" id="patchNoteList">
+                    <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+                </ul>
+            </div>
+            
+            <div class="info-box">
+                <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
+                <ul class="news-list" id="updateNoteList">
+                    <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <div class="info-title" style="display:flex; justify-content:space-between; color:#4fc3f7;">
+                    <span>🏆 실시간 어비스 랭킹</span>
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <button id="btnRankAll" onclick="loadTotalRanking(0)" style="flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s;">🌍 전체</button>
+                    <button id="btnRankElyos" onclick="loadTotalRanking(1)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🕊️ 천족</button>
+                    <button id="btnRankAsmo" onclick="loadTotalRanking(2)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🦇 마족</button>
+                </div>
+                
+                <div id="totalRankingArea" style="min-height: 165px;">
+                    <div style="text-align:center; padding:50px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
+                </div>
+                
+                <div style="margin-top:15px; font-size:11px; color:#666; text-align:center; line-height:1.4;">
+                    * 전 서버 통합 랭킹은 1시간 단위로 갱신됩니다.
+                </div>
+            </div>
+        </div>
+        <div id="tab-equip" class="tab-content">
             <details class="seo-guide-box" style="max-width: 900px; margin: 0 auto 20px auto; background: #141418; border-color: #4fc3f7;">
     <summary style="color: #4fc3f7; font-size: 15px;">💡 [필독] 장비 시뮬레이터 100% 활용 가이드 (클릭하여 열기)</summary>
     <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
@@ -431,40 +465,7 @@
             @media (max-width: 1000px) { .home-mode #homeContent { grid-template-columns: 1fr; } }
         </style>
 
-        <div id="homeContent">
-            <div class="info-box">
-                <div class="info-title">📰 아이온2 패치 노트 요약</div>
-                <ul class="news-list" id="patchNoteList">
-                    <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
-                </ul>
-            </div>
-            
-            <div class="info-box">
-                <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
-                <ul class="news-list" id="updateNoteList">
-                    <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
-                </ul>
-            </div>
-
-            <div class="info-box">
-                <div class="info-title" style="display:flex; justify-content:space-between; color:#4fc3f7;">
-                    <span>🏆 실시간 어비스 랭킹</span>
-                </div>
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <button id="btnRankAll" onclick="loadTotalRanking(0)" style="flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s;">🌍 전체</button>
-                    <button id="btnRankElyos" onclick="loadTotalRanking(1)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🕊️ 천족</button>
-                    <button id="btnRankAsmo" onclick="loadTotalRanking(2)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🦇 마족</button>
-                </div>
-                
-                <div id="totalRankingArea" style="min-height: 165px;">
-                    <div style="text-align:center; padding:50px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
-                </div>
-                
-                <div style="margin-top:15px; font-size:11px; color:#666; text-align:center; line-height:1.4;">
-                    * 전 서버 통합 랭킹은 1시간 단위로 갱신됩니다.
-                </div>
-            </div>
-        </div>
+        
 
         
 
@@ -496,6 +497,7 @@
                     <div style="color:#4fc3f7; font-weight:bold; font-size:12px; margin-bottom:5px;">🔥 현재 총 전투력 (CP)</div>
                     <input type="hidden" id="baseCp" value="0">
                     <div id="cpDiffDisplay" style="font-size:24px; font-weight:bold; color:#fff;">0 ➡ 0 (-)</div>
+                    <div style="color:#888; font-size:11px; margin-top:8px;">* 마석으로 인한 전투력 증감은 포함되지 않은 수치입니다.</div>
                 </div>
 
                 <div style="margin: 15px 0; padding: 12px; background: rgba(255, 202, 40, 0.1); border: 1px dashed rgba(255, 202, 40, 0.5); border-radius: 6px; font-size: 12px; color: #ffca28; text-align: center; line-height: 1.6; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
@@ -719,10 +721,10 @@
     
 
     
-    </div>     </div>
+    </div></div>
         
         
-       <div id="tab-stigmaStats" class="tab-content">
+</div><div id="tab-stigmaStats" class="tab-content">
     <h2 style="color: #4fc3f7; text-align: center;">어비스 랭킹 직업별 상위 50명 스티그마 통계</h2>
     <p id="statsUpdateTime" style="color: gray; font-size: 0.9em; text-align: center;">데이터를 불러오는 중입니다... ⏳</p>
     
