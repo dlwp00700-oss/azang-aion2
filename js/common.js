@@ -9,9 +9,9 @@ window.switchTab = function(id, el) {
         searchUI.style.display = (id === 'equip' || id === 'autoOpt') ? 'block' : 'none';
     }
     if (id === 'autoOpt') {
-        window.renderOptEquipList();
-        window.toggleOptGoalInput();
-    }
+    if (typeof window.renderOptEquipList === 'function') window.renderOptEquipList();
+    if (typeof window.toggleOptGoalInput === 'function') window.toggleOptGoalInput();
+}
 };
 	// =========================================================================
 // 🌟 [UI 마법] 검색창을 모든 탭에서 볼 수 있게 맨 위로 꺼내기
