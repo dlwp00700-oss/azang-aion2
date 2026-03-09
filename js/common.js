@@ -41,12 +41,4 @@ window.addEventListener('DOMContentLoaded', () => {
         alert("🚨 데이터를 붙여넣는 과정에서 문법 오류가 발생했습니다!\n\n오류 내용: " + msg + "\n오류 발생 줄: " + lineNo + "번째 줄 주변\n\n각 직업이 끝나는 '}' 뒤에 쉼표(,)가 잘 있는지 확인해 주세요!");
     };
 
-    let currentClass = ""; // 처음 시작할 땐 아무것도 선택되지 않음
-
-    function selectClass(className) {
-        currentClass = className;
-        document.querySelectorAll('.class-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.innerText === className);
-        });
-        loadClassData();
-    }
+    
