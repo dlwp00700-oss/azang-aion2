@@ -10,7 +10,7 @@
         
         // 1. 눌린 버튼 시각적 효과 (색상 변경)
         const btns = document.querySelectorAll('.rank-race-btn');
-        btns.forEach((btn, i) => {changeRankRace(0, true);
+       btns.forEach((btn, i) => {
             btn.classList.remove('active');
             if (i === raceId) btn.classList.add('active');
         });
