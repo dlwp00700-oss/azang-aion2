@@ -2529,7 +2529,7 @@ async function runAutoOptimization() {
 
     const resultArea = document.getElementById('optResultArea');
     resultArea.style.display = "block";
-    resultArea.innerHTML = `<div style='text-align:center; color:#00e676; padding: 40px 0; font-size:16px; font-weight:bold;'>⚡ 유력한 최적 장비들의 정밀 스탯을 분석 중입니다... ⏳<br><span style='font-size:12px; color:#aaa; font-weight:normal;'>(상위 후보 5개씩 스캔 중. 약 1~2초 소요)</span></div>`;
+    resultArea.innerHTML = `<div style='text-align:center; color:#00e676; padding: 40px 0; font-size:16px; font-weight:bold;'>⚡ 유력한 최적 장비들의 정밀 스탯을 분석 중입니다... ⏳<br><span style='font-size:12px; color:#aaa; font-weight:normal;'>(상위 후보 5개씩 스캔 중.)</span></div>`;
 
     try {
         let slotCandidatesArray = [];
@@ -2867,3 +2867,4 @@ setInterval(() => {
     
 
 	
+
