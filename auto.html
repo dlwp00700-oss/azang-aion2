@@ -44,6 +44,31 @@
 
         <div id="tab-autoOpt" class="tab-content active">
 
+            <div class="search-bar" style="max-width: 1050px;">
+                <div style="display:flex; gap:5px;">
+                    <button class="fac-btn active" onclick="selectSearchFaction(0, this)">🌐 전체</button>
+                    <button class="fac-btn" onclick="selectSearchFaction(1, this)">🕊️ 천족</button>
+                    <button class="fac-btn" onclick="selectSearchFaction(2, this)">🦇 마족</button>
+                </div>
+                <input type="hidden" id="searchFaction" value="0">
+                
+                <select id="searchServer">
+                    <option value="">🌐 전체 서버 검색</option>
+                </select>
+                <input type="text" id="charNameInput" placeholder="캐릭터명을 입력하세요." onkeypress="if(event.keyCode==13) searchCharacter()">
+                <button class="btn-search" onclick="searchCharacter()">🔍 검색</button>
+                <span id="statusMsg" style="color: #aaa; margin-left: 10px; white-space: nowrap;">* 서버 연동 완료</span>
+            </div>
+            
+            <div id="favoritesBar" style="background: var(--panel); border: 1px solid var(--border); padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+                <span style="color:#ffca28; font-weight:bold; font-size:14px;">⭐ 즐겨찾기</span>
+                <div id="favoriteList" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;"></div>
+            </div>
+
+            <div id="characterSelection" style="display:none; background: #141418; padding: 20px; border-radius: 8px; border: 1px solid #4fc3f7; box-shadow: 0 0 15px rgba(79, 195, 247, 0.2);">
+                <h3 style="color: #4fc3f7; margin-top: 0; margin-bottom: 15px; font-size: 16px;">🔍 검색된 캐릭터 목록 (선택 시 바로 로드)</h3>
+                <div id="selectionList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;"></div>
+            </div>
             <details class="seo-guide-box" style="max-width: 1000px; margin: 0 auto 20px auto; background: #141418; border-color: #ff9800;">
                 <summary style="color: #ff9800; font-size: 15px;">⚠️ [알림] 테스트 중인 기능입니다. (클릭하여 설명 보기)</summary>
                 <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
