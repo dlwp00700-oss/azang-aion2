@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="keywords" content="아이온2, 장비 시뮬레이터, 전투력 계산기, 아이온2 템셋팅, 아장, AZANG, 영혼각인, 마석, 펫작, 아이온2 펫작, 펫작 시뮬">
+
+
+
+    <title>아이온2 펫 계산기 | 펫작 기대값·옵션 시뮬레이터 - 아장(AZANG)</title>
+    <meta name="description" content="아이온2 펫 합성, 펫작 기대값, 옵션 시뮬레이션을 한곳에서 확인할 수 있는 펫 계산기입니다.">
+    <meta property="og:title" content="아이온2 펫 계산기 - 아장(AZANG)">
+    <meta property="og:description" content="아이온2 펫 합성 기대값과 옵션 시뮬레이션을 확인할 수 있습니다.">
+    <meta property="og:url" content="https://aion2zang.info/pet.html">
+    
+    <meta property="og:image" content="https://aion2zang.info/flogo.png">
+    
+    <meta property="og:type" content="website">
+    <meta name="robots" content="index, follow">
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9999633703246515"
+     crossorigin="anonymous"></script>
+
+	
+    
+    <link rel="icon" type="image/png" href="https://aion2zang.info/flogo.png" sizes="192x192">
+	<link rel="apple-touch-icon" href="https://aion2zang.info/flogo.png">
+    <link rel="stylesheet" href="css/style.css">
+
+   
+</head>
+<body id="appBody" class="home-mode">
+
+<div class="global-save-btn-group">
+    <button class="btn-gsave" onclick="saveGlobalState()">💾 전체 데이터 저장</button>
+    <button class="btn-gload" onclick="loadGlobalState()">📂 불러오기</button>
+</div>
+<div class="main-wrapper">
+    
+    <div class="container"> <div class="logo-container" onclick="window.location.href='index.html'" style="cursor: pointer;">
+    <img src="logo.png" alt="AZANG 아장 - 아이온2 장비 분석 도우미" onerror="this.style.display='none'; this.parentElement.innerHTML='<h1 style=\'color:#00e676; font-size:40px; text-align:center;\'>AZANG</h1><p style=\'text-align:center;\'>아이온2 장비 분석 도우미</p>';">
+</div>
+
+       <div class="top-nav">
+            <div class="nav-item" onclick="window.location.href='index.html'">장비 시뮬레이터</div>
+            <div class="nav-item" onclick="window.location.href='index.html?menu=autoOpt'">자동 최적화(Beta)</div>
+            <div class="nav-item active" onclick="window.location.href='pet.html'">펫작 계산기</div>
+            <div class="nav-item" onclick="window.location.href='index.html?menu=abyss'">어비스 파밍 계산기</div>
+            <div class="nav-item" onclick="window.location.href='deva.html'">데바니온 최적화</div>
+            <div class="nav-item" onclick="window.location.href='stigma.html'">스티그마 통계</div>
+            <div class="nav-item" onclick="window.location.href='ranking.html'">어비스 랭킹</div>
+        </div>
+
+
+
+
+
+
+
+
+      
+        
+  
+        
+                <div id="tab-pet" class="tab-content active">
+                    <h1 style="font-size:24px; margin-bottom:10px;">아이온2 펫 계산기</h1>
+                    <p style="color:#aaa; margin-bottom:20px;">
+                    펫 합성 기대값 계산, 펫작 효율 확인, 옵션 시뮬레이션을 한곳에서 할 수 있습니다.
+                    </p>
+            <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a20; border-color: #ce93d8;">
+                <summary style="color: #ce93d8; font-size: 15px;">🐾 [필독] 펫작 계산기 사용 방법 (클릭하여 열기)</summary>
+                <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
+                    <ul style="line-height: 1.8;">
+                        <li>인게임 펫 정보창을 열고 <b>[현재 레벨]</b>과 <b>[현재 경험치]</b>를 그대로 입력하세요.</li>
+                        <li>목표로 하는 레벨을 설정하면, 해당 레벨까지 필요한 <b>총 터치 횟수, 영혼결정 개수, 키나</b>를 자동으로 계산해 줍니다.</li>
+                        <li><b>잠금 옵션:</b> 내가 보호하고 싶은 펫 스킬이 있다면 잠금 개수를 설정하세요. (잠금이 많을수록 소모 비용 페널티가 증가합니다.)</li>
+                        <li>계산된 '필요 몹 수'를 통해 영혼결정 파밍에 걸리는 시간을 대략적으로 유추할 수 있습니다.</li>
+                    </ul>
+                </div>
+            </details>
+            
+            <div class="pet-calc-container" style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:900px; margin:0 auto;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #2a2a35; padding-bottom:15px; margin-bottom:20px;">
+                    <h2 style="margin:0; color:#ce93d8; font-size:20px;">🐾 펫 종족 이해도 종합 계산기</h2>
+                </div>
+                <table style="width:100%; border-collapse:collapse; margin-bottom:25px;">
+                    <thead>
+                        <tr style="color:#888; font-size:12px; border-bottom:1px solid #222;">
+                            <th style="padding:10px;">카테고리</th>
+                            <th>현재 레벨</th>
+                            <th>현재 경험치</th>
+                            <th>목표 레벨</th>
+                            <th>잠금 옵션</th>
+                        </tr>
+                    </thead>
+                    <tbody id="petTableBody"></tbody>
+                </table>
+                <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:15px; margin-top:20px;">
+                    <div class="pr-card" style="background:#1a1a20; border:1px solid #333; border-radius:10px; padding:15px; text-align:center;">
+                        <i style="display:block; font-style:normal; font-size:11px; color:#888; margin-bottom:5px;">총 분석 횟수</i><b id="res_clicks" style="font-size:18px;">0회</b>
+                    </div>
+                    <div class="pr-card" style="background:#1a1a20; border:1px solid #333; border-radius:10px; padding:15px; text-align:center;">
+                        <i style="display:block; font-style:normal; font-size:11px; color:#888; margin-bottom:5px;">필요 영혼결정</i><b id="res_crystal" style="font-size:18px;">0개</b>
+                    </div>
+                    <div class="pr-card" style="background:#1a1a20; border:1px solid #333; border-radius:10px; padding:15px; text-align:center;">
+                        <i style="display:block; font-style:normal; font-size:11px; color:#888; margin-bottom:5px;">필요 키나</i><b id="res_kinah" style="font-size:18px;">0</b>
+                    </div>
+                    <div class="pr-card" style="background:rgba(255,202,40,0.1); border:1px solid #ffca28; border-radius:10px; padding:15px; text-align:center;">
+                      <i style="display:block; font-style:normal; font-size:11px; color:#888; margin-bottom:5px;">필요 몹 수</i><b id="res_mobs" style="font-size:18px; color:#ffca28;">0마리</b>
+                    </div>
+                </div>
+            </div>
+
+            <details class="seo-guide-box" style="margin-top: 40px !important; background: #1a1a20; border-color: #ffca28;">
+                <summary style="color: #ffca28; font-size: 15px;">🎲 [필독] 펫 옵션 기댓값 시뮬레이터 사용 방법 (클릭하여 열기)</summary>
+                <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
+                    <ul style="line-height: 1.8;">
+                        <li><b>레벨 및 종족 선택:</b> 목표로 하는 펫의 레벨(9/10)과 종족(지성/야성/자연/변형/특수)을 먼저 선택하세요.</li>
+                        <li><b>목표 옵션 및 수치 설정:</b> 원하는 슬롯에 <b>'타협할 최소 수치'</b>를 입력합니다. (선택하지 않은 슬롯은 돌리지 않는 것으로 간주합니다.)</li>
+                        <li><b>🔒 잠금(체크) 기능:</b> 이미 좋은 옵션이 떠서 <b>'돌리지 않고 고정할 슬롯'</b>에 체크하세요. 시뮬레이션 시, 1회 리롤당 잠금 개수에 따른 <b>막대한 페널티 비용이 정확하게 계산에 반영</b>됩니다.</li>
+                        <li>계산하기를 누르면 내부적으로 <b>10,000번의 가상 리롤(뽑기)</b>을 실행하여 <b>목표 달성에 평균적으로 소모되는 기댓값(영혼결정 및 키나)</b>을 알려줍니다.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <div class="pet-calc-container" style="max-width: 900px; margin: 30px auto 20px auto; background:#141418; border:1px solid #ce93d8; border-radius:12px; padding:25px; box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
+                
+                <div style="text-align:center; border-bottom:1px dashed #333; padding-bottom:15px; margin-bottom:20px;">
+                    <h2 style="margin:0; color:#ce93d8; font-size:22px; display:flex; align-items:center; justify-content:center; gap:10px;">
+                        <span style="font-size:28px;">🎲</span> 펫작 분석효과 기대값 (목표 세팅)
+                    </h2>
+                    <div style="color:#888; font-size:13px; margin-top:8px; font-weight:bold;">* 9, 10 레벨 옵션만 계산됩니다. 목표를 설정하고 예상 비용을 확인하세요!</div>
+                </div>
+
+                <div style="display:flex; justify-content:center; margin-bottom:25px;">
+                    <div style="display:flex; background:#0a0a0c; border:1px solid #333; border-radius:30px; padding:4px; gap:5px;">
+                        <button class="sim-lvl-btn active" onclick="changeSimLvlBtn(9, this)" style="padding:8px 25px; background:#e0e0e0; color:#000; border:none; border-radius:25px; font-weight:bold; cursor:pointer; transition:0.2s;">Lv. 9</button>
+                        <button class="sim-lvl-btn" onclick="changeSimLvlBtn(10, this)" style="padding:8px 25px; background:transparent; color:#888; border:none; border-radius:25px; font-weight:bold; cursor:pointer; transition:0.2s;">Lv. 10</button>
+                    </div>
+                    <select id="simPetLevel" style="display:none;"><option value="9" selected>9</option><option value="10">10</option></select>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-bottom: 20px;">
+                    <button class="sim-cat-btn" style="flex:1; padding:10px; background:#1a5de4; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('지성', this)">지성</button>
+                    <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('야성', this)">야성</button>
+                    <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('자연', this)">자연</button>
+                    <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('변형', this)">변형</button>
+                    <button class="sim-cat-btn" style="flex:1; padding:10px; background:#111; color:#888; border:1px solid #333; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="changeSimCat('특수', this)">특수</button>
+                </div>
+
+                <table style="width:100%; border-collapse:collapse; text-align:left; font-size:12px; margin-bottom:20px;">
+                    <thead>
+                        <tr style="border-bottom:1px solid #333; color:#888; background:#0a0a0c;">
+                            <th style="padding:10px; width:50px; text-align:center;">슬롯</th>
+                            <th style="padding:10px; width:70px; text-align:center;">🔒 잠금</th>
+                            <th style="padding:10px;">목표 옵션 선택 (등급 및 수치)</th>
+                            <th style="padding:10px; width:80px; text-align:center;">등장 확률</th>
+                            <th style="padding:10px; width:100px; text-align:center;">최소 목표치</th>
+                        </tr>
+                    </thead>
+                    <tbody id="simSlotsContainer">
+                        </tbody>
+                </table>
+
+                <div style="text-align:center;">
+                    <button onclick="runSimulatedReroll(); document.getElementById('simResultBox').style.display='block';" style="width:100%; max-width:400px; padding:15px; background:linear-gradient(90deg, #ce93d8, #ab47bc); color:#fff; border:none; border-radius:30px; font-weight:bold; font-size:16px; cursor:pointer; transition:0.3s; box-shadow:0 6px 15px rgba(206, 147, 216, 0.4);">
+                        🚀 계산하기 (10,000회 시뮬레이션)
+                    </button>
+                </div>
+
+                <div id="simResultBox" style="display:none; margin-top:25px; background:#0a0a0c; border:1px solid #ce93d8; border-radius:8px; padding:20px; box-shadow:0 0 15px rgba(206, 147, 216, 0.2);">
+                    <div id="simResText" style="text-align:center; color:#ce93d8; font-weight:bold; font-size:14px; margin-bottom:15px;">계산 중입니다...</div>
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:15px;">
+                        <div style="text-align:center;">
+                            <div style="font-size:11px; color:#888; margin-bottom:5px;">기대 리롤 횟수</div>
+                            <div id="simResRolls" style="font-size:24px; font-weight:bold; color:#fff;">0회</div>
+                        </div>
+                        <div style="text-align:center; border-left:1px solid #333; border-right:1px solid #333;">
+                            <div style="font-size:11px; color:#888; margin-bottom:5px;">예상 소모 영혼결정</div>
+                            <div id="simResCrys" style="font-size:24px; font-weight:bold; color:#ce93d8;">0개</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:11px; color:#888; margin-bottom:5px;">예상 소모 키나</div>
+                            <div id="simResKinah" style="font-size:24px; font-weight:bold; color:#ce93d8;">0</div>
+                        </div>
+                    </div>
+                
+					</div>
+
+            	</div>
+            </div> 
+
+
+
+
+
+
+
+		<footer class="site-footer">
+  <div class="footer-links">
+    <a href="https://aion2.plaync.com/" target="_blank">AION2 공식 홈페이지</a> | 
+    <a href="about.html">사이트 소개</a> |
+    <a href="guide.html">사용법/FAQ</a> |
+    <a href="terms.html">이용약관</a> | 
+    <a href="privacy.html">개인정보처리방침</a> | 
+    <a href="disclaimer.html">면책/저작권 고지</a> |
+    <a href="https://discord.gg/sA7HDtyCW3" target="_blank">1:1 문의 (Discord)</a>
+  </div>
+
+  <div class="footer-copy">© 2026 AZANG (아장) - 아이온2 장비 시뮬레이터. All rights reserved.</div>
+
+  <div class="footer-desc">
+    본 사이트는 (주)엔씨소프트와 무관한 비공식 팬 사이트입니다.<br>
+    This site is not associated with NCsoft Corporation. AION2 is a trademark of NCSOFT.
+  </div>
+</footer>
+
+<script src="js/common.js"></script>
+<script src="js/app.js"></script>
+<script src="js/pet.js"></script>
+<script src="js/state.js"></script>
+<script src="js/notice.js"></script>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    const petTab = document.getElementById('tab-pet');
+    if (petTab) petTab.classList.add('active');
+
+    if (typeof initPetCalc === 'function') initPetCalc();
+    if (typeof initPetData === 'function') initPetData();
+});
+</script>
+
+</body>
+</html>
