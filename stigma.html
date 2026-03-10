@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="keywords" content="아이온2, 장비 시뮬레이터, 전투력 계산기, 아이온2 템셋팅, 아장, AZANG, 영혼각인, 마석, 펫작, 아이온2 펫작, 펫작 시뮬">
+
+
+
+    <title>아이온2 스티그마 통계 | 직업별 추천 스티그마 확인 - 아장(AZANG)</title>
+    <meta name="description" content="아이온2 어비스 상위 50명의 직업별 스티그마 통계를 확인하세요.">
+    <meta property="og:title" content="아이온2 스티그마 통계 - 아장(AZANG)">
+    <meta property="og:description" content="어비스 상위 50명의 직업별 추천 스티그마 통계를 한눈에 확인할 수 있습니다.">
+    <meta property="og:url" content="https://aion2zang.info/stigma.html">
+    
+    <meta property="og:image" content="https://aion2zang.info/flogo.png">
+    
+    <meta property="og:type" content="website">
+    <meta name="robots" content="index, follow">
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9999633703246515"
+     crossorigin="anonymous"></script>
+
+	
+    
+    <link rel="icon" type="image/png" href="https://aion2zang.info/flogo.png" sizes="192x192">
+	<link rel="apple-touch-icon" href="https://aion2zang.info/flogo.png">
+    <link rel="stylesheet" href="css/style.css">
+
+   
+</head>
+<body id="appBody" class="home-mode">
+
+
+<div class="main-wrapper">
+    
+    <div class="container"> <div class="logo-container" onclick="window.location.href='index.html'" style="cursor: pointer;">
+    <img src="logo.png" alt="AZANG 아장 - 아이온2 장비 분석 도우미" onerror="this.style.display='none'; this.parentElement.innerHTML='<h1 style=\'color:#00e676; font-size:40px; text-align:center;\'>AZANG</h1><p style=\'text-align:center;\'>아이온2 장비 분석 도우미</p>';">
+</div>
+
+       <div class="top-nav">
+            <div class="nav-item" onclick="window.location.href='index.html'">장비 시뮬레이터</div>
+            <div class="nav-item" onclick="window.location.href='index.html?menu=autoOpt'">자동 최적화(Beta)</div>
+            <div class="nav-item" onclick="window.location.href='pet.html'">펫작 계산기</div>
+            <div class="nav-item" onclick="window.location.href='index.html?menu=abyss'">어비스 파밍 계산기</div>
+            <div class="nav-item" onclick="window.location.href='deva.html'">데바니온 최적화</div>
+            <div class="nav-item active" onclick="window.location.href='stigma.html'">스티그마 통계</div>
+            <div class="nav-item" onclick="window.location.href='ranking.html'">어비스 랭킹</div>
+        </div>
+
+
+
+
+
+<div id="tab-stigmaStats" class="tab-content active">
+    <h1 style="font-size:24px; margin-bottom:10px;">아이온2 스티그마 통계</h1>
+    <p style="color:#aaa; margin-bottom:20px;">
+        어비스 상위 랭커들이 실제로 장착한 스티그마를 직업별로 정리해서 보여줍니다.
+    </p>
+
+    <details class="seo-guide-box" style="margin-bottom: 20px; background: #1a1a20; border-color: #4fc3f7;">
+        <summary style="color: #4fc3f7; font-size: 15px;">📊 [필독] 스티그마 통계 보는 방법 (클릭하여 열기)</summary>
+        <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
+            <ul style="line-height: 1.8;">
+                <li>상단에서 <b>직업 버튼</b>을 누르면 해당 직업의 스티그마 통계를 볼 수 있습니다.</li>
+                <li>각 스티그마는 <b>장착률 순서</b>대로 정렬됩니다.</li>
+                <li>스티그마 이름 옆의 뱃지는 <b>강화 단계별 장착 인원</b>을 뜻합니다.</li>
+                <li>데이터는 하루 1회 자동 수집되며, 최신 수집 시간은 아래에 표시됩니다.</li>
+            </ul>
+        </div>
+    </details>
+
+    <div style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:30px; max-width:1000px; margin:0 auto;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #2a2a35; padding-bottom:15px; margin-bottom:20px; gap:20px; flex-wrap:wrap;">
+            <div>
+                <h2 style="margin:0; color:#4fc3f7; font-size:20px;">📊 직업별 스티그마 통계</h2>
+                <div id="statsUpdateTime" style="margin-top:8px; color:#888; font-size:12px;">데이터를 불러오는 중... ⏳</div>
+            </div>
+        </div>
+
+        <div id="stigmaClassButtons" class="class-tabs" style="margin-bottom:20px;">
+            <button class="class-btn" onclick="renderClassStats(1)">검성</button>
+            <button class="class-btn" onclick="renderClassStats(2)">수호성</button>
+            <button class="class-btn" onclick="renderClassStats(4)">살성</button>
+            <button class="class-btn" onclick="renderClassStats(5)">궁성</button>
+            <button class="class-btn" onclick="renderClassStats(7)">마도성</button>
+            <button class="class-btn" onclick="renderClassStats(8)">정령성</button>
+            <button class="class-btn" onclick="renderClassStats(10)">치유성</button>
+            <button class="class-btn" onclick="renderClassStats(11)">호법성</button>
+        </div>
+
+        <div id="stigmaListContainer" style="min-height:400px;">
+            <div style="text-align:center; padding:80px 0; color:#666;">직업을 선택하면 통계가 표시됩니다.</div>
+        </div>
+    </div>
+</div>
+
+
+      
+        
+  
+        
+               
+
+
+
+
+
+		<footer class="site-footer">
+  <div class="footer-links">
+    <a href="https://aion2.plaync.com/" target="_blank">AION2 공식 홈페이지</a> | 
+    <a href="about.html">사이트 소개</a> |
+    <a href="guide.html">사용법/FAQ</a> |
+    <a href="terms.html">이용약관</a> | 
+    <a href="privacy.html">개인정보처리방침</a> | 
+    <a href="disclaimer.html">면책/저작권 고지</a> |
+    <a href="https://discord.gg/sA7HDtyCW3" target="_blank">1:1 문의 (Discord)</a>
+  </div>
+
+  <div class="footer-copy">© 2026 AZANG (아장) - 아이온2 장비 시뮬레이터. All rights reserved.</div>
+
+  <div class="footer-desc">
+    본 사이트는 (주)엔씨소프트와 무관한 비공식 팬 사이트입니다.<br>
+    This site is not associated with NCsoft Corporation. AION2 is a trademark of NCSOFT.
+  </div>
+</footer>
+
+<script src="js/common.js"></script>
+<script src="js/stigma.js"></script>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    const stigmaTab = document.getElementById('tab-stigmaStats');
+    if (stigmaTab) stigmaTab.classList.add('active');
+    if (typeof loadStigmaStats === 'function') loadStigmaStats();
+});
+</script>
+
+</body>
+</html>
