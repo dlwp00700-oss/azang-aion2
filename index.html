@@ -6,22 +6,18 @@
     <meta name="description" content="아이온2 장비 시뮬레이터 아장(AZANG). 장비 교체 시 전투력, 딜량, 방어력을 미리 계산해보세요. 영혼각인, 마석 시뮬레이션 완벽 지원.">
     <meta name="keywords" content="아이온2, 장비 시뮬레이터, 전투력 계산기, 아이온2 템셋팅, 아장, AZANG, 영혼각인, 마석">
     <meta property="og:title" content="아장(AZANG) - 아이온2 장비 분석 시뮬레이터">
-    <meta property="og:description" content="내 캐릭터 장비 교체 시뮬레이션">
+    <meta property="og:description" content="내 캐릭터 장비 교체 시뮬레이션! 딜량 상승과 생존력을 1초 만에 계산합니다.">
     <meta property="og:image" content="https://aion2zang.info/flogo.png">
     <meta property="og:url" content="https://aion2zang.info">
     <meta property="og:type" content="website">
     <meta name="robots" content="index, follow">
 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9999633703246515"
-     crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9999633703246515" crossorigin="anonymous"></script>
 
-	
     <title>아장(AZANG) - 아이온2 장비 분석 도우미</title>
     <link rel="icon" type="image/png" href="https://aion2zang.info/flogo.png" sizes="192x192">
-	<link rel="apple-touch-icon" href="https://aion2zang.info/flogo.png">
+    <link rel="apple-touch-icon" href="https://aion2zang.info/flogo.png">
     <link rel="stylesheet" href="css/style.css">
-
-   
 </head>
 <body id="appBody" class="home-mode">
 
@@ -29,15 +25,16 @@
     <button class="btn-gsave" onclick="saveGlobalState()">💾 전체 데이터 저장</button>
     <button class="btn-gload" onclick="loadGlobalState()">📂 불러오기</button>
 </div>
-<div class="main-wrapper">
-    
-    <div class="container"> <div class="logo-container" onclick="window.location.href='/'" style="cursor: pointer;">
-    <img src="logo.png" alt="AZANG 아장 - 아이온2 장비 분석 도우미" onerror="this.style.display='none'; this.parentElement.innerHTML='<h1 style=\'color:#00e676; font-size:40px; text-align:center;\'>AZANG</h1><p style=\'text-align:center;\'>아이온2 장비 분석 도우미</p>';">
-</div>
 
-       <div class="top-nav">
-            <div class="nav-item active" onclick="window.location.href='index.html'">장비 시뮬레이터</div>
-            <div class="nav-item" onclick="window.location.href='index.html?menu=autoOpt'">자동 최적화(Beta)</div>
+<div class="main-wrapper">
+    <div class="container"> 
+        <div class="logo-container" onclick="window.location.href='index.html'" style="cursor: pointer;">
+            <img src="logo.png" alt="AZANG 아장 - 아이온2 장비 분석 도우미" onerror="this.style.display='none'; this.parentElement.innerHTML='<h1 style=\'color:#00e676; font-size:40px; text-align:center;\'>AZANG</h1><p style=\'text-align:center;\'>아이온2 장비 분석 도우미</p>';">
+        </div>
+
+        <div class="top-nav">
+            <div class="nav-item" onclick="window.location.href='simulator.html'">장비 시뮬레이터</div>
+            <div class="nav-item" onclick="window.location.href='auto.html'">자동 최적화(Beta)</div>
             <div class="nav-item" onclick="window.location.href='pet.html'">펫작 계산기</div>
             <div class="nav-item" onclick="window.location.href='abyss.html'">어비스 파밍 계산기</div>
             <div class="nav-item" onclick="window.location.href='deva.html'">데바니온 최적화</div>
@@ -45,20 +42,7 @@
             <div class="nav-item" onclick="window.location.href='ranking.html'">어비스 랭킹</div>
         </div>
 
-        <div id="tab-equip" class="tab-content active">
-            <details class="seo-guide-box" style="max-width: 900px; margin: 0 auto 20px auto; background: #141418; border-color: #4fc3f7;">
-    <summary style="color: #4fc3f7; font-size: 15px;">💡 [필독] 장비 시뮬레이터 100% 활용 가이드 (클릭하여 열기)</summary>
-    <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
-        <ul style="line-height: 1.8;">
-            <li><b>캐릭터 스캔:</b> 검색창에 서버와 이름을 입력하고 검색하면 착용 중인 장비가 쫙 뜹니다. (검색이 안 되면 인게임 접속 종료 후 시도해보세요)</li>
-            <li><b>스탯 입력:</b> 캐릭터 스탯과 적(보스)or상대(PC)의 피해내성과 피해증폭을 설정하세요.</li>
-            <li><b>시뮬레이션 시작:</b> 화면 중앙의 장비 목록에서 <b>변경하고 싶은 부위를 클릭</b>하세요.</li>
-            <li><b>장비 교체:</b> 우측 하단 '사전'에서 새로 맞출 장비를 고르고, 강화수치와 각인 스탯을 적은 뒤 <b>[적용하기]</b>를 누르면 딜량/방어력이 즉시 계산됩니다!</li>
-            <li><b>결과 확인:</b> 하단 대시보드에서 PVE / PVP 실질 공격력과 생존 타수(몇 대 더 버티는지) 변화를 확인하세요.</li>
-        </ul>
-    </div>
-</details>
-            
+        <div id="tab-home" class="tab-content active">
             
             <div class="search-bar" style="max-width: 1050px;">
                 <div style="display:flex; gap:5px;">
@@ -71,8 +55,8 @@
                 <select id="searchServer">
                     <option value="">🌐 전체 서버 검색</option>
                 </select>
-                <input type="text" id="charNameInput" placeholder="캐릭터명을 입력하세요." onkeypress="if(event.keyCode==13) searchCharacter()">
-                <button class="btn-search" onclick="searchCharacter()">🔍 검색</button>
+                <input type="text" id="charNameInput" placeholder="캐릭터명을 입력하세요." onkeypress="if(event.keyCode==13) goToSimulator()">
+                <button class="btn-search" onclick="goToSimulator()">🔍 검색</button>
                 <span id="statusMsg" style="color: #aaa; margin-left: 10px; white-space: nowrap;">* 서버 연동 완료</span>
             </div>
             
@@ -84,399 +68,85 @@
             <div id="characterSelection" style="display:none; background: #141418; padding: 20px; border-radius: 8px; border: 1px solid #4fc3f7; box-shadow: 0 0 15px rgba(79, 195, 247, 0.2);">
                 <h3 style="color: #4fc3f7; margin-top: 0; margin-bottom: 15px; font-size: 16px;">🔍 검색된 캐릭터 목록 (선택 시 바로 로드)</h3>
                 <div id="selectionList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;"></div>
-        </div>
-
-        
-
-        <div id="homeContent">
-            <div class="info-box">
-                <div class="info-title">📰 아이온2 패치 노트 요약</div>
-                <ul class="news-list" id="patchNoteList">
-                    <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
-                </ul>
-            </div>
-            
-            <div class="info-box">
-                <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
-                <ul class="news-list" id="updateNoteList">
-                    <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
-                </ul>
             </div>
 
-            <div class="info-box">
-                <div class="info-title" style="display:flex; justify-content:space-between; color:#4fc3f7;">
-                    <span>🏆 실시간 어비스 랭킹</span>
-                </div>
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <button id="btnRankAll" onclick="loadTotalRanking(0)" style="flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s;">🌍 전체</button>
-                    <button id="btnRankElyos" onclick="loadTotalRanking(1)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🕊️ 천족</button>
-                    <button id="btnRankAsmo" onclick="loadTotalRanking(2)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🦇 마족</button>
+            <div id="homeContent">
+                <div class="info-box">
+                    <div class="info-title">📰 아이온2 패치 노트 요약</div>
+                    <ul class="news-list" id="patchNoteList">
+                        <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+                    </ul>
                 </div>
                 
-                <div id="totalRankingArea" style="min-height: 165px;">
-                    <div style="text-align:center; padding:50px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
+                <div class="info-box">
+                    <div class="info-title">🛠️ 아장(AZANG) 업데이트 노트</div>
+                    <ul class="news-list" id="updateNoteList">
+                        <li style="padding: 15px; text-align: center; color: #888;">데이터를 불러오는 중... ⏳</li>
+                    </ul>
                 </div>
-                
-                <div style="margin-top:15px; font-size:11px; color:#666; text-align:center; line-height:1.4;">
-                    * 전 서버 통합 랭킹은 1시간 단위로 갱신됩니다.
-                </div>
-            </div>
-        </div>
 
-        <div class="layout-grid" id="mainDashboard">
-            <div>
-                <div class="c-window" style="padding-bottom: 10px;">
-                        <div class="sec-title" style="align-items: center;">
-                            <div style="display:flex; flex-direction:column; gap:6px;">
-                                <span style="font-size:16px; font-weight:bold; color:#4fc3f7;">📊 내 캐릭터 실제 스탯 (P창)</span>
-                                <span style="color:#ffca28; font-size:11px; font-weight:normal;">* 장비 변경 전 기준 스탯을 직접 입력하세요.</span>
-                            </div>
-                            <div style="display:flex; gap:8px;">
-                                <div style="display:flex; flex-direction:column; gap:4px;">
-                                    <button onclick="saveStatPreset(1)" style="background:#4fc3f7; color:#000; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; transition:0.2s;">💾 저장 1</button>
-                                    <button onclick="loadStatPreset(1)" style="background:#2a2a35; color:#ccc; border:1px solid #444; padding:4px 12px; border-radius:4px; cursor:pointer; font-size:11px; transition:0.2s;" onmouseover="this.style.borderColor='#4fc3f7'; this.style.color='#4fc3f7'" onmouseout="this.style.borderColor='#444'; this.style.color='#ccc'">📂 로드</button>
-                                </div>
-                                <div style="display:flex; flex-direction:column; gap:4px;">
-                                    <button onclick="saveStatPreset(2)" style="background:#4fc3f7; color:#000; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; transition:0.2s;">💾 저장 2</button>
-                                    <button onclick="loadStatPreset(2)" style="background:#2a2a35; color:#ccc; border:1px solid #444; padding:4px 12px; border-radius:4px; cursor:pointer; font-size:11px; transition:0.2s;" onmouseover="this.style.borderColor='#4fc3f7'; this.style.color='#4fc3f7'" onmouseout="this.style.borderColor='#444'; this.style.color='#ccc'">📂 로드</button>
-                                </div>
-                                <div style="display:flex; flex-direction:column; gap:4px;">
-                                    <button onclick="saveStatPreset(3)" style="background:#4fc3f7; color:#000; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; transition:0.2s;">💾 저장 3</button>
-                                    <button onclick="loadStatPreset(3)" style="background:#2a2a35; color:#ccc; border:1px solid #444; padding:4px 12px; border-radius:4px; cursor:pointer; font-size:11px; transition:0.2s;" onmouseover="this.style.borderColor='#4fc3f7'; this.style.color='#4fc3f7'" onmouseout="this.style.borderColor='#444'; this.style.color='#ccc'">📂 로드</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="cp-display-box">
-                            <div style="color:#4fc3f7; font-weight:bold; font-size:12px; margin-bottom:5px;">🔥 현재 총 전투력 (CP)</div>
-                            <input type="hidden" id="baseCp" value="0">
-                            <div id="cpDiffDisplay" style="font-size:24px; font-weight:bold; color:#fff;">0 ➡ 0 (-)</div>
-                        </div>
-
-                        <div style="margin: 15px 0; padding: 12px; background: rgba(255, 202, 40, 0.1); border: 1px dashed rgba(255, 202, 40, 0.5); border-radius: 6px; font-size: 12px; color: #ffca28; text-align: center; line-height: 1.6; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
-                            ⚠️ <b>가장 정확한 결과를 얻으려면?</b><br>
-                            인게임 캐릭터 정보(P) 창을 열고, <b>아래 스탯 칸에 본인의 실제 스탯을 똑같이 입력</b>해 주세요!
-                        </div>
-
-                        <div class="dash-section-title" style="color:#ffca28; margin-top:10px;">⚔️ 내 캐릭터 공격 스탯</div>
-                        <div class="stat-grid-3">
-                            <div class="stat-input-group"><label>총 공격력(표기)</label><input type="number" id="baseAtk" value="1630"></div>
-                            <div class="stat-input-group"><label class="highlight-label">일반 피해 증폭(%)</label><input type="number" id="baseAmp" value="39.6"></div>
-                            <div class="stat-input-group"><label>무기/스킬 피증(%)</label><input type="number" id="baseWAmp" value="0"></div>
-                            <div class="stat-input-group"><label>PVE 추가 피증(%)</label><input type="number" id="basePveAmp" value="0"></div>
-                            <div class="stat-input-group"><label>PVP 추가 피증(%)</label><input type="number" id="basePvpAmp" value="0"></div>
-                            <div class="stat-input-group"><label>치명피증(%)</label><input type="number" id="baseCritDmg" value="0"></div>
-                        </div>
-
-                        <div class="dash-section-title" style="color:#69f0ae; margin-top:15px;">🛡️ 내 캐릭터 방어 스탯</div>
-                        <div class="stat-grid-3">
-                            <div class="stat-input-group"><label>총 방어력</label><input type="number" id="baseDef" value="2000"></div>
-                            <div class="stat-input-group"><label>총 생명력</label><input type="number" id="baseHp" value="15000"></div>
-                            <div class="stat-input-group"><label>일반 피해 내성(%)</label><input type="number" id="baseGenRes" value="0"></div>
-                            <div class="stat-input-group"><label>PVE 피해 내성(%)</label><input type="number" id="basePveRes" value="0"></div>
-                            <div class="stat-input-group"><label>PVP 피해 내성(%)</label><input type="number" id="basePvpRes" value="0"></div>
-                            <div class="stat-input-group" style="visibility:hidden;"><input type="number"></div>
-                        </div>
-
-                        <details style="margin-top:15px; background:#111; padding:10px; border-radius:6px; border:1px solid #333;">
-                            <summary style="color:#ce93d8; font-weight:bold; cursor:pointer; font-size:12px;">🧬 주요/특수 스탯 연동 (클릭하여 열기)</summary>
-                            <div style="margin-top:10px; color:#aaa; font-size:11px; margin-bottom:12px; line-height:1.4;">
-                                * 장비 교체로 인해 아래 스탯이 변동될 때, 공식에 맞게 <b>실질 딜량과 생존력 대시보드에 자동 반영</b>됩니다.
-                            </div>
-                            <div style="color:#fff; font-size:11px; margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid #222;">기본 스탯 (1당 0.1% 효율 부여)</div>
-                            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom:12px;">
-                                <div class="stat-input-group"><label>위력</label><input type="number" id="basePower" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>민첩</label><input type="number" id="baseAgi" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>정확</label><input type="number" id="baseAccStat" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>의지</label><input type="number" id="baseWill" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>지식</label><input type="number" id="baseKnow" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>체력</label><input type="number" id="baseVit" value="0" style="padding:6px; font-size:12px;"></div>
-                            </div>
-                            <div style="color:#fff; font-size:11px; margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid #222;">특수 스탯 (1당 0.2 효율 부여)</div>
-                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px;">
-                                <div class="stat-input-group"><label>파괴</label><input type="number" id="baseDest" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>죽음</label><input type="number" id="baseDeath" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>지혜</label><input type="number" id="baseWis" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>운명</label><input type="number" id="baseDestiny" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>공간</label><input type="number" id="baseSpace" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>시간</label><input type="number" id="baseTime" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>생명</label><input type="number" id="baseLife" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>환상</label><input type="number" id="baseIllusion" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>자유</label><input type="number" id="baseFreedom" value="0" style="padding:6px; font-size:12px;"></div>
-                                <div class="stat-input-group"><label>정의</label><input type="number" id="baseJustice" value="0" style="padding:6px; font-size:12px;"></div>
-                            </div>
-                        </details>
-
-                        <div class="dash-section-title" style="color:#ff9800; margin-top:20px;">🎯 상대방(적/보스) 스탯 가정 <span style="font-size:10px; font-weight:normal; color:#aaa;">* 방어력 차감 계산에 필요합니다.</span></div>
-                        
-                        <div class="stat-input-group" style="margin-bottom:15px; max-width: 250px;">
-                            <label style="color:#ffca28;">적 표기 공격력 (보스/유저)</label>
-                            <input type="number" id="enemyAtk" value="8000" style="border-color:#ffca28; color:#ffca28;" oninput="updateDeltaDashboard()">
-                        </div>
-                        
-                        <div class="stat-grid-2">
-                            <div class="slider-group">
-                                <label style="color:#ff5252; font-size:12px; font-weight:bold;">적 일반 피증 (%)</label>
-                                <div class="slider-row red-slider">
-                                    <input type="range" id="enemyAmpRange" min="0" max="200" value="20" oninput="document.getElementById('enemyAmp').value=this.value; updateDeltaDashboard();">
-                                    <input type="number" id="enemyAmp" value="20" min="0" max="200" oninput="document.getElementById('enemyAmpRange').value=this.value; updateDeltaDashboard();" style="border-color:#ff5252; color:#ff5252;">
-                                </div>
-                            </div>
-                            <div class="slider-group">
-                                <label style="color:#ff5252; font-size:12px; font-weight:bold;">적 PVP 피증 (%)</label>
-                                <div class="slider-row red-slider">
-                                    <input type="range" id="enemyPvpAmpRange" min="0" max="200" value="10" oninput="document.getElementById('enemyPvpAmp').value=this.value; updateDeltaDashboard();">
-                                    <input type="number" id="enemyPvpAmp" value="10" min="0" max="200" oninput="document.getElementById('enemyPvpAmpRange').value=this.value; updateDeltaDashboard();" style="border-color:#ff5252; color:#ff5252;">
-                                </div>
-                            </div>
-                            <div class="slider-group">
-                                <label style="color:#4fc3f7; font-size:12px; font-weight:bold;">적 일반 피해 내성 (%)</label>
-                                <div class="slider-row blue-slider">
-                                    <input type="range" id="enemyGenResRange" min="0" max="80" value="30" oninput="document.getElementById('enemyGenRes').value=this.value; updateDeltaDashboard();">
-                                    <input type="number" id="enemyGenRes" value="30" min="0" max="80" oninput="document.getElementById('enemyGenResRange').value=this.value; updateDeltaDashboard();" style="border-color:#4fc3f7; color:#4fc3f7;">
-                                </div>
-                            </div>
-                            <div class="slider-group">
-                                <label style="color:#4fc3f7; font-size:12px; font-weight:bold;">적 PVP 피해 내성 (%)</label>
-                                <div class="slider-row blue-slider">
-                                    <input type="range" id="enemyPvpResRange" min="0" max="80" value="10" oninput="document.getElementById('enemyPvpRes').value=this.value; updateDeltaDashboard();">
-                                   <input type="number" id="enemyPvpRes" value="10" min="0" max="80" oninput="document.getElementById('enemyPvpResRange').value=this.value; updateDeltaDashboard();" style="border-color:#4fc3f7; color:#4fc3f7;">
-                                </div>
-                            </div>
-                        </div>
-                    </div> <div class="equip-list-container">
-                        <div class="sec-title">
-                            <span>🛡️ 장착 중인 장비 목록</span>
-                            <span style="color:#888; font-size:11px; font-weight:normal;">* 카드를 클릭하여 교체</span>
-                        </div>
-                        <div id="equipResultArea" class="equip-grid">
-                            <div style="grid-column: 1/-1; text-align: center; padding: 80px 0; color: #666;">캐릭터를 검색하면 핵심 장비가 표시됩니다.</div>
-                        </div>
+                <div class="info-box">
+                    <div class="info-title" style="display:flex; justify-content:space-between; color:#4fc3f7;">
+                        <span>🏆 실시간 어비스 랭킹</span>
                     </div>
-                </div>
-
-                <div>
-                    <div class="dash-container">
-                        <div class="dash-card">
-                            <div class="dash-header" style="color:#ce93d8; display:flex; justify-content:space-between; align-items:center;">
-                                <span>👾 PVE (몬스터 사냥)</span>
-                                <label style="font-size:11px; color:#fff; cursor:pointer; background:#332a00; padding:4px 8px; border-radius:4px; border:1px solid #ffca28;">
-                                    <input type="checkbox" id="isAbyssToggle" onchange="updateDeltaDashboard()"> 어비스/시련
-                                </label>
-                            </div>
-                            
-                            <div class="atk-box">
-                                <div class="dash-section-title" style="color:#ffca28; border-bottom:1px solid rgba(255,202,40,0.3);">⚔️ 공격 능력</div>
-                                <div class="d-row"><span>최종 표기 공격력</span> <span class="d-val" id="pve-atk">0 ➡ 0</span></div>
-                                <div class="d-row"><span>총 피증 (세트 포함)</span> <span class="d-val" id="pve-amp">0.0% ➡ 0.0%</span></div>
-                                <div class="d-row"><span>적용 배율 (피증 × 내성감소)</span> <span class="d-val" id="pve-mult">1.000x ➡ 1.000x</span></div>
-                                <div class="d-result-box" style="margin-top:5px; padding:10px;">
-                                    <span style="color:#00e676; font-weight:bold;">피증 반영 실질 공격력</span>
-                                    <span class="d-val" style="font-size:18px;" id="pve-real-atk">0 ➡ 0</span>
-                                </div>
-                                <div class="d-final-text" id="pve-final-dps" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
-                            </div>
-
-                            <div class="def-box">
-                                <div class="dash-section-title" style="color:#69f0ae; border-bottom:1px solid rgba(105,240,174,0.3);">🛡️ 방어 / 생존 능력</div>
-                                <div class="d-row"><span>최종 방어력</span> <span class="d-val" id="pve-def">0 ➡ 0</span></div>
-                                <div class="d-row"><span>최종 생명력</span> <span class="d-val" id="pve-hp">0 ➡ 0</span></div>
-                                <div class="d-row"><span>적 내성관통 후 데미지</span> <span class="d-val" id="pve-incoming">0 ➡ 0</span></div>
-                                
-                                <div class="d-result-box" style="border-color:#69f0ae; background:rgba(105, 240, 174, 0.05); margin-top:5px; padding:10px;">
-                                    <span style="color:#69f0ae; font-weight:bold;">실제 1타당 피격 데미지 <span style="font-size:10px; font-weight:normal;">(낮을수록 좋음)</span></span>
-                                    <span class="d-val" style="font-size:18px;" id="pve-dmg-taken">0 ➡ 0</span>
-                                </div>
-                                <div class="d-final-text" id="pve-final-surv" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
-                                <div id="setEffectLogPve" style="margin-top: 15px;"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="dash-card">
-                            <div class="dash-header" style="color:#ff9800;">⚔️ PVP (유저 전투)</div>
-                            
-                            <div class="atk-box" style="border-color: rgba(255, 152, 0, 0.3); background: linear-gradient(180deg, rgba(255, 152, 0, 0.08) 0%, rgba(0,0,0,0) 100%);">
-                                <div class="dash-section-title" style="color:#ffca28; border-bottom:1px solid rgba(255,202,40,0.3);">⚔️ 공격 능력</div>
-                                <div class="d-row"><span>최종 표기 공격력</span> <span class="d-val" id="pvp-atk">0 ➡ 0</span></div>
-                                <div class="d-row"><span>총 피증 (세트 포함)</span> <span class="d-val" id="pvp-amp">0.0% ➡ 0.0%</span></div>
-                                <div class="d-row"><span>적용 배율 (피증 × 내성감소)</span> <span class="d-val" id="pvp-mult">1.000x ➡ 1.000x</span></div>
-                                <div class="d-result-box" style="border-color:#ff9800; background:rgba(255, 152, 0, 0.05); margin-top:5px; padding:10px;">
-                                    <span style="color:#ff9800; font-weight:bold;">피증 반영 실질 공격력</span>
-                                    <span class="d-val" style="font-size:18px;" id="pvp-real-atk">0 ➡ 0</span>
-                                </div>
-                                <div class="d-final-text" id="pvp-final-dps" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
-                            </div>
-
-                            <div class="def-box">
-                                <div class="dash-section-title" style="color:#69f0ae; border-bottom:1px solid rgba(105,240,174,0.3);">🛡️ 방어 / 생존 능력</div>
-                                <div class="d-row"><span>최종 방어력</span> <span class="d-val" id="pvp-def">0 ➡ 0</span></div>
-                                <div class="d-row"><span>최종 생명력</span> <span class="d-val" id="pvp-hp">0 ➡ 0</span></div>
-                                <div class="d-row"><span>적 내성관통 후 데미지</span> <span class="d-val" id="pvp-incoming">0 ➡ 0</span></div>
-                                
-                                <div class="d-result-box" style="border-color:#69f0ae; background:rgba(105, 240, 174, 0.05); margin-top:5px; padding:10px;">
-                                    <span style="color:#69f0ae; font-weight:bold;">실제 1타당 피격 데미지 <span style="font-size:10px; font-weight:normal;">(낮을수록 좋음)</span></span>
-                                    <span class="d-val" style="font-size:18px;" id="pvp-dmg-taken">0 ➡ 0</span>
-                                </div>
-                              <div class="d-final-text" id="pvp-final-surv" style="margin-top:10px; font-size:13px;">장비를 변경해보세요.</div>
-                                <div id="setEffectLogPvp" style="margin-top: 15px;"></div>
-                            </div>
-                        </div>
-                    </div> <div class="workbench" id="workbench">
-                        <div class="empty-wb">
-                            <div style="font-size:40px; margin-bottom:15px;">🛠️</div>
-                            왼쪽 목록에서 <b>변경하고 싶은 장비</b>를 클릭하세요.
-                        </div>
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <button id="btnRankAll" onclick="loadTotalRanking(0)" style="flex:1; padding:8px; background:#1a1a24; color:#fff; border:1px solid #ffca28; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s;">🌍 전체</button>
+                        <button id="btnRankElyos" onclick="loadTotalRanking(1)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🕊️ 천족</button>
+                        <button id="btnRankAsmo" onclick="loadTotalRanking(2)" style="flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;">🦇 마족</button>
                     </div>
-
-                    <details class="seo-guide-box">
-                        <summary>📖 아장(AZANG) 시뮬레이터 사용 가이드 및 전투력 공식 (클릭하여 내용 보기)</summary>
-                        <div class="seo-content">
-                            <h4>1. 아장(AZANG) 장비 분석 시뮬레이터란?</h4>
-                            <p>아이온2 유저들을 위한 최적의 템셋팅 계산기입니다. 캐릭터의 현재 스탯과 장비를 불러온 뒤, 교체할 장비와 영혼 각인(마석) 수치를 입력하면 최종 PVE/PVP 실질 데미지와 생존력(피격 데미지 감소율)을 정확하게 시뮬레이션해 줍니다.</p>
-                            
-                            <h4>2. 시뮬레이터 100% 활용 방법</h4>
-                            <ul>
-                                <li><strong>내 캐릭터 불러오기:</strong> 상단 검색창에 서버와 캐릭터명을 입력하여 내 정보를 스캔합니다.</li>
-                                <li><strong>자동 스탯 연동:</strong> '주요/특수 스탯 연동' 탭에서 파괴, 죽음, 시간, 공간 등의 특수 스탯이 딜량/방어력 공식에 자동 반영됩니다.</li>
-                                <li><strong>장비 교체 시뮬레이션:</strong> 착용 중인 장비를 클릭하고, 우측 사전에서 새로 맞출 장비를 검색하세요. 무기 8종 및 방어구 13개 부위 완벽 필터링을 지원합니다.</li>
-                            </ul>
-
-                            <h4>3. 아이온2 전투력(CP) 및 템렙 52점의 비밀</h4>
-                            <p>인게임 템렙과 일반 API의 수치 차이를 아장(AZANG)이 완벽하게 해결했습니다. 아이템 레벨은 <strong>[기본 레벨] + [강화 수치(+1)] + [돌파 수치(+5)] + [마석 등급별 점수]</strong>로 산정됩니다.</p>
-                            <p>* 마석 등급 가중치: 유일/영웅(노란색) +4점, 전설(파란색) +3점, 희귀(초록색) +2점, 일반(흰색) +1점 (무기 및 가더는 기본 +5점 추가 보정)</p>
-
-                            <h4>4. 실질 방어력 및 생존 타수 공식</h4>
-                            <p>단순히 '피해 내성 %'만 보여주는 것을 넘어, 실질적인 데미지 감쇄 수치를 계산합니다. <br>
-                            <strong>최종 피격 데미지 = (적 타격 데미지 × 상대 피증 × 내 내성 감쇄율) - (내 방어력 / 10)</strong><br>
-                            아장 시뮬레이터는 이 공식을 바탕으로 내가 몬스터나 유저에게 몇 대를 더 버틸 수 있는지(EHP, 유효 생명력)를 직관적으로 분석합니다.</p>
-                        </div>
-                    </details>
-                </div> </div>     </div>
-        
-        
-      
-
-
-
-	<div id="tab-autoOpt" class="tab-content">
-
-    <details class="seo-guide-box" style="max-width: 1000px; margin: 0 auto 20px auto; background: #141418; border-color: #ff9800;">
-        <summary style="color: #ff9800; font-size: 15px;">⚠️ [알림] 테스트 중인 기능입니다. (클릭하여 설명 보기)</summary>
-        <div class="seo-content" style="color: #ccc; font-size: 13px; padding-top: 10px;">
-            <ul style="line-height: 1.8;">
-                <li><b>목표 설정:</b> PVE/PVP 딜 상승, 전투력 뻥튀기, 생존력 등 원하는 목표와 수치(%)를 설정하세요.</li>
-                <li><b>부위 선택:</b> 현재 장착 중인 장비 목록에서 <b>교체를 허용할 부위</b>만 체크하세요. (체크된 장비만 계산에 포함됩니다.)</li>
-                <li><b>필터 및 예산:</b> 원하는 등급과 획득처를 고르고, 강화 수치를 기존과 동일하게 갈지 고정할지 선택하세요.</li>
-                <li><b>알고리즘 실행:</b> 조건에 맞는 수만 가지 경우의 수를 계산하여 <b>최적의 가성비 템셋팅 조합</b>을 찾아냅니다.</li>
-            </ul>
-            <div style="margin-top: 15px; padding: 12px; background: rgba(255, 82, 82, 0.1); border-left: 3px solid #ff5252; border-radius: 4px; color: #ff5252; font-weight: bold; line-height: 1.5;">
-                🚨 주의: 본 자동 최적화 기능은 현재 Beta(테스트) 버전입니다.<br>
-                <span style="color:#ccc; font-weight:normal; font-size:12px;">아직 알고리즘 고도화 및 지속적인 업데이트가 필요한 기능이므로, 도출된 세팅 결과는 완벽하지 않을 수 있으며 반드시 참고용으로만 활용해 주시길 바랍니다!</span>
-            </div>
-        </div>
-    </details>
-    
-    <div class="c-window" style="max-width: 1000px; margin: 0 auto; padding: 30px;">
-        <div class="sec-title" style="font-size: 18px; margin-bottom: 20px; color:#00e676;">
-            <span>🤖 내 목표 기준 베스트 세팅 뽑기 (Beta)</span>
-        </div>
-
-        <div style="display:flex; gap:20px; align-items:flex-start;">
-            <div style="flex: 1; background:#141418; padding:20px; border-radius:8px; border:1px solid #333;">
-                <h3 style="color:#fff; font-size:14px; margin-top:0; border-bottom:1px dashed #444; padding-bottom:10px;">
-                    1. 변경을 허용할 장비 부위 선택
-                </h3>
-                <div style="font-size:11px; color:#888; margin-bottom:10px;">* 체크한 부위의 장비만 추천 대상에 포함됩니다.</div>
-                
-                <div id="optEquipSelection" style="display:flex; flex-direction:column; gap:8px; max-height:400px; overflow-y:auto; padding-right:5px;">
-                    <div style="text-align:center; padding:30px 0; color:#555;">캐릭터를 검색하면 내 장비가 나타납니다.</div>
-                </div>
-            </div>
-
-            <div style="flex: 1.2; background:#141418; padding:20px; border-radius:8px; border:1px solid #333;">
-                <h3 style="color:#ffca28; font-size:14px; margin-top:0; border-bottom:1px dashed #444; padding-bottom:10px;">
-                    2. 최적화 목표 및 필터 설정
-                </h3>
-
-                <div style="margin-bottom:15px;">
-                    <label style="color:#ffca28; font-size:12px; font-weight:bold;">🎯 최적화 목표</label>
-                    <select id="optGoal" class="sim-select" style="margin-top:5px; margin-bottom:10px;" onchange="toggleOptGoalInput()">
-                        <option value="pve">PVE 딜 상승</option>
-                        <option value="pvp">PVP 딜 상승</option>
-                        <option value="cp">전투력 뻥튀기</option>
-                        <option value="survive">PVP 생존</option>
-                    </select>
                     
-                    <div id="optTargetWrap" style="background:#0a0a0c; padding:10px; border-radius:6px; border:1px solid #444;">
-                        <label id="optTargetLabel" style="font-size:12px; color:#4fc3f7;">목표 딜 상승률 (%)</label>
-                        <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
-                            <input type="number" id="optTargetVal" class="sim-input" value="10" style="flex:1;">
-                            <span id="optTargetUnit" style="color:#888; font-weight:bold;">% 이상 상승</span>
-                        </div>
+                    <div id="totalRankingArea" style="min-height: 165px;">
+                        <div style="text-align:center; padding:50px 0; color:#aaa;">랭킹 데이터를 불러오는 중... ⏳</div>
+                    </div>
+                    
+                    <div style="margin-top:15px; font-size:11px; color:#666; text-align:center; line-height:1.4;">
+                        * 전 서버 통합 랭킹은 1시간 단위로 갱신됩니다.
                     </div>
                 </div>
-
-                <div style="margin-bottom:15px;">
-                    <label style="color:#ce93d8; font-size:12px; font-weight:bold;">🔍 추천 아이템 필터</label>
-                    <div style="background:#0a0a0c; padding:10px; border-radius:6px; border:1px solid #444; margin-top:5px; font-size:12px; color:#ccc;">
-                        <div style="display:flex; gap:15px; border-bottom:1px solid #222; padding-bottom:8px; margin-bottom:8px;">
-                            <span style="color:#fff; width:50px;">등급</span>
-                            <label class="filter-label"><input type="checkbox" id="optFilterUnique" checked> 유일</label>
-                            <label class="filter-label"><input type="checkbox" id="optFilterHero" checked> 영웅</label>
-                        </div>
-                        <div style="display:flex; gap:15px;">
-                            <span style="color:#fff; width:50px;">획득처</span>
-                            <label class="filter-label"><input type="checkbox" id="optFilterAbyss" checked> 어비스</label>
-                            <label class="filter-label"><input type="checkbox" id="optFilterCraft" checked> 제작</label>
-                            <label class="filter-label"><input type="checkbox" id="optFilterDungeon" checked> 원정/성역</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom:20px;">
-                    <label style="color:#4fc3f7; font-size:12px; font-weight:bold;">💰 예산 / 강화 제한</label>
-                    <select id="optBudget" class="sim-select" style="margin-top:5px;">
-                        <option value="inherit">기존 장비의 강화/돌파 수치 유지 (추천)</option>
-                        <option value="10">모든 추천 장비 +10강 고정</option>
-                        <option value="12">모든 추천 장비 +12강 고정</option>
-                        <option value="15">모든 추천 장비 +15강 고정</option>
-                    </select>
-                </div>
-
-                <button class="btn-apply" onclick="runAutoOptimization()" style="background:#00e676;">🚀 최적화 알고리즘 실행</button>
             </div>
         </div>
+    </div>
+</div>
 
-        <div id="optResultArea" style="display:none; margin-top:20px; background:#0a0a0c; border:1px solid #00e676; border-radius:8px; padding:20px; box-shadow: 0 0 20px rgba(0,230,118,0.1);">
-        </div>
-    </div> </div> <footer class="site-footer">
-  <div class="footer-links">
-    <a href="https://aion2.plaync.com/" target="_blank">AION2 공식 홈페이지</a> | 
-    <a href="about.html">사이트 소개</a> |
-    <a href="guide.html">사용법/FAQ</a> |
-    <a href="terms.html">이용약관</a> | 
-    <a href="privacy.html">개인정보처리방침</a> | 
-    <a href="disclaimer.html">면책/저작권 고지</a> |
-    <a href="https://discord.gg/sA7HDtyCW3" target="_blank">1:1 문의 (Discord)</a>
-  </div>
-
-  <div class="footer-copy">© 2026 AZANG (아장) - 아이온2 장비 시뮬레이터. All rights reserved.</div>
-
-  <div class="footer-desc">
-    본 사이트는 (주)엔씨소프트와 무관한 비공식 팬 사이트입니다.<br>
-    This site is not associated with NCsoft Corporation. AION2 is a trademark of NCSOFT.
-  </div>
+<footer class="site-footer">
+    <div class="footer-links">
+        <a href="https://aion2.plaync.com/" target="_blank">AION2 공식 홈페이지</a> | 
+        <a href="about.html">사이트 소개</a> |
+        <a href="guide.html">사용법/FAQ</a> |
+        <a href="terms.html">이용약관</a> | 
+        <a href="privacy.html">개인정보처리방침</a> | 
+        <a href="disclaimer.html">면책/저작권 고지</a> |
+        <a href="https://discord.gg/sA7HDtyCW3" target="_blank">1:1 문의 (Discord)</a>
+    </div>
+    <div class="footer-copy">© 2026 AZANG (아장) - 아이온2 장비 시뮬레이터. All rights reserved.</div>
+    <div class="footer-desc">
+        본 사이트는 (주)엔씨소프트와 무관한 비공식 팬 사이트입니다.<br>
+        This site is not associated with NCsoft Corporation. AION2 is a trademark of NCSOFT.
+    </div>
 </footer>
 
 <script src="js/common.js"></script>
 <script src="js/app.js"></script>
-
-
-
 <script src="js/state.js"></script>
 <script src="js/notice.js"></script>
-
 <script src="js/init.js"></script>
+
+<script>
+function goToSimulator() {
+    const charName = document.getElementById('charNameInput').value;
+    const server = document.getElementById('searchServer').value;
+    const faction = document.getElementById('searchFaction').value;
+
+    // 이름이 비어있으면 경고창 띄우기
+    if (!charName || charName.trim() === "") {
+        alert("캐릭터명을 입력해주세요.");
+        return;
+    }
+
+    // simulator.html 주소 뒤에 파라미터를 달아서 이동
+    window.location.href = `simulator.html?name=${encodeURIComponent(charName.trim())}&server=${encodeURIComponent(server)}&faction=${faction}`;
+}
+</script>
 
 </body>
 </html>
