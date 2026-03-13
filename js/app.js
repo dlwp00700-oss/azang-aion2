@@ -1432,7 +1432,18 @@ async function selectDictItem(id, name, savedEngravings = null) {
             loadDiv.innerHTML = `<span style="color:#4fc3f7; margin-right:4px;">[${fav.serverName}]</span> ${fav.charName}`;
             loadDiv.onmouseover = () => loadDiv.style.background = "#2a2a35";
             loadDiv.onmouseout = () => loadDiv.style.background = "transparent";
-            loadDiv.onclick = () => loadCharacterDetail(fav.charId, fav.serverId, fav.charName);
+            // 👇👇 여기서부터 수정 👇👇
+loadDiv.onclick = () => {
+    // 화면에 'tab-equip'(장비 시뮬레이터 탭)이 있는지 확인합니다.
+    if (document.getElementById('tab-equip')) {
+        // 1. 시뮬레이터 화면이면 기존처럼 바로 정보를 불러옵니다.
+        loadCharacterDetail(fav.charId, fav.serverId, fav.charName);
+    } else {
+        // 2. 홈 화면 등 다른 곳이면 시뮬레이터 화면으로 스무스하게 넘어갑니다!
+        window.location.href = `simulator.html?name=${encodeURIComponent(fav.charName)}&server=${encodeURIComponent(fav.serverId)}`;
+    }
+};
+// 👆👆 여기까지 수정 👆👆
             
             const delDiv = document.createElement('div');
             delDiv.style.cssText = "padding:6px 8px; cursor:pointer; background:#333; color:#ff5252; font-size:12px; display:flex; align-items:center; transition:0.2s;";
@@ -2869,5 +2880,6 @@ setInterval(() => {
     
 
 	
+
 
 
