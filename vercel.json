@@ -10,7 +10,7 @@
       "destination": "/api/cronStats.js"
     },
     {
-      "source": "/api/(.*)",
+      "source": "/api/:path*",
       "destination": "/api/index.js"
     }
   ],
