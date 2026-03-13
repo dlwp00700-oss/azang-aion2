@@ -55,7 +55,7 @@
                 <select id="searchServer">
                     <option value="">🌐 전체 서버 검색</option>
                 </select>
-                <input type="text" id="charNameInput" placeholder="캐릭터명을 입력하세요." onkeypress="if(event.keyCode==13) goToSimulator()">
+                <input type="text" id="homeCharNameInput" placeholder="캐릭터명을 입력하세요." onkeypress="if(event.keyCode==13) goToSimulator()">
                 <button class="btn-search" onclick="goToSimulator()">🔍 검색</button>
                 <span id="statusMsg" style="color: #aaa; margin-left: 10px; white-space: nowrap;">* 서버 연동 완료</span>
             </div>
@@ -133,7 +133,8 @@
 
 <script>
 function goToSimulator() {
-    const charName = document.getElementById('charNameInput').value;
+    // charNameInput 대신 변경한 homeCharNameInput을 가져옵니다.
+    const charName = document.getElementById('homeCharNameInput').value;
     const server = document.getElementById('searchServer').value;
     const faction = document.getElementById('searchFaction').value;
 
@@ -150,6 +151,7 @@ function goToSimulator() {
 
 </body>
 </html>
+
 
 
 
