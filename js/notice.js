@@ -9,6 +9,7 @@
 
  // 🚀 구글 스프레드시트에서 공지사항 불러오기 (최신글이 위로 오도록 역순 정렬 적용!)
     async function loadGoogleSheetNotices() {
+        if (!document.getElementById('patchNoteList')) return;
         const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS7KVEKjGV3ccGMUSWxOor2AIyNx8TQRY6xU0cvCQP7SJqZC9-Q9sDdVll-YYffrzIe3KR9hIO75LA-/pub?output=tsv'; 
         try {
             const response = await fetch(tsvUrl);
