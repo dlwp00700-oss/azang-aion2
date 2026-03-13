@@ -1512,6 +1512,8 @@ async function selectDictItem(id, name, savedEngravings = null) {
         const btnElyos = document.getElementById('btnRankElyos');
         const btnAsmo = document.getElementById('btnRankAsmo');
 
+		if (!rankArea) return;
+
         // 버튼 색상 초기화
         [btnAll, btnElyos, btnAsmo].forEach(btn => {
             if(btn) btn.style.cssText = "flex:1; padding:8px; background:#111; color:#888; border:1px solid #333; border-radius:4px; cursor:pointer; transition:0.2s;";
@@ -2867,4 +2869,5 @@ setInterval(() => {
     
 
 	
+
 
