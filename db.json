@@ -1381,7 +1381,7 @@
     "subStatRandom": true,
     "maxEnchantLevel": 20,
     "maxExceedEnchantLevel": 5,
-    "sources": []
+    "sources": ["성역"]
   },
   {
     "id": 210220015,
@@ -1544,7 +1544,7 @@
     "subStatRandom": true,
     "maxEnchantLevel": 20,
     "maxExceedEnchantLevel": 5,
-    "sources": []
+    "sources": ["성역"]
   },
   {
     "id": 210320015,
@@ -1707,7 +1707,7 @@
     "subStatRandom": true,
     "maxEnchantLevel": 20,
     "maxExceedEnchantLevel": 5,
-    "sources": []
+    "sources": ["성역"]
   },
   {
     "id": 310120018,
