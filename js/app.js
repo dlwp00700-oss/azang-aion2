@@ -521,14 +521,28 @@
             const data = await detailRes.json();
             
             const statList = data.stat?.statList || data.info?.stat?.statList || [];
-            
-            let cpStat = statList.find(s => s.type === "ItemLevel" || s.name === "아이템레벨");
-            document.getElementById('baseCp').value = cpStat ? cpStat.value : 0;
 
-            const setStat = (id, typeKey, nameKey) => {
-                let s = statList.find(x => x.type === typeKey || (x.name && x.name.includes(nameKey)));
-                if (s) document.getElementById(id).value = s.value;
-            };
+			// 기존 CP
+			let cpStat = statList.find(s => s.type === "ItemLevel" || s.name === "아이템레벨");
+			const oldCp = cpStat ? cpStat.value : 0;
+			document.getElementById('baseCp').value = oldCp;
+			
+			// 새 전투력
+			const combatPower =
+			    data.profile?.combatPower ??
+			    data.info?.profile?.combatPower ??
+			    0;
+			
+			// 화면 표시
+			const cpTextEl = document.getElementById('cpDisplayText');
+			if (cpTextEl) {
+			    cpTextEl.textContent = `CP ${oldCp} | 전투력 ${combatPower}`;
+			}
+			
+			const setStat = (id, typeKey, nameKey) => {
+			    let s = statList.find(x => x.type === typeKey || (x.name && x.name.includes(nameKey)));
+			    if (s) document.getElementById(id).value = s.value;
+			};
             
             setStat('basePower', 'STR', '위력');
             setStat('baseAgi', 'DEX', '민첩');
