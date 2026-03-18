@@ -533,10 +533,10 @@
 			    data.info?.profile?.combatPower ??
 			    0;
 			
-			// 화면 표시
-			const cpTextEl = document.getElementById('cpDisplayText');
-			if (cpTextEl) {
-			    cpTextEl.textContent = `CP ${oldCp} | 전투력 ${combatPower}`;
+			// 전투력 배지 표시
+			const officialCpEl = document.getElementById('officialCp');
+			if (officialCpEl) {
+			    officialCpEl.textContent = Number(combatPower || 0).toLocaleString();
 			}
 			
 			const setStat = (id, typeKey, nameKey) => {
