@@ -320,9 +320,9 @@
 
             if (catKey.startsWith('w_') || catKey === 'guarder') {
                 brkStats = [ {k:'atk', n:'공격력', v:30*brkLvl}, {k:'atkPct', n:'공격력 증가', v:1*brkLvl, pct:true} ];
-            } else if (['necklace', 'earring', 'ring'].includes(catKey)) {
-                brkStats = [ {k:'atk', n:'공격력', v:20*brkLvl}, {k:'def', n:'방어력', v:40*brkLvl}, {k:'atkPct', n:'공격력 증가', v:1*brkLvl, pct:true} ];
-            } else { 
+            } else if (['necklace', 'earring', 'ring', 'bracelet'].includes(catKey)) {
+			    brkStats = [ {k:'atk', n:'공격력', v:20*brkLvl}, {k:'def', n:'방어력', v:40*brkLvl}, {k:'atkPct', n:'공격력 증가', v:1*brkLvl, pct:true} ];
+			} else { 
                 brkStats = [ {k:'def', n:'방어력', v:80*brkLvl}, {k:'hp', n:'생명력', v:80*brkLvl}, {k:'defPct', n:'방어력 증가', v:1*brkLvl, pct:true} ];
             }
 
