@@ -98,11 +98,11 @@
         if(name.includes('공격력 증가')) return 'atkPct';
         if(name.includes('방어력 증가')) return 'defPct';
         if(name.includes('생명력 증가')) return 'hpPct';
-        if(name.includes('일반 피해 증폭') || name==='DamageAmplify') return 'amp';
         if(name.includes('무기 피해 증폭') || name==='AmplifyWeaponDamage') return 'wAmp';
-        if(name.includes('PVP 피해 증폭') || name==='PvPAmplifyDamage') return 'pvpAmp';
-        if(name.includes('PVE 피해 증폭') || name==='PvEAmplifyDamage') return 'pveAmp';
-        if(name.includes('치명타 피해 증폭') || name==='CriticalAmplifyDamage') return 'critDmg';
+		if(name.includes('PVP 피해 증폭') || name==='PvPAmplifyDamage') return 'pvpAmp';
+		if(name.includes('PVE 피해 증폭') || name==='PvEAmplifyDamage') return 'pveAmp';
+		if(name.includes('치명타 피해 증폭') || name==='CriticalAmplifyDamage') return 'critDmg';
+		if(name.includes('일반 피해 증폭') || name.includes('피해 증폭') || name==='DamageAmplify' || name==='AmplifyAllDamage') return 'amp';
         if(name==='공격력' || name==='WeaponFixingDamage' || name.includes('추가 공격력')) return 'atk';
         if(name==='명중' || name==='WeaponAccuracy') return 'acc';
         if(name==='치명타' || name==='Critical') return 'crit';
@@ -110,9 +110,9 @@
         if(name==='방어력' || name==='Defense' || name.includes('추가 방어력')) return 'def';
         if(name==='생명력' || name==='MaxHp') return 'hp';
         if(name==='정신력' || name==='MaxMp') return 'mp';
-        if(name==='일반 피해 내성' || name==='DamageResist') return 'genRes';
-        if(name.includes('PVE 피해 내성') || name==='PvEDamageResist' || name.includes('PVE 방어력')) return 'pveRes';
-        if(name.includes('PVP 피해 내성') || name==='PvPDamageResist') return 'pvpRes';
+        if(name.includes('PVE 피해 내성') || name.includes('PVE피해 내성') || name==='PvEDamageResist' || name.includes('PVE 방어력')) return 'pveRes';
+		if(name.includes('PVP 피해 내성') || name.includes('PVP피해 내성') || name==='PvPDamageResist') return 'pvpRes';
+		if(name==='일반 피해 내성' || name==='피해 내성' || name==='피해내성' || name==='DamageResist' || name==='DecreaseDamage') return 'genRes';
         if(name==='위력' || name==='STR') return 'power';
         if(name==='민첩' || name==='DEX') return 'agi';
         if(name==='정확' || name==='AGI') return 'acc_stat';
