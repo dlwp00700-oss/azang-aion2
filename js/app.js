@@ -947,7 +947,7 @@ async function selectDictItem(id, name, savedEngravings = null) {
         let bHtml = '';
         extracted.display.forEach(line => {
             let label = STAT_LABEL[line.name] || line.name;
-            let unit = (line.isFixed || line.forcePct || label.includes('%') || label.includes('증가') || label.includes('내성') || label.includes('증폭')) ? '%' : '';
+            let unit = (line.forcePct || label.includes('%') || label.includes('증가') || label.includes('내성') || label.includes('증폭')) ? '%' : '';
             let valText = '';
 
             if (line.isOrange) {
@@ -1020,7 +1020,7 @@ async function selectDictItem(id, name, savedEngravings = null) {
         let bHtml = '';
         extracted.display.forEach(line => {
             let label = STAT_LABEL[line.name] || line.name;
-            let unit = (line.isFixed || line.forcePct || label.includes('%') || label.includes('증가') || label.includes('내성') || label.includes('증폭')) ? '%' : '';
+            let unit = (line.forcePct || label.includes('%') || label.includes('증가') || label.includes('내성') || label.includes('증폭')) ? '%' : '';
             let valText = '';
 
             if (line.isOrange) {
